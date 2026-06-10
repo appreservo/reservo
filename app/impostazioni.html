@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impostazioni · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content">
+
+      <div class="tabs">
+        <button class="tab" data-tab="profilo">Profilo</button>
+        <button class="tab" data-tab="orari">Orari</button>
+        <button class="tab" data-tab="servizi">Servizi</button>
+        <button class="tab" data-tab="staff">Staff</button>
+        <button class="tab" data-tab="postazioni">Postazioni</button>
+        <button class="tab" data-tab="dati">Dati</button>
+      </div>
+
+      <!-- PROFILO -->
+      <div class="tab-content" id="tab-profilo">
+        <div class="card" style="max-width:640px">
+          <form id="profileForm">
+            <div class="field"><label>Nome attività</label><input type="text" id="pName" required></div>
+            <div class="field">
+              <label>Tipo di attività</label>
+              <select id="pType">
+                <option value="restaurant">Ristorante / Bar</option>
+                <option value="artisan">Artigiano / Estetista / Barbiere</option>
+                <option value="professional">Professionista / Studio medico</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Email</label><input type="email" id="pEmail"></div>
+              <div class="field"><label>Telefono</label><input type="text" id="pPhone"></div>
+            </div>
+            <div class="field"><label>Indirizzo</label><input type="text" id="pAddress"></div>
+            <div class="field"><label>Descrizione</label><textarea id="pDescription" rows="3"></textarea></div>
+            <div class="field">
+              <label>Modalità prenotazioni</label>
+              <select id="pBookingMode">
+                <option value="manual">Approvazione manuale</option>
+                <option value="auto">Conferma automatica</option>
+              </select>
+            </div>
+            <div class="field"><label>Email notifiche (separate da virgola)</label><input type="text" id="pNotifyEmails"></div>
+            <button type="submit" class="btn btn-primary">Salva profilo</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ORARI -->
+      <div class="tab-content" id="tab-orari">
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-header"><h2>Orari di apertura</h2></div>
+            <table>
+              <thead><tr><th>Giorno</th><th>Apertura</th><th>Chiusura</th><th>Chiuso</th></tr></thead>
+              <tbody id="hoursBody"></tbody>
+            </table>
+            <button class="btn btn-primary mt-3" id="saveHoursBtn">Salva orari</button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2>Chiusure straordinarie</h2>
+            </div>
+            <div id="closuresList" class="mb-3"></div>
+            <form id="closureForm" class="field-row" style="align-items:flex-end">
+              <div class="field"><label>Data</label><input type="date" id="cDate" required></div>
+              <div class="field"><label>Motivo</label><input type="text" id="cReason" placeholder="es. Ferie"></div>
+              <button type="submit" class="btn btn-outline" style="height:38px">+ Aggiungi</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVIZI -->
+      <div class="tab-content" id="tab-servizi">
+        <div class="card" style="max-width:640px">
+          <div class="card-header"><h2>Servizi offerti</h2><button class="btn btn-primary btn-sm" id="addServiceBtn">+ Aggiungi servizio</button></div>
+          <table><thead><tr><th>Nome</th><th>Durata (min)</th><th>Prezzo (€)</th><th></th></tr></thead><tbody id="servicesBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- STAFF -->
+      <div class="tab-content" id="tab-staff">
+        <div class="card" style="max-width:640px">
+          <div class="card-header"><h2>Staff</h2><button class="btn btn-primary btn-sm" id="addStaffBtn">+ Aggiungi persona</button></div>
+          <table><thead><tr><th>Nome</th><th>Ruolo</th><th></th></tr></thead><tbody id="staffBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- POSTAZIONI -->
+      <div class="tab-content" id="tab-postazioni">
+        <div class="card" style="max-width:640px">
+          <div class="card-header"><h2>Postazioni / Tavoli</h2><button class="btn btn-primary btn-sm" id="addTableBtn">+ Aggiungi postazione</button></div>
+          <table><thead><tr><th>Nome</th><th>Capienza</th><th></th></tr></thead><tbody id="tablesBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- DATI -->
+      <div class="tab-content" id="tab-dati">
+        <div class="card" style="max-width:640px">
+          <div class="card-header"><h2>Gestione dati locali</h2></div>
+          <p class="text-mid small">Tutti i dati di questa demo sono salvati nel browser (localStorage), nessun dato viene inviato a server esterni.</p>
+          <div class="flex gap-2 mt-3">
+            <button class="btn btn-outline" id="resetDemoBtn">Ripristina dati demo</button>
+            <button class="btn btn-danger" id="clearAllBtn">Cancella tutti i dati</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/db.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/impostazioni.js"></script>
+</body>
+</html>

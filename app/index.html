@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content">
+
+      <div class="grid grid-4 mb-3">
+        <div class="card stat-card">
+          <div class="stat-icon" data-icon="bookings"></div>
+          <div class="stat-label">Prenotazioni oggi</div>
+          <div class="stat-value" id="statToday">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon" data-icon="customers"></div>
+          <div class="stat-label">In attesa</div>
+          <div class="stat-value" id="statPending">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon" data-icon="stats"></div>
+          <div class="stat-label">Prenotazioni questa settimana</div>
+          <div class="stat-value" id="statWeek">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon" data-icon="customers"></div>
+          <div class="stat-label">Clienti totali</div>
+          <div class="stat-value" id="statCustomers">0</div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h2>Prossime prenotazioni</h2>
+            <a href="prenotazioni.html" class="btn btn-outline btn-sm">Vedi tutte</a>
+          </div>
+          <div id="upcomingList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Da approvare</h2>
+            <a href="prenotazioni.html" class="btn btn-outline btn-sm">Gestisci</a>
+          </div>
+          <div id="pendingList"></div>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-header"><h2>Riepilogo attività</h2></div>
+        <div class="grid grid-3">
+          <div>
+            <div class="small text-mid">Nome attività</div>
+            <div style="font-weight:800; color:var(--navy)" id="sumName">—</div>
+          </div>
+          <div>
+            <div class="small text-mid">Tipo</div>
+            <div style="font-weight:800; color:var(--navy)" id="sumType">—</div>
+          </div>
+          <div>
+            <div class="small text-mid">Modalità prenotazioni</div>
+            <div style="font-weight:800; color:var(--navy)" id="sumMode">—</div>
+          </div>
+          <div>
+            <div class="small text-mid">Voci menu/listino</div>
+            <div style="font-weight:800; color:var(--navy)" id="sumMenu">—</div>
+          </div>
+          <div>
+            <div class="small text-mid">Eventi in programma</div>
+            <div style="font-weight:800; color:var(--navy)" id="sumEvents">—</div>
+          </div>
+          <div>
+            <div class="small text-mid">Staff</div>
+            <div style="font-weight:800; color:var(--navy)" id="sumStaff">—</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>

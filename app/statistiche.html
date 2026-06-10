@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistiche · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content">
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2>Andamento prenotazioni</h2>
+          <select id="rangeSelect" style="width:auto">
+            <option value="7">Ultimi 7 giorni</option>
+            <option value="30" selected>Ultimi 30 giorni</option>
+            <option value="90">Ultimi 90 giorni</option>
+            <option value="365">Ultimo anno</option>
+          </select>
+        </div>
+        <canvas id="trendChart" height="90"></canvas>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><h2>Stato prenotazioni</h2></div>
+          <canvas id="statusChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Fasce orarie più richieste</h2></div>
+          <canvas id="hoursChart" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-3 mt-3">
+        <div class="card stat-card">
+          <div class="stat-label">Totale prenotazioni</div>
+          <div class="stat-value" id="kpiTotal">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Persone totali (confermate)</div>
+          <div class="stat-value" id="kpiPeople">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">Tasso di conferma</div>
+          <div class="stat-value" id="kpiRate">0%</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/statistiche.js"></script>
+</body>
+</html>

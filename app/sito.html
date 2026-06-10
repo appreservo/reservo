@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sito · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/public.css">
+</head>
+<body>
+
+<div class="demo-banner">
+  Anteprima del sito pubblico (demo) — <a href="index.html">torna al pannello gestionale</a>
+</div>
+
+<header class="site-header">
+  <a href="#top" class="brand">
+    <img src="assets/img/logo.png" alt="Reservo">
+    <span id="brandName">Reservo</span>
+  </a>
+  <button class="nav-burger" id="navBurger">☰</button>
+  <nav class="site-nav" id="siteNav">
+    <a href="#menu">Menu</a>
+    <a href="#prenota">Prenota</a>
+    <a href="#cerca">Le mie prenotazioni</a>
+    <a href="#eventi">Eventi</a>
+    <a href="#qr">QR Code</a>
+    <span class="status-badge" id="statusBadge"></span>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <h1 id="heroName">Reservo</h1>
+  <p id="heroDesc"></p>
+  <div class="meta">
+    <span id="heroAddress"></span>
+    <span id="heroPhone"></span>
+  </div>
+</section>
+
+<section class="section" id="menu">
+  <h2>Menu<span class="underline"></span></h2>
+  <div id="menuContainer"></div>
+</section>
+
+<section class="section" id="prenota">
+  <h2>Prenota un tavolo<span class="underline"></span></h2>
+  <div class="box">
+    <div id="bookingAlert"></div>
+    <form id="bookingForm">
+      <div class="field-row">
+        <div><label>Nome e cognome</label><input type="text" id="cName" required></div>
+        <div><label>Persone</label><input type="number" id="cParty" min="1" value="2" required></div>
+      </div>
+      <div class="field-row">
+        <div><label>Email</label><input type="email" id="cEmail" required></div>
+        <div><label>Telefono</label><input type="text" id="cPhone"></div>
+      </div>
+      <div class="field-row">
+        <div><label>Data</label><input type="date" id="cDate" required></div>
+        <div><label>Ora</label><input type="time" id="cTime" required></div>
+      </div>
+      <label>Note (opzionale)</label>
+      <textarea id="cNotes" rows="2"></textarea>
+      <button type="submit" class="btn btn-gold">Prenota</button>
+    </form>
+  </div>
+</section>
+
+<section class="section" id="cerca">
+  <h2>Le mie prenotazioni<span class="underline"></span></h2>
+  <div class="box">
+    <label>Cerca tramite email o telefono usati per la prenotazione</label>
+    <input type="text" id="searchContact" placeholder="email@esempio.it oppure 333 1234567">
+    <button type="button" class="btn btn-outline" id="searchBtn">Cerca</button>
+    <div id="searchResults" class="mt-3"></div>
+  </div>
+</section>
+
+<section class="section" id="eventi">
+  <h2>Eventi in programma<span class="underline"></span></h2>
+  <div id="eventsContainer" style="max-width:640px; margin:0 auto"></div>
+</section>
+
+<section class="section" id="qr">
+  <h2>QR Code<span class="underline"></span></h2>
+  <div class="box qr-box">
+    <p class="text-mid">Stampa questo QR code e mettilo in vetrina o sui tavoli: i clienti potranno consultare il menu e prenotare direttamente da smartphone.</p>
+    <div id="qrcode"></div>
+    <button type="button" class="btn btn-outline" id="downloadQr">Scarica QR code</button>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div id="footerName" class="accent" style="font-size:1.1rem"></div>
+  <div id="footerAddress"></div>
+  <div id="footerContacts"></div>
+  <div class="hours-table" id="hoursTable"></div>
+  <div style="margin-top:1rem; font-size:.78rem; opacity:.7">Demo realizzata con Reservo — © 2026</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/sito.js"></script>
+</body>
+</html>

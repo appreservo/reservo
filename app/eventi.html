@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eventi · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content">
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Eventi</h2>
+          <button class="btn btn-primary btn-sm" id="newEventBtn">+ Nuovo evento</button>
+        </div>
+        <div id="eventsList"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal evento -->
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <h3 id="eventModalTitle">Nuovo evento</h3>
+    <form id="eventForm">
+      <input type="hidden" id="eId">
+      <div class="field"><label>Titolo</label><input type="text" id="eTitle" required></div>
+      <div class="field"><label>Descrizione</label><textarea id="eDescription" rows="3"></textarea></div>
+      <div class="field-row">
+        <div class="field"><label>Data</label><input type="date" id="eDate" required></div>
+        <div class="field"><label>Ora</label><input type="time" id="eTime" required></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Luogo</label><input type="text" id="eLocation"></div>
+        <div class="field"><label>Posti massimi</label><input type="number" id="eMax" min="1" value="20"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" data-close>Annulla</button>
+        <button type="button" class="btn btn-danger" id="deleteEventBtn" style="display:none">Elimina</button>
+        <button type="submit" class="btn btn-primary">Salva</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal iscritti -->
+<div class="modal-overlay" id="regModal">
+  <div class="modal">
+    <h3 id="regModalTitle">Iscritti</h3>
+    <div id="regList" class="mb-3"></div>
+    <h4 class="text-navy" style="margin-bottom:.5rem">Aggiungi iscritto</h4>
+    <form id="regForm">
+      <div class="field-row">
+        <div class="field"><label>Nome</label><input type="text" id="rName" required></div>
+        <div class="field"><label>Persone</label><input type="number" id="rPeople" min="1" value="1" required></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Email</label><input type="email" id="rEmail"></div>
+        <div class="field"><label>Telefono</label><input type="text" id="rPhone"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" data-close>Chiudi</button>
+        <button type="submit" class="btn btn-primary">Aggiungi iscritto</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/db.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/eventi.js"></script>
+</body>
+</html>

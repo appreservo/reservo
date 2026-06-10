@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prenotazioni · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content">
+
+      <div class="card mb-3">
+        <div class="calendar-header">
+          <button class="btn btn-outline btn-sm" id="prevMonth">&larr; Mese prec.</button>
+          <h2 id="calTitle"></h2>
+          <button class="btn btn-outline btn-sm" id="nextMonth">Mese succ. &rarr;</button>
+        </div>
+        <div class="calendar-grid" id="calGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Tutte le prenotazioni</h2>
+          <div class="flex gap-2">
+            <select id="filterStatus" style="width:auto">
+              <option value="">Tutti gli stati</option>
+              <option value="pending">In attesa</option>
+              <option value="confirmed">Confermate</option>
+              <option value="rejected">Rifiutate</option>
+              <option value="cancelled">Annullate</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="newBookingBtn">+ Nuova prenotazione</button>
+          </div>
+        </div>
+        <div id="bookingsTable"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal: nuova/modifica prenotazione -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <h3 id="bookingModalTitle">Nuova prenotazione</h3>
+    <form id="bookingForm">
+      <input type="hidden" id="bookingId">
+      <div class="field-row">
+        <div class="field"><label>Nome cliente</label><input type="text" id="bCustomerName" required></div>
+        <div class="field"><label>Persone</label><input type="number" id="bPartySize" min="1" value="2" required></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Email</label><input type="email" id="bEmail"></div>
+        <div class="field"><label>Telefono</label><input type="text" id="bPhone"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Data</label><input type="date" id="bDate" required></div>
+        <div class="field"><label>Ora</label><input type="time" id="bTime" required></div>
+      </div>
+      <div class="field">
+        <label>Stato</label>
+        <select id="bStatus">
+          <option value="pending">In attesa</option>
+          <option value="confirmed">Confermata</option>
+          <option value="rejected">Rifiutata</option>
+          <option value="cancelled">Annullata</option>
+        </select>
+      </div>
+      <div class="field"><label>Note</label><textarea id="bNotes" rows="2"></textarea></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" data-close>Annulla</button>
+        <button type="button" class="btn btn-danger" id="deleteBookingBtn" style="display:none">Elimina</button>
+        <button type="submit" class="btn btn-primary">Salva</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: dettaglio giorno -->
+<div class="modal-overlay" id="dayModal">
+  <div class="modal">
+    <h3 id="dayModalTitle">Prenotazioni del giorno</h3>
+    <div id="dayModalList"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" data-close>Chiudi</button>
+      <button type="button" class="btn btn-primary" id="dayModalAdd">+ Nuova prenotazione</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/db.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/prenotazioni.js"></script>
+</body>
+</html>

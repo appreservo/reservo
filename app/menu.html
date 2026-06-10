@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu / Listino · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .menu-item { display:flex; gap:1rem; align-items:center; padding:.7rem 0; border-bottom:1px solid var(--border); }
+  .menu-item:last-child { border-bottom:none; }
+  .menu-item img, .menu-item .ph { width:56px; height:56px; border-radius:8px; object-fit:cover; background:var(--cream); flex-shrink:0; }
+  .menu-item .ph { display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:1.4rem; font-weight:800; }
+  .menu-item .info { flex:1; }
+  .menu-item .info h4 { margin:0 0 .15rem; color:var(--navy); }
+  .menu-item .price { font-weight:800; color:var(--navy); white-space:nowrap; }
+  .allergen-tags { display:flex; flex-wrap:wrap; gap:.25rem; margin-top:.3rem; }
+  .category-block { margin-bottom: 1.5rem; }
+  .category-block h3 { color: var(--gold); border-bottom: 2px solid var(--gold); display:inline-block; padding-bottom:.2rem; margin-bottom:.4rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content">
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Menu / Listino</h2>
+          <div class="flex gap-2">
+            <select id="filterCategory" style="width:auto"><option value="">Tutte le categorie</option></select>
+            <button class="btn btn-primary btn-sm" id="newItemBtn">+ Nuova voce</button>
+          </div>
+        </div>
+        <div id="menuList"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="itemModal">
+  <div class="modal">
+    <h3 id="itemModalTitle">Nuova voce</h3>
+    <form id="itemForm">
+      <input type="hidden" id="iId">
+      <div class="field">
+        <label>Categoria</label>
+        <input type="text" id="iCategory" list="categoryList" placeholder="es. Antipasti" required>
+        <datalist id="categoryList"></datalist>
+      </div>
+      <div class="field"><label>Nome voce</label><input type="text" id="iName" required></div>
+      <div class="field"><label>Descrizione</label><textarea id="iDescription" rows="2"></textarea></div>
+      <div class="field-row">
+        <div class="field"><label>Prezzo (€)</label><input type="number" id="iPrice" step="0.01" min="0" required></div>
+        <div class="field">
+          <label>Foto</label>
+          <input type="file" id="iPhoto" accept="image/*">
+        </div>
+      </div>
+      <div class="field">
+        <label>Allergeni</label>
+        <div class="allergen-tags" id="allergenChecks"></div>
+      </div>
+      <div class="field checkbox-row">
+        <input type="checkbox" id="iAvailable" checked>
+        <label for="iAvailable" style="margin:0">Disponibile</label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" data-close>Annulla</button>
+        <button type="button" class="btn btn-danger" id="deleteItemBtn" style="display:none">Elimina</button>
+        <button type="submit" class="btn btn-primary">Salva</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/db.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/menu.js"></script>
+</body>
+</html>

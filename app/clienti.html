@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clienti · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content">
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Clienti</h2>
+          <input type="search" id="searchInput" placeholder="Cerca per nome, email o telefono..." style="width:280px">
+        </div>
+        <div id="customersTable"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal storico cliente -->
+<div class="modal-overlay" id="customerModal">
+  <div class="modal">
+    <h3 id="customerModalTitle">Cliente</h3>
+    <div id="customerModalBody"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" data-close>Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/db.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/clienti.js"></script>
+</body>
+</html>
