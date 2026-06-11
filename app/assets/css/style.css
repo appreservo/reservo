@@ -339,3 +339,18 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
   .menu-btn { display: block; }
   .field-row { flex-direction: column; gap: 0; }
 }
+
+@media (max-width: 640px) {
+  .content { padding: 1rem; }
+  .topbar { padding: .7rem 1rem; flex-wrap: wrap; row-gap: .6rem; }
+  .topbar h1 { font-size: 1rem; }
+  .topbar-actions { width: 100%; flex-wrap: wrap; gap: .5rem; }
+  .topbar-actions .badge { display: none; }
+  .grid-4, .grid-3 { grid-template-columns: 1fr; }
+  .card { padding: 1rem; overflow-x: auto; }
+  .card table { min-width: 520px; }
+  .calendar-grid { gap: 4px; }
+  .calendar-cell { min-height: 60px; padding: .25rem; }
+  .cal-pill { font-size: .6rem; }
+  .modal { padding: 1.1rem; }
+}
