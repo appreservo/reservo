@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-12 (Registrazione: cliente come scelta predefinita)
+- `login.html`: rimosso il selettore "Gestisco un'attività / Sono un cliente" in evidenza — la registrazione predefinita è ora per un cliente. In basso, vicino a "Torna al login", un piccolo link "Sei un'attività?" mostra i campi attività e cambia il ruolo selezionato (e torna a "Sei un cliente?" per invertire la scelta).
+
 ## 2026-06-12 (Fase 5: gestionale legge le prenotazioni dal sito pubblico)
 - `auth.js`: nuove funzioni `getBusinessBookings(businessUid)` (tutte le prenotazioni della collezione `bookings` per un'attività), `updateBooking(bookingId, payload)` (modifica generica) e `deleteBooking(bookingId)`.
 - `db.js`: nuova funzione `loadAllBookings()` che unisce le prenotazioni del gestionale (`businessData.bookings`) con quelle scritte dal sito pubblico (`bookings`), con cache in memoria; `getCustomers` ora accetta un array di prenotazioni invece dell'intero oggetto `data`.

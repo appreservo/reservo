@@ -54,11 +54,6 @@
     <form id="registerForm" class="hidden">
       <p class="text-mid small mb-3">Crea un nuovo account Reservo.</p>
 
-      <div class="role-toggle">
-        <button type="button" class="role-btn active" id="roleGestoreBtn" data-role="gestore">Gestisco un'attività</button>
-        <button type="button" class="role-btn" id="roleClienteBtn" data-role="cliente">Sono un cliente</button>
-      </div>
-
       <div class="field">
         <label>Nome e cognome</label>
         <input type="text" id="regName" autocomplete="name" required>
@@ -78,7 +73,7 @@
         </div>
       </div>
 
-      <div id="businessFields">
+      <div id="businessFields" class="hidden">
         <div class="field">
           <label>Nome attività</label>
           <input type="text" id="regBusinessName" autocomplete="organization">
@@ -97,6 +92,7 @@
       <button type="submit" class="btn btn-primary w-full" id="registerSubmit">Crea account</button>
       <p class="login-forgot">
         <a href="#" id="backToLoginFromRegisterLink">Torna al login</a>
+        · <a href="#" id="roleToggleLink">Sei un'attività?</a>
       </p>
     </form>
   </div>
@@ -177,15 +173,15 @@
   const registerSubmit = document.getElementById('registerSubmit');
   const registerLink = document.getElementById('registerLink');
   const backToLoginFromRegisterLink = document.getElementById('backToLoginFromRegisterLink');
-  const roleGestoreBtn = document.getElementById('roleGestoreBtn');
-  const roleClienteBtn = document.getElementById('roleClienteBtn');
+  const roleToggleLink = document.getElementById('roleToggleLink');
   const businessFields = document.getElementById('businessFields');
-  let selectedRole = 'gestore';
+  let selectedRole = 'cliente';
 
   registerLink.addEventListener('click', (e) => {
     e.preventDefault();
     form.classList.add('hidden');
     registerForm.classList.remove('hidden');
+    setRole('cliente');
   });
 
   backToLoginFromRegisterLink.addEventListener('click', (e) => {
@@ -197,12 +193,13 @@
 
   function setRole(role) {
     selectedRole = role;
-    roleGestoreBtn.classList.toggle('active', role === 'gestore');
-    roleClienteBtn.classList.toggle('active', role === 'cliente');
     businessFields.classList.toggle('hidden', role !== 'gestore');
+    roleToggleLink.textContent = role === 'gestore' ? 'Sei un cliente?' : "Sei un'attività?";
   }
-  roleGestoreBtn.addEventListener('click', () => setRole('gestore'));
-  roleClienteBtn.addEventListener('click', () => setRole('cliente'));
+  roleToggleLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    setRole(selectedRole === 'gestore' ? 'cliente' : 'gestore');
+  });
 
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();

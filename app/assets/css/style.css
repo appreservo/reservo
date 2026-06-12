@@ -344,13 +344,6 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
 .login-forgot a { color: var(--text-mid); text-decoration: none; }
 .login-forgot a:hover { color: var(--navy); text-decoration: underline; }
 .hidden { display: none !important; }
-.role-toggle { display: flex; gap: .6rem; margin-bottom: 1.2rem; }
-.role-btn {
-  flex: 1; padding: .7rem .5rem; border: 1px solid var(--border); border-radius: 8px;
-  background: var(--white); color: var(--text-mid); font-family: inherit;
-  font-weight: 700; font-size: .85rem; cursor: pointer; transition: border-color .15s, color .15s, background .15s;
-}
-.role-btn.active { border-color: var(--gold); color: var(--navy); background: rgba(201,162,39,.1); }
 .login-hint {
   margin-top: 1.2rem;
   padding-top: 1rem;
