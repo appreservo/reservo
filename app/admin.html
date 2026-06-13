@@ -50,8 +50,13 @@
   <div class="card mb-3">
     <div class="card-header">
       <h2>Crescita registrazioni attività</h2>
+      <select id="growthPeriodFilter">
+        <option value="week">Settimana</option>
+        <option value="month" selected>Mese</option>
+        <option value="year">Anno</option>
+      </select>
     </div>
-    <canvas id="growthChart" height="90"></canvas>
+    <canvas id="growthChart" height="70"></canvas>
   </div>
 
   <div class="card mb-3">

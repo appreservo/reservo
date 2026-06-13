@@ -6,10 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const businessStatusFilter = document.getElementById('businessStatusFilter');
   const reviewsTable = document.getElementById('reviewsTable');
   const reviewStatusFilter = document.getElementById('reviewStatusFilter');
+  const growthPeriodFilter = document.getElementById('growthPeriodFilter');
   const logoutBtn = document.getElementById('logoutBtn');
 
   let allBusinesses = [];
   let allReviews = [];
+  let allGestori = [];
 
   logoutBtn.addEventListener('click', () => window.reservoAuth.logout());
 
@@ -146,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
   businessSearch.addEventListener('input', () => renderBusinesses(allBusinesses));
   businessStatusFilter.addEventListener('change', () => renderBusinesses(allBusinesses));
   reviewStatusFilter.addEventListener('change', () => renderReviews(allReviews));
+  growthPeriodFilter.addEventListener('change', () => renderGrowthChart(allGestori));
 
   let growthChart;
 
@@ -159,17 +162,43 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('statBookings').textContent = bookingsCount;
   }
 
+  function getISOWeek(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const day = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - day);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    return { year: date.getUTCFullYear(), week };
+  }
+
   function renderGrowthChart(users) {
+    const period = growthPeriodFilter.value;
+    const MONTHS = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
     const counts = new Map();
     users.forEach(u => {
       const d = u.createdAt && u.createdAt.toDate ? u.createdAt.toDate() : null;
       if (!d) return;
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      let key;
+      if (period === 'week') {
+        const { year, week } = getISOWeek(d);
+        key = `${year}-W${String(week).padStart(2, '0')}`;
+      } else if (period === 'year') {
+        key = `${d.getFullYear()}`;
+      } else {
+        key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      }
       counts.set(key, (counts.get(key) || 0) + 1);
     });
-    const labels = Array.from(counts.keys()).sort();
-    const MONTHS = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
-    const niceLabels = labels.map(k => { const [y, m] = k.split('-'); return `${MONTHS[parseInt(m, 10) - 1]} ${y}`; });
+    let labels = Array.from(counts.keys()).sort();
+    if (period === 'week') labels = labels.slice(-12);
+    let niceLabels;
+    if (period === 'week') {
+      niceLabels = labels.map(k => { const [y, w] = k.split('-W'); return `Sett. ${w} '${y.slice(2)}`; });
+    } else if (period === 'year') {
+      niceLabels = labels;
+    } else {
+      niceLabels = labels.map(k => { const [y, m] = k.split('-'); return `${MONTHS[parseInt(m, 10) - 1]} ${y}`; });
+    }
     const data = labels.map(k => counts.get(k));
 
     if (growthChart) growthChart.destroy();
@@ -190,10 +219,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ]);
     allBusinesses = businesses;
     allReviews = reviews;
+    allGestori = gestori;
     renderPending(pending);
     renderBusinesses(allBusinesses);
     renderStats(businesses, bookingsCount);
-    renderGrowthChart(gestori);
+    renderGrowthChart(allGestori);
     renderReviews(allReviews);
   }
 
