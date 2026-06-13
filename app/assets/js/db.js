@@ -39,7 +39,43 @@ function typeLabel(t) {
   return { restaurant: 'Ristorante / Bar', artisan: 'Artigiano / Estetista', professional: 'Professionista / Studio' }[t] || t;
 }
 
-function defaultData() {
+/* dati vuoti per un nuovo account: solo il profilo, personalizzato con i dati di registrazione */
+function emptyData(profile = {}) {
+  return {
+    profile: {
+      business_name: profile.businessName || '',
+      type: profile.businessType || 'restaurant',
+      slug: profile.businessName ? slugify(profile.businessName) : '',
+      email: profile.email || '',
+      phone: '',
+      address: '',
+      description: '',
+      booking_mode: 'manual',
+      notification_emails: profile.email || '',
+      loyalty_points_per_booking: 10,
+    },
+    coupons: [],
+    hours: [
+      { day: 0, open: '09:00', close: '18:00', closed: false },
+      { day: 1, open: '09:00', close: '18:00', closed: false },
+      { day: 2, open: '09:00', close: '18:00', closed: false },
+      { day: 3, open: '09:00', close: '18:00', closed: false },
+      { day: 4, open: '09:00', close: '18:00', closed: false },
+      { day: 5, open: '09:00', close: '18:00', closed: false },
+      { day: 6, open: '00:00', close: '00:00', closed: true },
+    ],
+    closures: [],
+    menu: [],
+    services: [],
+    tables: [],
+    staff: [],
+    events: [],
+    bookings: [],
+  };
+}
+
+/* dati di esempio (demo "Ristorante Da Mario"), usati solo dal pulsante "Ripristina dati di esempio" */
+function demoData() {
   const today = new Date();
 
   return {
@@ -191,7 +227,7 @@ async function loadData() {
   if (remote) {
     _dataCache = remote;
   } else {
-    _dataCache = defaultData();
+    _dataCache = emptyData(window.reservoAuth.currentProfile);
     await window.reservoAuth.saveBusinessData(uid, _dataCache);
   }
   return _dataCache;
@@ -208,7 +244,7 @@ function saveData(data) {
 
 async function resetDemoData() {
   const uid = window.reservoAuth.auth.currentUser.uid;
-  _dataCache = defaultData();
+  _dataCache = demoData();
   await window.reservoAuth.saveBusinessData(uid, _dataCache);
   await window.reservoAuth.savePublicBusinessData(uid, buildPublicData(_dataCache));
   return _dataCache;
@@ -216,7 +252,7 @@ async function resetDemoData() {
 
 async function clearAllData() {
   const uid = window.reservoAuth.auth.currentUser.uid;
-  const data = _dataCache || defaultData();
+  const data = _dataCache || emptyData(window.reservoAuth.currentProfile);
   data.menu = [];
   data.bookings = [];
   data.events = [];
