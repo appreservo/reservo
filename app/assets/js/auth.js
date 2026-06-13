@@ -172,10 +172,30 @@ async function listPendingAccounts() {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-function approveAccount(uid) {
+function slugify(text) {
+  return text
+    .toString()
+    .normalize('NFD').replace(new RegExp('[̀-ͯ]', 'g'), '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+async function approveAccount(uid) {
+  const profile = await getUserProfile(uid);
+  const bizSnap = await getDoc(doc(db, 'businesses', uid));
+  const biz = bizSnap.exists() ? bizSnap.data() : {};
+
+  const businessUpdate = { status: 'active' };
+  if (!biz.business_name && profile?.businessName) businessUpdate.business_name = profile.businessName;
+  if (!biz.type && profile?.businessType) businessUpdate.type = profile.businessType;
+  if (!biz.email && profile?.email) businessUpdate.email = profile.email;
+  if (!biz.slug && profile?.businessName) businessUpdate.slug = slugify(profile.businessName);
+
   return Promise.all([
     setDoc(doc(db, 'users', uid), { status: 'active' }, { merge: true }),
-    setDoc(doc(db, 'businesses', uid), { status: 'active' }, { merge: true }),
+    setDoc(doc(db, 'businesses', uid), businessUpdate, { merge: true }),
   ]);
 }
 
