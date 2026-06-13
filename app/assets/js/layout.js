@@ -82,11 +82,10 @@ function renderLayout(pageTitle, data) {
 
   const topbarHtml = `
     <div class="flex items-center gap-3">
-      <button class="btn btn-outline btn-sm logout-btn-mobile" id="logoutBtnMobile">Esci</button>
       <button class="menu-btn" id="menuToggle">${ICONS.menuburger}</button>
       <div class="topbar-brand">
         <img src="assets/img/logo.png" alt="Reservo">
-        <span class="topbar-brand-text">
+        <span class="topbar-brand-text topbar-brand-text--app">
           <span class="topbar-brand-name">Reservo</span>
           <span class="js-user-name"></span>
         </span>
@@ -94,9 +93,9 @@ function renderLayout(pageTitle, data) {
       <h1>${pageTitle}</h1>
     </div>
     <div class="topbar-actions">
-      <a href="${siteHref}" target="_blank" class="btn btn-outline btn-sm">${ICONS.external} Anteprima sito</a>
+      <a href="${siteHref}" target="_blank" class="btn btn-outline btn-sm">${ICONS.external} <span class="btn-label">Anteprima sito</span></a>
       <div class="badge badge-navy">${data && data.profile ? data.profile.business_name : ''}</div>
-      <button class="btn btn-outline btn-sm logout-btn-desktop" id="logoutBtn">Esci</button>
+      <button class="btn btn-outline btn-sm" id="logoutBtn">Esci</button>
     </div>`;
 
   document.getElementById('sidebar').innerHTML = sidebarHtml;
@@ -128,7 +127,7 @@ function renderLayout(pageTitle, data) {
     setSidebarOpen(false);
   });
 
-  document.querySelectorAll('#logoutBtn, #logoutBtnMobile').forEach(btn => btn.addEventListener('click', () => window.reservoAuth.logout()));
+  document.getElementById('logoutBtn').addEventListener('click', () => window.reservoAuth.logout());
 
   fillIcons();
 }

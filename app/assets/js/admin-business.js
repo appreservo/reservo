@@ -1,6 +1,6 @@
 /* Reservo - pannello admin: dettaglio attività */
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('#logoutBtn, #logoutBtnMobile').forEach(btn => btn.addEventListener('click', () => window.reservoAuth.logout()));
+  document.getElementById('logoutBtn').addEventListener('click', () => window.reservoAuth.logout());
 
   const uid = new URLSearchParams(location.search).get('uid');
   const loadingState = document.getElementById('loadingState');
