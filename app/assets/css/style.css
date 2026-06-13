@@ -179,6 +179,8 @@ table { width: 100%; border-collapse: collapse; font-size: .9rem; }
 th, td { text-align: left; padding: .65rem .6rem; border-bottom: 1px solid var(--border); }
 th { color: var(--text-mid); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 800; }
 tbody tr:hover { background: var(--cream); }
+tr.row-link { cursor: pointer; }
+.card-header input[type="search"], .card-header select { width: auto; }
 
 /* ---------- BADGES ---------- */
 .badge {

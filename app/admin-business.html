@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it" class="auth-pending">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dettaglio attività · Reservo Admin</title>
+<link rel="icon" href="assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>html.auth-pending body { visibility: hidden; }</style>
+<script type="module">
+  import { requireAdmin } from './assets/js/auth.js';
+  requireAdmin();
+</script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-brand">
+    <img src="assets/img/logo.png" alt="Reservo">
+    <span class="topbar-brand-text">
+      <span class="topbar-brand-name">Reservo · Admin</span>
+      <span class="js-user-name"></span>
+    </span>
+  </div>
+  <div class="topbar-actions">
+    <a class="btn btn-outline btn-sm" href="admin.html">&larr; Torna all'elenco</a>
+    <button class="btn btn-outline btn-sm" id="logoutBtn">Esci</button>
+  </div>
+</header>
+<main class="content">
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <h2 id="businessTitle">Dettaglio attività</h2>
+      <span id="businessStatusBadge"></span>
+    </div>
+
+    <div id="loadingState" class="empty-state">Caricamento…</div>
+
+    <form id="businessForm" class="hidden">
+      <div class="grid grid-2">
+        <div>
+          <label for="businessName">Nome attività</label>
+          <input type="text" id="businessName" required>
+        </div>
+        <div>
+          <label for="businessType">Tipo attività</label>
+          <select id="businessType">
+            <option value="restaurant">Ristorante / Bar</option>
+            <option value="artisan">Artigiano / Estetista</option>
+            <option value="professional">Professionista / Studio</option>
+          </select>
+        </div>
+        <div>
+          <label for="businessEmail">Email</label>
+          <input type="email" id="businessEmail">
+        </div>
+        <div>
+          <label for="businessSlug">Slug (URL pubblico)</label>
+          <input type="text" id="businessSlug">
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button type="submit" class="btn btn-gold" id="saveBtn">Salva modifiche</button>
+        <button type="button" class="btn btn-outline" id="toggleStatusBtn"></button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card hidden" id="referenteCard">
+    <div class="card-header">
+      <h2>Referente</h2>
+    </div>
+    <div class="grid grid-2">
+      <div><label>Nome</label><div id="referenteName">—</div></div>
+      <div><label>Email account</label><div id="referenteEmail">—</div></div>
+      <div><label>Registrato il</label><div id="referenteCreatedAt">—</div></div>
+    </div>
+  </div>
+
+</main>
+<script src="assets/js/db.js"></script>
+<script src="assets/js/admin-business.js"></script>
+<script type="module" src="assets/js/feedback-widget.js"></script>
+</body>
+</html>

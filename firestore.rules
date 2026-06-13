@@ -36,6 +36,13 @@ service cloud.firestore {
          isAdmin());
     }
 
+    match /reviews/{reviewId} {
+      allow create: if request.auth != null;
+      allow read: if true;
+      allow update, delete: if request.auth != null &&
+        (resource.data.businessUid == request.auth.uid || isAdmin());
+    }
+
     match /feedback/{id} {
       allow create: if true;
       allow read, update, delete: if false;

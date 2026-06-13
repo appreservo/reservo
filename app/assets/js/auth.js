@@ -45,6 +45,11 @@ function upsertBusinessDirectory(uid, business) {
   return setDoc(doc(db, 'businesses', uid), { ...business, updatedAt: serverTimestamp() }, { merge: true });
 }
 
+async function getBusinessDirectory(uid) {
+  const snap = await getDoc(doc(db, 'businesses', uid));
+  return snap.exists() ? snap.data() : null;
+}
+
 async function getBusinessData(uid) {
   const snap = await getDoc(doc(db, 'businessData', uid));
   return snap.exists() ? snap.data() : null;
@@ -125,6 +130,12 @@ async function getBusinessReviews(businessUid) {
 
 async function getApprovedReviews(businessUid) {
   const snap = await getDocs(query(collection(db, 'reviews'), where('businessUid', '==', businessUid), where('status', '==', 'approved')));
+  return snap.docs.map(d => ({ ...d.data(), id: d.id }));
+}
+
+/* tutte le recensioni di tutte le attività (pannello admin) */
+async function listAllReviews() {
+  const snap = await getDocs(collection(db, 'reviews'));
   return snap.docs.map(d => ({ ...d.data(), id: d.id }));
 }
 
@@ -261,23 +272,23 @@ function requireAdmin() {
 
 window.reservoAuth = {
   auth, db, login, register, logout, requireAuth, requireAdmin, resetPassword,
-  createUserProfile, getUserProfile, upsertBusinessDirectory, listBusinesses, listAllBusinesses,
+  createUserProfile, getUserProfile, upsertBusinessDirectory, getBusinessDirectory, listBusinesses, listAllBusinesses,
   getBusinessData, saveBusinessData, getPublicBusinessData, savePublicBusinessData, getBusinessBySlug,
   createPublicBooking, getCustomerBookings, getBusinessBookingsForDate, getBusinessBookings,
   updateBookingStatus, updateBooking, deleteBooking, whoAmI,
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
-  createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, updateReviewStatus, deleteReview,
+  createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
   serverTimestamp,
 };
 export {
   auth, db, login, register, logout, requireAuth, requireAdmin, resetPassword,
-  createUserProfile, getUserProfile, upsertBusinessDirectory, listBusinesses, listAllBusinesses,
+  createUserProfile, getUserProfile, upsertBusinessDirectory, getBusinessDirectory, listBusinesses, listAllBusinesses,
   getBusinessData, saveBusinessData, getPublicBusinessData, savePublicBusinessData, getBusinessBySlug,
   createPublicBooking, getCustomerBookings, getBusinessBookingsForDate, getBusinessBookings,
   updateBookingStatus, updateBooking, deleteBooking, whoAmI,
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
-  createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, updateReviewStatus, deleteReview,
+  createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
   serverTimestamp,
 };

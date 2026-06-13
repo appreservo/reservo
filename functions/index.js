@@ -176,6 +176,42 @@ exports.sendBookingReminders = onSchedule(
 );
 
 /**
+ * Quando un account gestore passa da "pending" a "active" o "rejected"
+ * (approvazione/rifiuto da parte dell'admin), invia una email di notifica
+ * all'indirizzo dell'account.
+ */
+exports.onGestoreStatusChanged = onDocumentUpdated(
+  { document: 'users/{uid}', secrets: [RESEND_API_KEY] },
+  async (event) => {
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+    if (!after || after.role !== 'gestore') return;
+    if (before.status === after.status) return;
+    if (!['active', 'rejected'].includes(after.status)) return;
+    if (!after.email) return;
+
+    const isApproved = after.status === 'active';
+    await sendEmail({
+      to: after.email,
+      subject: isApproved ? 'La tua attività è stata approvata - Reservo' : 'Aggiornamento sulla tua richiesta - Reservo',
+      html: isApproved
+        ? `
+          <p>Ciao ${after.name || ''},</p>
+          <p>Buone notizie! La registrazione di <strong>${after.businessName || 'la tua attività'}</strong> su Reservo è stata <strong>approvata</strong>.</p>
+          <p>Puoi accedere al gestionale per iniziare a configurare il tuo profilo.</p>
+          <p>Grazie, il team di Reservo</p>
+        `
+        : `
+          <p>Ciao ${after.name || ''},</p>
+          <p>Siamo spiacenti, la richiesta di registrazione di <strong>${after.businessName || 'la tua attività'}</strong> su Reservo non è stata accettata.</p>
+          <p>Per maggiori informazioni puoi contattare il nostro supporto.</p>
+          <p>Grazie, il team di Reservo</p>
+        `,
+    });
+  }
+);
+
+/**
  * Quando un'attività crea una comunicazione broadcast (collezione "broadcasts"),
  * invia il messaggio via email a tutti i clienti che hanno una prenotazione
  * presso quell'attività, poi aggiorna lo stato del documento.

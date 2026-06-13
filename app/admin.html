@@ -61,11 +61,33 @@
     <div id="pendingTable"></div>
   </div>
 
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-header">
       <h2>Attività registrate</h2>
+      <div class="flex gap-2">
+        <input type="search" id="businessSearch" placeholder="Cerca per nome o email…">
+        <select id="businessStatusFilter">
+          <option value="">Tutti gli stati</option>
+          <option value="active">Attive</option>
+          <option value="pending">In attesa</option>
+          <option value="rejected">Rifiutate</option>
+        </select>
+      </div>
     </div>
     <div id="businessTable"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Moderazione recensioni</h2>
+      <select id="reviewStatusFilter">
+        <option value="">Tutte</option>
+        <option value="pending">In attesa</option>
+        <option value="approved">Approvate</option>
+        <option value="rejected">Rifiutate</option>
+      </select>
+    </div>
+    <div id="reviewsTable"></div>
   </div>
 
 </main>
