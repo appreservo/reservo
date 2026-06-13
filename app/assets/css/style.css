@@ -414,7 +414,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
   .calendar-cell { min-height: 60px; padding: .25rem; }
   .cal-pill { font-size: .6rem; }
   .modal { padding: 1.1rem; }
-  .card-header > .flex { flex-wrap: wrap; row-gap: .5rem; }
+  .card-header > .flex { flex-wrap: nowrap; gap: .5rem; }
+  .card-header > .flex input[type="search"], .card-header > .flex select { min-width: 0; flex: 1; }
   .card-header > select { width: 100%; min-width: 0; }
   .flex.justify-between.items-center { flex-wrap: wrap; row-gap: .4rem; }
   .flex.justify-between.items-center select { width: 100% !important; }
