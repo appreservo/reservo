@@ -6,12 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const businessStatusFilter = document.getElementById('businessStatusFilter');
   const reviewsTable = document.getElementById('reviewsTable');
   const reviewStatusFilter = document.getElementById('reviewStatusFilter');
-  const logoutBtn = document.getElementById('logoutBtn');
-
   let allBusinesses = [];
   let allReviews = [];
 
-  logoutBtn.addEventListener('click', () => window.reservoAuth.logout());
+  document.querySelectorAll('#logoutBtn, #logoutBtnMobile').forEach(btn => btn.addEventListener('click', () => window.reservoAuth.logout()));
 
   function renderPending(list) {
     if (!list.length) {
