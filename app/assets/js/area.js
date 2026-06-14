@@ -24,14 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     listEl.innerHTML = filtered.map(b => `
-      <div class="card">
+      <a class="card" href="sito.html?b=${encodeURIComponent(b.slug)}" style="text-decoration:none; color:inherit; display:block">
         <div class="card-header">
           <h3>${escapeHtml(b.business_name || 'Attività')}</h3>
           <span class="badge badge-navy">${typeLabel(b.type)}</span>
         </div>
         ${b.address ? `<p class="text-mid small mb-3">${escapeHtml(b.address)}</p>` : ''}
         ${b.description ? `<p class="small">${escapeHtml(b.description)}</p>` : ''}
-      </div>
+      </a>
     `).join('');
   }
 
