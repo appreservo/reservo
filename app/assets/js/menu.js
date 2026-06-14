@@ -1,6 +1,8 @@
 (async function () {
   const data = await loadData();
-  renderLayout('Menu / Listino', data);
+  const isRestaurant = data.profile.type === 'restaurant';
+  renderLayout(isRestaurant ? 'Menu' : 'Listino prezzi', data);
+  document.getElementById('allergenField').style.display = isRestaurant ? '' : 'none';
 
   let photoData = null; // base64 of currently selected photo in modal
 
@@ -45,7 +47,7 @@
           <div class="info">
             <h4>${escapeHtml(item.name)} ${!item.available ? '<span class="badge badge-cancelled">Non disponibile</span>' : ''}</h4>
             <div class="small text-mid">${escapeHtml(item.description || '')}</div>
-            <div class="allergen-tags">${(item.allergens || []).map(a => `<span class="badge badge-gold">${escapeHtml(a)}</span>`).join('')}</div>
+            ${isRestaurant ? `<div class="allergen-tags">${(item.allergens || []).map(a => `<span class="badge badge-gold">${escapeHtml(a)}</span>`).join('')}</div>` : ''}
           </div>
           <div class="price">${euro(item.price)}</div>
           <div class="flex gap-2">

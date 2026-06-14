@@ -25,23 +25,23 @@ const NAV = [
   ]},
   { group: 'Prenotazioni', items: [
     { href: 'prenotazioni.html', label: 'Prenotazioni', icon: 'bookings' },
-    { href: 'tavoli.html', label: 'Tavoli', icon: 'tables' },
+    { href: 'tavoli.html', label: 'Tavoli', icon: 'tables', types: ['restaurant'] },
     { href: 'clienti.html', label: 'Clienti', icon: 'customers' },
     { href: 'statistiche.html', label: 'Statistiche', icon: 'stats' },
   ]},
   { group: 'Catalogo', items: [
-    { href: 'menu.html', label: 'Menu', icon: 'menu' },
+    { href: 'menu.html', label: t => t === 'restaurant' ? 'Menu' : 'Listino prezzi', icon: 'menu' },
     { href: 'sito.html', label: 'QR Code', icon: 'qr', external: true },
   ]},
   { group: 'Attività', items: [
-    { href: 'eventi.html', label: 'Eventi', icon: 'events' },
+    { href: 'eventi.html', label: 'Eventi', icon: 'events', types: ['restaurant'] },
     { href: 'recensioni.html', label: 'Recensioni', icon: 'star' },
     { href: 'comunicazioni.html', label: 'Comunicazioni', icon: 'broadcast' },
   ]},
   { group: 'Configurazione', items: [
     { href: 'impostazioni.html#servizi', label: 'Servizi', icon: 'services', match: 'impostazioni.html' },
     { href: 'impostazioni.html#staff', label: 'Staff', icon: 'staff', match: 'impostazioni.html' },
-    { href: 'impostazioni.html#postazioni', label: 'Postazioni', icon: 'tables', match: 'impostazioni.html' },
+    { href: 'impostazioni.html#postazioni', label: 'Postazioni', icon: 'tables', match: 'impostazioni.html', types: ['restaurant'] },
     { href: 'impostazioni.html#coupon', label: 'Coupon', icon: 'coupon', match: 'impostazioni.html' },
   ]},
   { group: 'Impostazioni', items: [
@@ -51,6 +51,7 @@ const NAV = [
 
 function renderLayout(pageTitle, data) {
   const current = location.pathname.split('/').pop() || 'index.html';
+  const businessType = (data && data.profile && data.profile.type) || 'restaurant';
 
   let sidebarHtml = `
     <a href="index.html" class="sidebar-brand">
@@ -62,17 +63,20 @@ function renderLayout(pageTitle, data) {
     </a>`;
 
   NAV.forEach(group => {
+    const items = group.items.filter(item => !item.types || item.types.includes(businessType));
+    if (items.length === 0) return;
     if (group.group) {
       sidebarHtml += `<div class="sidebar-group"><div class="sidebar-group-label">${group.group}</div>`;
     } else {
       sidebarHtml += `<div class="sidebar-group">`;
     }
-    group.items.forEach(item => {
+    items.forEach(item => {
       const matchPage = item.match || item.href.split('#')[0];
       const itemHash = item.href.split('#')[1];
       const activeClass = (matchPage === current && (itemHash ? location.hash === '#' + itemHash : true)) ? 'active' : '';
       const target = item.external ? ' target="_blank"' : '';
-      sidebarHtml += `<a href="${item.href}"${target} class="sidebar-link ${activeClass}">${ICONS[item.icon]}<span>${item.label}</span></a>`;
+      const label = (typeof item.label === 'function') ? item.label(businessType) : item.label;
+      sidebarHtml += `<a href="${item.href}"${target} class="sidebar-link ${activeClass}">${ICONS[item.icon]}<span>${label}</span></a>`;
     });
     sidebarHtml += `</div>`;
   });
