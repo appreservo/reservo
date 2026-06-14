@@ -286,17 +286,25 @@ function requireAuth() {
 
         /* "Visualizza come" (sola lettura): un admin apre una pagina del gestionale con ?viewAs=<uid> */
         let viewAsUid = null;
+        let viewedProfile = null;
         if (profile && profile.role === 'admin') {
           const params = new URLSearchParams(location.search);
           viewAsUid = params.get('viewAs') || sessionStorage.getItem('reservo_viewAs');
           if (viewAsUid) {
-            sessionStorage.setItem('reservo_viewAs', viewAsUid);
-            history.replaceState(null, '', location.pathname + location.hash);
+            viewedProfile = await getUserProfile(viewAsUid).catch(() => null);
+            /* ignora valori non validi/residui (es. l'admin che visualizza se stesso) */
+            if (viewAsUid === user.uid || !viewedProfile || viewedProfile.role !== 'gestore') {
+              viewAsUid = null;
+              viewedProfile = null;
+              sessionStorage.removeItem('reservo_viewAs');
+            } else {
+              sessionStorage.setItem('reservo_viewAs', viewAsUid);
+              history.replaceState(null, '', location.pathname + location.hash);
+            }
           }
         }
 
         if (viewAsUid && GESTIONALE_PAGES.includes(current)) {
-          const viewedProfile = await getUserProfile(viewAsUid).catch(() => null);
           document.documentElement.classList.remove('auth-pending');
           const displayName = (viewedProfile && viewedProfile.name) || (profile && profile.name) || user.email;
           document.querySelectorAll('.js-user-name').forEach(el => { el.textContent = displayName; });
