@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-14 (Fix icona "Anteprima sito")
+- `style.css`: l'icona del pulsante "Anteprima sito" nel topbar (gestionale) non aveva una dimensione definita e veniva renderizzata alla dimensione di default del browser (~150px), rompendo il pulsante. Aggiunta regola `.btn svg { width: 16px; height: 16px; }`.
+
 ## 2026-06-14 (Fix navigazione post-login e ritocchi mobile)
 - `login.html`/`auth.js`: tutti i redirect dopo login/registrazione/Google e dopo logout usano ora `location.replace()` invece di `location.href`, così la pagina di login (o la dashboard precedente) non resta nello storico del browser — premendo "indietro" dopo il login non si torna più alla pagina di login con effetto "rimbalzo".
 - `style.css`: aggiunto uno spinner di caricamento durante il controllo di autenticazione (`auth-pending`), che prima mostrava una pagina completamente bianca — utile su connessioni mobili lente.
