@@ -26,11 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     listEl.innerHTML = filtered.map(b => `
       <div class="card">
         <div class="card-header">
-          <h3>${b.business_name || 'Attività'}</h3>
+          <h3>${escapeHtml(b.business_name || 'Attività')}</h3>
           <span class="badge badge-navy">${typeLabel(b.type)}</span>
         </div>
-        ${b.address ? `<p class="text-mid small mb-3">${b.address}</p>` : ''}
-        ${b.description ? `<p class="small">${b.description}</p>` : ''}
+        ${b.address ? `<p class="text-mid small mb-3">${escapeHtml(b.address)}</p>` : ''}
+        ${b.description ? `<p class="small">${escapeHtml(b.description)}</p>` : ''}
       </div>
     `).join('');
   }
@@ -65,12 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
     myBookingsEl.innerHTML = sorted.map(b => `
       <div class="card">
         <div class="card-header">
-          <h3>${b.businessName || 'Attività'}</h3>
+          <h3>${escapeHtml(b.businessName || 'Attività')}</h3>
           <span class="badge badge-${b.status}">${statusLabel(b.status)}</span>
         </div>
         <p class="small">${fmtDateLong(b.date)} — ore ${b.time}</p>
-        <p class="text-mid small">${b.service_name || ''} · ${b.party_size} ${b.party_size === 1 ? 'persona' : 'persone'}</p>
-        ${b.reference ? `<p class="text-mid small">${b.reference}</p>` : ''}
+        <p class="text-mid small">${escapeHtml(b.service_name || '')} · ${b.party_size} ${b.party_size === 1 ? 'persona' : 'persone'}</p>
+        ${b.reference ? `<p class="text-mid small">${escapeHtml(b.reference)}</p>` : ''}
         <div class="flex gap-2 mt-3">
           ${(b.status === 'pending' || b.status === 'confirmed') ? `<button class="btn btn-outline btn-sm" data-cancel="${b.id}">Annulla prenotazione</button>` : ''}
           ${isReviewable(b) ? `<button class="btn btn-gold btn-sm" data-review="${b.id}">Lascia una recensione</button>` : ''}
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
     loyaltyEl.innerHTML = entries.map(e => `
       <div class="card stat-card">
-        <div class="stat-label">${e.name}</div>
+        <div class="stat-label">${escapeHtml(e.name)}</div>
         <div class="stat-value">${e.points} <span class="small text-mid">punti</span></div>
       </div>
     `).join('');

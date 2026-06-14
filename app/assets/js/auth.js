@@ -1,6 +1,6 @@
 /* Reservo demo - autenticazione reale via Firebase Authentication */
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -21,8 +21,15 @@ function login(email, password) {
   return signInWithEmailAndPassword(auth, email, password);
 }
 
-function register(email, password) {
-  return createUserWithEmailAndPassword(auth, email, password);
+async function register(email, password) {
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+  sendEmailVerification(cred.user).catch(() => {});
+  return cred;
+}
+
+function resendVerificationEmail() {
+  if (!auth.currentUser) return Promise.resolve();
+  return sendEmailVerification(auth.currentUser);
 }
 
 function loginWithGoogle() {
@@ -95,7 +102,7 @@ async function getBusinessBySlug(slug) {
 
 /* prenotazioni dal sito pubblico (collezione top-level 'bookings') */
 function createPublicBooking(booking) {
-  return addDoc(collection(db, 'bookings'), booking);
+  return addDoc(collection(db, 'bookings'), { ...booking, notified: false });
 }
 
 async function getCustomerBookings(customerUid) {
@@ -366,7 +373,7 @@ window.reservoAuth = {
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
   createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
-  getBusinessUid, isViewingAs,
+  getBusinessUid, isViewingAs, resendVerificationEmail,
   serverTimestamp,
 };
 export {
@@ -378,6 +385,6 @@ export {
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
   createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
-  getBusinessUid, isViewingAs,
+  getBusinessUid, isViewingAs, resendVerificationEmail,
   serverTimestamp,
 };

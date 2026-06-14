@@ -7,6 +7,32 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    function isValidBooking(data) {
+      return data.businessUid is string && data.businessUid.size() > 0
+        && data.date is string && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && data.time is string && data.time.matches('^[0-9]{2}:[0-9]{2}$')
+        && data.party_size is int && data.party_size >= 1 && data.party_size <= 50
+        && data.customer_name is string && data.customer_name.size() >= 1 && data.customer_name.size() <= 100
+        && data.status in ['pending', 'confirmed']
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000))
+        && (!('email' in data) || (data.email is string && data.email.size() <= 100))
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 30));
+    }
+
+    function isValidReview(data) {
+      return data.customerUid == request.auth.uid
+        && data.rating is int && data.rating >= 1 && data.rating <= 5
+        && data.status == 'pending'
+        && data.customer_name is string && data.customer_name.size() >= 1 && data.customer_name.size() <= 100
+        && (!('comment' in data) || (data.comment is string && data.comment.size() <= 1000));
+    }
+
+    function isValidBusiness(data) {
+      return data.business_name is string && data.business_name.size() >= 1 && data.business_name.size() <= 100
+        && data.type in ['restaurant', 'artisan', 'professional']
+        && data.slug is string;
+    }
+
     match /users/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
       allow create: if request.auth != null && request.auth.uid == uid;
@@ -16,7 +42,13 @@ service cloud.firestore {
 
     match /businesses/{uid} {
       allow read: if true;
-      allow write: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth != null && (request.auth.uid == uid || isAdmin())
+        && isValidBusiness(request.resource.data)
+        && (isAdmin() || request.resource.data.status == 'pending');
+      allow update: if request.auth != null && (request.auth.uid == uid || isAdmin())
+        && isValidBusiness(request.resource.data)
+        && (isAdmin() || request.resource.data.status == resource.data.status);
+      allow delete: if request.auth != null && (request.auth.uid == uid || isAdmin());
     }
 
     match /businessData/{uid} {
@@ -29,7 +61,7 @@ service cloud.firestore {
     }
 
     match /bookings/{bookingId} {
-      allow create: if true;
+      allow create: if isValidBooking(request.resource.data);
       allow read, update: if request.auth != null &&
         (resource.data.businessUid == request.auth.uid ||
          resource.data.customerUid == request.auth.uid ||
@@ -39,10 +71,20 @@ service cloud.firestore {
     }
 
     match /reviews/{reviewId} {
-      allow create: if request.auth != null;
+      allow create: if request.auth != null && isValidReview(request.resource.data);
       allow read: if true;
       allow update, delete: if request.auth != null &&
         (resource.data.businessUid == request.auth.uid || isAdmin());
+    }
+
+    match /broadcasts/{broadcastId} {
+      allow create: if request.auth != null
+        && request.resource.data.businessUid == request.auth.uid
+        && request.resource.data.subject is string && request.resource.data.subject.size() <= 150
+        && request.resource.data.message is string && request.resource.data.message.size() <= 2000;
+      allow read: if request.auth != null &&
+        (resource.data.businessUid == request.auth.uid || isAdmin());
+      allow update, delete: if false;
     }
 
     match /feedback/{id} {

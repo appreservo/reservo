@@ -33,7 +33,7 @@
       upcoming.map(b => `<tr>
         <td>${fmtDateShort(b.date)}</td>
         <td>${b.time}</td>
-        <td>${b.customer_name}</td>
+        <td>${escapeHtml(b.customer_name)}</td>
         <td>${b.party_size}</td>
         <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
       </tr>`).join('') + `</tbody></table>`;
@@ -48,7 +48,7 @@
       pending.slice(0, 6).map(b => `<tr>
         <td>${fmtDateShort(b.date)}</td>
         <td>${b.time}</td>
-        <td>${b.customer_name}</td>
+        <td>${escapeHtml(b.customer_name)}</td>
         <td>${b.party_size}</td>
         <td><a href="prenotazioni.html" class="btn btn-outline btn-sm">Gestisci</a></td>
       </tr>`).join('') + `</tbody></table>`;

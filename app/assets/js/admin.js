@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <tbody>
           ${list.map(u => `
             <tr>
-              <td>${u.businessName || '—'}</td>
+              <td>${escapeHtml(u.businessName || '—')}</td>
               <td>${typeLabel(u.businessType)}</td>
-              <td>${u.name || '—'}</td>
-              <td>${u.email || '—'}</td>
+              <td>${escapeHtml(u.name || '—')}</td>
+              <td>${escapeHtml(u.email || '—')}</td>
               <td style="white-space:nowrap">
                 <button class="btn btn-gold btn-sm" data-approve="${u.id}">Approva</button>
                 <button class="btn btn-danger btn-sm" data-reject="${u.id}">Rifiuta</button>
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="review-card">
         <div class="review-head">
           <div>
-            <strong>${r.businessName || 'Attività'}</strong> · ${r.customer_name || 'Cliente'}
+            <strong>${escapeHtml(r.businessName || 'Attività')}</strong> · ${escapeHtml(r.customer_name || 'Cliente')}
             <div class="review-meta">${r.created_at ? fmtDateLong(r.created_at.slice(0, 10)) : ''}</div>
           </div>
           <div class="flex items-center gap-2">
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="badge badge-${r.status === 'approved' ? 'confirmed' : r.status === 'rejected' ? 'rejected' : 'pending'}">${r.status === 'approved' ? 'Approvata' : r.status === 'rejected' ? 'Rifiutata' : 'In attesa'}</span>
           </div>
         </div>
-        ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
+        ${r.comment ? `<div class="review-comment">${escapeHtml(r.comment)}</div>` : ''}
         <div class="flex gap-2 mt-3">
           ${r.status !== 'approved' ? `<button class="btn btn-outline btn-sm" data-approve="${r.id}">Approva</button>` : ''}
           ${r.status !== 'rejected' ? `<button class="btn btn-outline btn-sm" data-reject="${r.id}">Rifiuta</button>` : ''}

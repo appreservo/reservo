@@ -32,6 +32,12 @@ function fmtDateShort(dateStr) {
 }
 function euro(n) { return '€ ' + Number(n).toFixed(2).replace('.', ','); }
 
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
 function statusLabel(s) {
   return { pending: 'In attesa', confirmed: 'Confermata', rejected: 'Rifiutata', cancelled: 'Annullata' }[s] || s;
 }

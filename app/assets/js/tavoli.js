@@ -46,7 +46,7 @@
         ${bookings.length === 0 ? `<p class="text-mid small">Nessuna prenotazione.</p>` : bookings.map(b => `
           <div class="flex justify-between items-center" style="padding:.4rem 0; border-bottom:1px solid var(--border)">
             <div>
-              <strong>${b.time}</strong> — ${b.customer_name} (${b.party_size} pers.)
+              <strong>${b.time}</strong> — ${escapeHtml(b.customer_name)} (${b.party_size} pers.)
               <div><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></div>
             </div>
             <select data-assign="${b.id}" style="width:auto">${tableOptions(b)}</select>
@@ -63,7 +63,7 @@
       unassignedEl.innerHTML = `<table><thead><tr><th>Ora</th><th>Cliente</th><th>Persone</th><th>Stato</th><th>Tavolo</th></tr></thead><tbody>` +
         unassigned.map(b => `<tr>
           <td>${b.time}</td>
-          <td>${b.customer_name}</td>
+          <td>${escapeHtml(b.customer_name)}</td>
           <td>${b.party_size}</td>
           <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
           <td><select data-assign="${b.id}" style="width:auto">${tableOptions(b)}</select></td>

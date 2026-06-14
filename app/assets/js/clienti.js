@@ -28,8 +28,8 @@
         const last = sorted[0];
         const confirmed = c.bookings.filter(b => b.status === 'confirmed').length;
         return `<tr>
-          <td><strong>${c.name}</strong></td>
-          <td class="small text-mid">${[c.email, c.phone].filter(Boolean).join('<br>')}</td>
+          <td><strong>${escapeHtml(c.name)}</strong></td>
+          <td class="small text-mid">${[c.email, c.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
           <td>${c.bookings.length} <span class="small text-mid">(${confirmed} confermate)</span></td>
           <td>${fmtDateShort(last.date)} alle ${last.time}</td>
           <td><button class="btn btn-outline btn-sm" data-show="${i}">Storico</button></td>
@@ -45,14 +45,14 @@
     document.getElementById('customerModalTitle').textContent = c.name;
     const sorted = c.bookings.slice().sort((a,b) => b.date.localeCompare(a.date));
     document.getElementById('customerModalBody').innerHTML = `
-      <p class="small text-mid">${[c.email, c.phone].filter(Boolean).join(' · ')}</p>
+      <p class="small text-mid">${[c.email, c.phone].filter(Boolean).map(escapeHtml).join(' · ')}</p>
       <table><thead><tr><th>Data</th><th>Ora</th><th>Persone</th><th>Stato</th><th>Note</th></tr></thead><tbody>
         ${sorted.map(b => `<tr>
           <td>${fmtDateShort(b.date)}</td>
           <td>${b.time}</td>
           <td>${b.party_size}</td>
           <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
-          <td class="small text-mid">${b.notes || ''}</td>
+          <td class="small text-mid">${escapeHtml(b.notes || '')}</td>
         </tr>`).join('')}
       </tbody></table>`;
     document.getElementById('customerModal').classList.add('open');

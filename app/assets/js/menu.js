@@ -38,14 +38,14 @@
 
     let html = '';
     groups.forEach((groupItems, cat) => {
-      html += `<div class="category-block"><h3>${cat}</h3>`;
+      html += `<div class="category-block"><h3>${escapeHtml(cat)}</h3>`;
       groupItems.forEach(item => {
         html += `<div class="menu-item">
-          ${item.photo ? `<img src="${item.photo}" alt="">` : `<div class="ph">${item.name.charAt(0)}</div>`}
+          ${item.photo ? `<img src="${escapeHtml(item.photo)}" alt="">` : `<div class="ph">${escapeHtml(item.name.charAt(0))}</div>`}
           <div class="info">
-            <h4>${item.name} ${!item.available ? '<span class="badge badge-cancelled">Non disponibile</span>' : ''}</h4>
-            <div class="small text-mid">${item.description || ''}</div>
-            <div class="allergen-tags">${(item.allergens || []).map(a => `<span class="badge badge-gold">${a}</span>`).join('')}</div>
+            <h4>${escapeHtml(item.name)} ${!item.available ? '<span class="badge badge-cancelled">Non disponibile</span>' : ''}</h4>
+            <div class="small text-mid">${escapeHtml(item.description || '')}</div>
+            <div class="allergen-tags">${(item.allergens || []).map(a => `<span class="badge badge-gold">${escapeHtml(a)}</span>`).join('')}</div>
           </div>
           <div class="price">${euro(item.price)}</div>
           <div class="flex gap-2">

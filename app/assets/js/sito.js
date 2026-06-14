@@ -97,14 +97,14 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     });
     let html = '';
     groups.forEach((list, cat) => {
-      html += `<div class="menu-category"><h3>${cat}</h3><div class="menu-grid">`;
+      html += `<div class="menu-category"><h3>${escapeHtml(cat)}</h3><div class="menu-grid">`;
       list.forEach(item => {
         html += `<div class="menu-card">
-          ${item.photo ? `<img src="${item.photo}" alt="${item.name}">` : ''}
+          ${item.photo ? `<img src="${escapeHtml(item.photo)}" alt="${escapeHtml(item.name)}">` : ''}
           <div class="body">
-            <h4>${item.name} <span>${euro(item.price)}</span></h4>
-            <div class="desc">${item.description || ''}</div>
-            <div class="tags">${(item.allergens || []).map(a => `<span class="tag">${a}</span>`).join('')}</div>
+            <h4>${escapeHtml(item.name)} <span>${euro(item.price)}</span></h4>
+            <div class="desc">${escapeHtml(item.description || '')}</div>
+            <div class="tags">${(item.allergens || []).map(a => `<span class="tag">${escapeHtml(a)}</span>`).join('')}</div>
           </div>
         </div>`;
       });
@@ -144,7 +144,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     }
     container.innerHTML = services.map(s => `
       <div class="service-card" data-service="${s.id}">
-        <span class="name">${s.name}</span>
+        <span class="name">${escapeHtml(s.name)}</span>
         <span class="meta">${s.duration} min${s.price ? ' · ' + euro(s.price) : ''}</span>
       </div>`).join('');
     container.querySelectorAll('.service-card').forEach(card => card.addEventListener('click', () => {
@@ -256,7 +256,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   function renderBookingSummary() {
     const service = (data.services || []).find(s => s.id === bookingState.serviceId);
     document.getElementById('bookingSummary').innerHTML = `
-      <div><strong>${service ? service.name : ''}</strong> · ${bookingState.partySize} ${bookingState.partySize === 1 ? 'persona' : 'persone'}</div>
+      <div><strong>${escapeHtml(service ? service.name : '')}</strong> · ${bookingState.partySize} ${bookingState.partySize === 1 ? 'persona' : 'persone'}</div>
       <div>${fmtDateLong(bookingState.date)} — ore ${bookingState.time}</div>
     `;
   }
@@ -341,12 +341,12 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     const pendingMsg = `<div class="alert alert-info">Richiesta inviata! Il gestore confermerà la tua prenotazione a breve via email.</div>`;
 
     document.getElementById('bookingConfirmation').innerHTML = `
-      <div class="booking-ref">${booking.reference}</div>
+      <div class="booking-ref">${escapeHtml(booking.reference)}</div>
       ${booking.status === 'confirmed' ? confirmedMsg : pendingMsg}
       <div class="booking-summary">
-        <div><strong>${booking.service_name}</strong> · ${booking.party_size} ${booking.party_size === 1 ? 'persona' : 'persone'}</div>
+        <div><strong>${escapeHtml(booking.service_name)}</strong> · ${booking.party_size} ${booking.party_size === 1 ? 'persona' : 'persone'}</div>
         <div>${fmtDateLong(booking.date)} — ore ${booking.time}</div>
-        <div>${booking.customer_name}</div>
+        <div>${escapeHtml(booking.customer_name)}</div>
         ${booking.coupon_code ? `<div>Coupon ${booking.coupon_code} applicato (${booking.coupon_discount})</div>` : ''}
       </div>
       <p class="text-mid small">Conserva il codice prenotazione: ti servirà per cercarla nella sezione "Le mie prenotazioni".</p>
@@ -387,8 +387,8 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     results.innerHTML = matches.map(b => `
       <div class="event-card">
         <div class="meta">${fmtDateLong(b.date)} — ore ${b.time}</div>
-        ${b.reference ? `<div class="text-mid small">${b.reference}</div>` : ''}
-        <div>${b.customer_name} · ${b.party_size} persone</div>
+        ${b.reference ? `<div class="text-mid small">${escapeHtml(b.reference)}</div>` : ''}
+        <div>${escapeHtml(b.customer_name)} · ${b.party_size} persone</div>
         <div style="margin:.4rem 0"><span class="tag" style="background:rgba(27,47,110,.08); color:var(--primary)">${statusLabel(b.status)}</span></div>
         ${(b.status === 'pending' || b.status === 'confirmed') ? `<button class="btn btn-outline" data-cancel="${b.id}" style="width:auto; padding:.4rem .9rem; font-size:.8rem">Annulla prenotazione</button>` : ''}
       </div>`).join('');
@@ -415,9 +415,9 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       const full = left <= 0;
       const waitlistCount = (ev.waitlist || []).length;
       return `<div class="event-card">
-        <h3>${ev.title}</h3>
-        <div class="meta">${fmtDateLong(ev.date)} — ore ${ev.time}${ev.location ? ' · ' + ev.location : ''}</div>
-        <div class="desc">${ev.description || ''}</div>
+        <h3>${escapeHtml(ev.title)}</h3>
+        <div class="meta">${fmtDateLong(ev.date)} — ore ${ev.time}${ev.location ? ' · ' + escapeHtml(ev.location) : ''}</div>
+        <div class="desc">${escapeHtml(ev.description || '')}</div>
         <div class="spots">${!full ? left + ' posti disponibili su ' + ev.max_participants : 'Posti esauriti' + (waitlistCount ? ` · ${waitlistCount} in lista d'attesa` : '')}</div>
         ${!isPublicMode ? `<button class="btn btn-gold" data-join="${ev.id}" style="width:auto; padding:.5rem 1.2rem; font-size:.85rem">${full ? "Iscriviti in lista d'attesa" : 'Iscriviti'}</button>
         <div class="join-form" id="join-${ev.id}" style="display:none; margin-top:1rem">
@@ -488,11 +488,11 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       reviews.map(r => `
         <div class="review-card">
           <div class="review-head">
-            <span class="review-author">${r.customer_name || 'Cliente'}</span>
+            <span class="review-author">${escapeHtml(r.customer_name || 'Cliente')}</span>
             ${starsHtml(r.rating)}
           </div>
           <div class="review-date">${r.created_at ? fmtDateLong(r.created_at.slice(0, 10)) : ''}</div>
-          ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
+          ${r.comment ? `<div class="review-comment">${escapeHtml(r.comment)}</div>` : ''}
         </div>`).join('');
   }
   renderReviews();

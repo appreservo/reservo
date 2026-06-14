@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-14 (Hardening: XSS, regole Firestore, verifica email, pipeline email via GitHub Actions+Resend)
+- **XSS**: nuova funzione globale `escapeHtml()` in `db.js`, applicata a tutte le interpolazioni di dati utente (nomi, note, commenti, oggetti, descrizioni) dentro `innerHTML` in `prenotazioni.js`, `dashboard.js`, `clienti.js`, `recensioni.js`, `comunicazioni.js`, `tavoli.js`, `area.js`, `admin.js`, `sito.js`, `menu.js`.
+- **Regole Firestore** (`firestore.rules`): nuove funzioni `isValidBooking()`/`isValidReview()`/`isValidBusiness()`; `bookings` (create) e `reviews` (create) ora validano i campi inviati; nuovo blocco `match /broadcasts/{broadcastId}` (prima assente, default-deny bloccava `createBroadcast`); `businesses` write separato in `create`/`update`/`delete` con protezione anti-escalation (un gestore non può auto-approvarsi cambiando `status`).
+- **Verifica email**: `auth.js` invia automaticamente l'email di verifica alla registrazione (`sendEmailVerification`) e aggiunge `resendVerificationEmail()`; `layout.js` mostra un banner non bloccante per gli account email/password non verificati, con pulsante per re-invio; nuovi stili `.verify-email-banner` in `style.css`.
+- **Notifiche email — nuova pipeline GitHub Actions + Resend** (sostituisce le Cloud Functions, non deployabili sul piano Spark): `functions/index.js` svuotato (vedi `functions/README.md`); nuova cartella `scripts/` (`send-emails.js`, `send-reminders.js`, `lib/firebase.js`, `lib/email.js`) che usa Firebase Admin SDK + Resend per inviare conferme prenotazione, cambi di stato, approvazioni/rifiuti gestore, comunicazioni broadcast (ogni 15 minuti, `.github/workflows/email-queue.yml`) e promemoria giornalieri (`.github/workflows/email-reminders.yml`). `createPublicBooking` scrive ora il campo `notified: false` consumato dalla pipeline. Setup richiesto: secrets GitHub `FIREBASE_SERVICE_ACCOUNT` e `RESEND_API_KEY` (vedi `scripts/README.md`).
+
 ## 2026-06-13 (Sistemazioni CSS mobile per le nuove funzionalità)
 - `style.css`: `.card-header` ora va a capo (`flex-wrap`) per ospitare i nuovi pulsanti (Esporta CSV, Coupon, ecc.) senza overflow orizzontale su schermi piccoli.
 - `style.css`: `.modal` ha ora `overflow-x: auto` per evitare che tabelle larghe (es. lista d'attesa eventi) sfondino la finestra modale su mobile.

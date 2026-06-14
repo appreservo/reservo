@@ -50,7 +50,7 @@
       const dayBookings = allBookings().filter(b => b.date === dateStr && b.status !== 'cancelled' && b.status !== 'rejected');
       let pillsHtml = '';
       dayBookings.slice(0, 3).forEach(b => {
-        pillsHtml += `<div class="cal-pill ${b.status}">${b.time} ${b.customer_name}</div>`;
+        pillsHtml += `<div class="cal-pill ${b.status}">${b.time} ${escapeHtml(b.customer_name)}</div>`;
       });
       if (dayBookings.length > 3) {
         pillsHtml += `<div class="cal-pill">+${dayBookings.length - 3} altre</div>`;
@@ -80,11 +80,11 @@
       list.map(b => `<tr>
         <td>${fmtDateShort(b.date)}</td>
         <td>${b.time}</td>
-        <td>${b.customer_name}</td>
-        <td class="small text-mid">${[b.email, b.phone].filter(Boolean).join('<br>')}</td>
+        <td>${escapeHtml(b.customer_name)}</td>
+        <td class="small text-mid">${[b.email, b.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
         <td>${b.party_size}</td>
         <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span>${b.businessUid ? ' <span class="badge badge-navy">Sito</span>' : ''}</td>
-        <td class="small text-mid">${b.notes || ''}</td>
+        <td class="small text-mid">${escapeHtml(b.notes || '')}</td>
         <td>
           <div class="flex gap-2">
             ${b.status === 'pending' ? `<button class="btn btn-outline btn-sm" data-approve="${b.id}">✓ Conferma</button><button class="btn btn-danger btn-sm" data-reject="${b.id}">✕ Rifiuta</button>` : ''}
@@ -214,8 +214,8 @@
       list.innerHTML = dayBookings.map(b => `
         <div class="flex justify-between items-center" style="padding:.5rem 0; border-bottom:1px solid var(--border)">
           <div>
-            <strong>${b.time}</strong> — ${b.customer_name} (${b.party_size} pers.)
-            <div class="small text-mid">${[b.email,b.phone].filter(Boolean).join(' · ')}</div>
+            <strong>${b.time}</strong> — ${escapeHtml(b.customer_name)} (${b.party_size} pers.)
+            <div class="small text-mid">${[b.email,b.phone].filter(Boolean).map(escapeHtml).join(' · ')}</div>
           </div>
           <div class="flex gap-2 items-center">
             <span class="badge badge-${b.status}">${statusLabel(b.status)}</span>

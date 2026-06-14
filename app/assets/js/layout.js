@@ -129,6 +129,31 @@ function renderLayout(pageTitle, data) {
 
   document.getElementById('logoutBtn').addEventListener('click', () => window.reservoAuth.logout());
 
+  const currentUser = window.reservoAuth.currentUser;
+  if (currentUser && !currentUser.emailVerified &&
+      currentUser.providerData[0] && currentUser.providerData[0].providerId === 'password') {
+    let verifyBanner = document.getElementById('verifyEmailBanner');
+    if (!verifyBanner) {
+      verifyBanner = document.createElement('div');
+      verifyBanner.id = 'verifyEmailBanner';
+      verifyBanner.className = 'verify-email-banner';
+      verifyBanner.innerHTML = `
+        <span>Verifica il tuo indirizzo email per proteggere il tuo account. Controlla la posta in arrivo.</span>
+        <button class="btn btn-sm" id="resendVerificationBtn">Invia di nuovo</button>`;
+      document.body.prepend(verifyBanner);
+      document.getElementById('resendVerificationBtn').addEventListener('click', async (e) => {
+        e.target.disabled = true;
+        try {
+          await window.reservoAuth.resendVerificationEmail();
+          showToast('Email di verifica inviata', 'success');
+        } catch (err) {
+          showToast('Invio non riuscito, riprova più tardi', 'error');
+        }
+        e.target.disabled = false;
+      });
+    }
+  }
+
   if (window.reservoAuth.isViewingAs && window.reservoAuth.isViewingAs()) {
     let banner = document.getElementById('impersonationBanner');
     if (!banner) {

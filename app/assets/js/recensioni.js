@@ -25,7 +25,7 @@
       <div class="review-card">
         <div class="review-head">
           <div>
-            <strong>${r.customer_name || 'Cliente'}</strong>
+            <strong>${escapeHtml(r.customer_name || 'Cliente')}</strong>
             <div class="review-meta">${r.created_at ? fmtDateLong(r.created_at.slice(0, 10)) : ''}</div>
           </div>
           <div class="flex items-center gap-2">
@@ -33,7 +33,7 @@
             <span class="badge badge-${r.status === 'approved' ? 'confirmed' : r.status === 'rejected' ? 'rejected' : 'pending'}">${r.status === 'approved' ? 'Approvata' : r.status === 'rejected' ? 'Rifiutata' : 'In attesa'}</span>
           </div>
         </div>
-        ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
+        ${r.comment ? `<div class="review-comment">${escapeHtml(r.comment)}</div>` : ''}
         <div class="flex gap-2 mt-3">
           ${r.status !== 'approved' ? `<button class="btn btn-outline btn-sm" data-approve="${r.id}">Approva</button>` : ''}
           ${r.status !== 'rejected' ? `<button class="btn btn-outline btn-sm" data-reject="${r.id}">Rifiuta</button>` : ''}
