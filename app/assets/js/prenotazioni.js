@@ -78,14 +78,14 @@
         <th>Data</th><th>Ora</th><th>Cliente</th><th>Contatti</th><th>Persone</th><th>Stato</th><th>Note</th><th></th>
       </tr></thead><tbody>` +
       list.map(b => `<tr>
-        <td>${fmtDateShort(b.date)}</td>
-        <td>${b.time}</td>
-        <td>${escapeHtml(b.customer_name)}</td>
-        <td class="small text-mid">${[b.email, b.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
-        <td>${b.party_size}</td>
-        <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span>${b.businessUid ? ' <span class="badge badge-navy">Sito</span>' : ''}</td>
-        <td class="small text-mid">${escapeHtml(b.notes || '')}</td>
-        <td>
+        <td data-label="Data">${fmtDateShort(b.date)}</td>
+        <td data-label="Ora">${b.time}</td>
+        <td data-label="Cliente">${escapeHtml(b.customer_name)}</td>
+        <td data-label="Contatti" class="small text-mid">${[b.email, b.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
+        <td data-label="Persone">${b.party_size}</td>
+        <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span>${b.businessUid ? ' <span class="badge badge-navy">Sito</span>' : ''}</td>
+        <td data-label="Note" class="small text-mid">${escapeHtml(b.notes || '')}</td>
+        <td data-label="">
           <div class="flex gap-2">
             ${b.status === 'pending' ? `<button class="btn btn-outline btn-sm" data-approve="${b.id}">✓ Conferma</button><button class="btn btn-danger btn-sm" data-reject="${b.id}">✕ Rifiuta</button>` : ''}
             <button class="btn btn-outline btn-sm" data-edit="${b.id}">Modifica</button>

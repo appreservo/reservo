@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-06-15 ("Tutte le prenotazioni" senza scroll orizzontale su mobile)
+- `prenotazioni.js`: aggiunti attributi `data-label` a ogni cella della tabella prenotazioni (Data, Ora, Cliente, Contatti, Persone, Stato, Note, azioni).
+- `style.css`: su mobile (≤640px) `#bookingsTable` non è più una tabella a 8 colonne (che richiedeva scroll orizzontale), ma una lista di "card" — ogni prenotazione è una riga con i campi impilati ed etichettati (tramite `::before` su `data-label`), tutto visibile senza scorrere lateralmente.
+
 ## 2026-06-14 (Fix radice overflow mobile: .main/.content senza min-width:0)
 - `style.css`: causa reale dell'overflow su mobile: `.card table { min-width: 460px }` si propagava come dimensione minima fino a `.main` e `.content` (flex item senza `min-width:0`, il default è `min-width:auto` = min-content), rendendo l'intera pagina più larga dello schermo (~460px contro ~330px) e tagliando a destra calendario, intestazioni tabella e filtri. Aggiunto `min-width: 0` su `.main` e `.content`: ora solo le tabelle larghe scorrono internamente nella propria `.card`, il resto della pagina resta nella larghezza dello schermo.
 
