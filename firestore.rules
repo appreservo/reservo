@@ -71,9 +71,12 @@ service cloud.firestore {
       allow create: if request.auth != null && (request.auth.uid == uid || isAdmin())
         && isValidBusiness(request.resource.data)
         && (isAdmin() || request.resource.data.status == 'pending');
-      allow update: if request.auth != null && (request.auth.uid == uid || isAdmin())
-        && isValidBusiness(request.resource.data)
-        && (isAdmin() || request.resource.data.status == resource.data.status);
+      allow update: if request.auth != null && (
+        isAdmin()
+        || (request.auth.uid == uid
+            && isValidBusiness(request.resource.data)
+            && request.resource.data.status == resource.data.status)
+      );
       allow delete: if request.auth != null && (request.auth.uid == uid || isAdmin());
     }
 
