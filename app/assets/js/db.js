@@ -40,7 +40,8 @@ function typeLabel(t) {
 }
 
 /* dati vuoti per un nuovo account: solo il profilo, personalizzato con i dati di registrazione */
-function emptyData(profile = {}) {
+function emptyData(profile) {
+  profile = profile || {};
   return {
     profile: {
       business_name: profile.businessName || '',
