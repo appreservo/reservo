@@ -18,6 +18,9 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     // usare "Le mie prenotazioni" nell'area cliente per gli utenti registrati
     document.getElementById('cerca').classList.add('hidden');
     document.querySelector('a[href="#cerca"]').classList.add('hidden');
+    // QR code: serve al gestore per stampare/scaricare, non al cliente sul sito pubblico
+    document.getElementById('qr').classList.add('hidden');
+    document.querySelector('a[href="#qr"]').classList.add('hidden');
   } else {
     data = await loadData();
   }
