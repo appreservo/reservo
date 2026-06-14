@@ -17,11 +17,11 @@
         const waitlistCount = (ev.waitlist || []).length;
         const past = ev.date < todayStr();
         return `<tr ${past ? 'style="opacity:.55"' : ''}>
-          <td>${fmtDateLong(ev.date)}<br><span class="small text-mid">ore ${ev.time}</span></td>
-          <td><strong>${escapeHtml(ev.title)}</strong><div class="small text-mid">${escapeHtml((ev.description || '').slice(0, 80))}${(ev.description||'').length>80?'…':''}</div></td>
-          <td>${escapeHtml(ev.location || '—')}</td>
-          <td>${peopleCount} / ${ev.max_participants}${waitlistCount ? `<div class="small text-mid">${waitlistCount} in lista d'attesa</div>` : ''}</td>
-          <td>
+          <td data-label="Data">${fmtDateLong(ev.date)}<br><span class="small text-mid">ore ${ev.time}</span></td>
+          <td data-label="Titolo"><strong>${escapeHtml(ev.title)}</strong><div class="small text-mid">${escapeHtml((ev.description || '').slice(0, 80))}${(ev.description||'').length>80?'…':''}</div></td>
+          <td data-label="Luogo">${escapeHtml(ev.location || '—')}</td>
+          <td data-label="Iscritti">${peopleCount} / ${ev.max_participants}${waitlistCount ? `<div class="small text-mid">${waitlistCount} in lista d'attesa</div>` : ''}</td>
+          <td data-label="">
             <div class="flex gap-2">
               <button class="btn btn-outline btn-sm" data-reg="${ev.id}">Iscritti</button>
               <button class="btn btn-outline btn-sm" data-edit="${ev.id}">Modifica</button>
@@ -113,10 +113,10 @@
     } else {
       html += `<table><thead><tr><th>Nome</th><th>Contatti</th><th>Persone</th><th></th></tr></thead><tbody>` +
         regs.map(r => `<tr>
-          <td>${escapeHtml(r.name)}</td>
-          <td class="small text-mid">${[r.email, r.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
-          <td>${r.people || 1}</td>
-          <td><button class="btn btn-danger btn-sm" data-remove-reg="${r.id}">Rimuovi</button></td>
+          <td data-label="Nome">${escapeHtml(r.name)}</td>
+          <td data-label="Contatti" class="small text-mid">${[r.email, r.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
+          <td data-label="Persone">${r.people || 1}</td>
+          <td data-label=""><button class="btn btn-danger btn-sm" data-remove-reg="${r.id}">Rimuovi</button></td>
         </tr>`).join('') + `</tbody></table>`;
     }
 
@@ -124,12 +124,14 @@
       html += `<h4 class="text-navy mt-3" style="margin-bottom:.5rem">Lista d'attesa</h4>`;
       html += `<table><thead><tr><th>Nome</th><th>Contatti</th><th>Persone</th><th></th></tr></thead><tbody>` +
         waitlist.map(r => `<tr>
-          <td>${escapeHtml(r.name)}</td>
-          <td class="small text-mid">${[r.email, r.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
-          <td>${r.people || 1}</td>
-          <td>
-            <button class="btn btn-outline btn-sm" data-promote-reg="${r.id}">Promuovi</button>
-            <button class="btn btn-danger btn-sm" data-remove-waitlist="${r.id}">Rimuovi</button>
+          <td data-label="Nome">${escapeHtml(r.name)}</td>
+          <td data-label="Contatti" class="small text-mid">${[r.email, r.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
+          <td data-label="Persone">${r.people || 1}</td>
+          <td data-label="">
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" data-promote-reg="${r.id}">Promuovi</button>
+              <button class="btn btn-danger btn-sm" data-remove-waitlist="${r.id}">Rimuovi</button>
+            </div>
           </td>
         </tr>`).join('') + `</tbody></table>`;
     }

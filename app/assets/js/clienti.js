@@ -28,11 +28,11 @@
         const last = sorted[0];
         const confirmed = c.bookings.filter(b => b.status === 'confirmed').length;
         return `<tr>
-          <td><strong>${escapeHtml(c.name)}</strong></td>
-          <td class="small text-mid">${[c.email, c.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
-          <td>${c.bookings.length} <span class="small text-mid">(${confirmed} confermate)</span></td>
-          <td>${fmtDateShort(last.date)} alle ${last.time}</td>
-          <td><button class="btn btn-outline btn-sm" data-show="${i}">Storico</button></td>
+          <td data-label="Nome"><strong>${escapeHtml(c.name)}</strong></td>
+          <td data-label="Contatti" class="small text-mid">${[c.email, c.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
+          <td data-label="Prenotazioni">${c.bookings.length} <span class="small text-mid">(${confirmed} confermate)</span></td>
+          <td data-label="Ultima prenotazione">${fmtDateShort(last.date)} alle ${last.time}</td>
+          <td data-label=""><button class="btn btn-outline btn-sm" data-show="${i}">Storico</button></td>
         </tr>`;
       }).join('') + `</tbody></table>`;
 
@@ -48,11 +48,11 @@
       <p class="small text-mid">${[c.email, c.phone].filter(Boolean).map(escapeHtml).join(' · ')}</p>
       <table><thead><tr><th>Data</th><th>Ora</th><th>Persone</th><th>Stato</th><th>Note</th></tr></thead><tbody>
         ${sorted.map(b => `<tr>
-          <td>${fmtDateShort(b.date)}</td>
-          <td>${b.time}</td>
-          <td>${b.party_size}</td>
-          <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
-          <td class="small text-mid">${escapeHtml(b.notes || '')}</td>
+          <td data-label="Data">${fmtDateShort(b.date)}</td>
+          <td data-label="Ora">${b.time}</td>
+          <td data-label="Persone">${b.party_size}</td>
+          <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
+          <td data-label="Note" class="small text-mid">${escapeHtml(b.notes || '')}</td>
         </tr>`).join('')}
       </tbody></table>`;
     document.getElementById('customerModal').classList.add('open');

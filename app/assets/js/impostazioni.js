@@ -28,16 +28,33 @@
   document.getElementById('pBookingMode').value = p.booking_mode || 'manual';
   document.getElementById('pNotifyEmails').value = p.notification_emails || '';
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   document.getElementById('profileForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    const email = document.getElementById('pEmail').value.trim();
+    const notifyEmails = document.getElementById('pNotifyEmails').value.trim();
+
+    if (email && !EMAIL_RE.test(email)) {
+      showToast('Email non valida', 'error');
+      return;
+    }
+    if (notifyEmails) {
+      const invalid = notifyEmails.split(',').map(s => s.trim()).filter(Boolean).filter(e => !EMAIL_RE.test(e));
+      if (invalid.length > 0) {
+        showToast(`Email notifiche non valida: ${invalid[0]}`, 'error');
+        return;
+      }
+    }
+
     p.business_name = document.getElementById('pName').value.trim();
     p.type = document.getElementById('pType').value;
-    p.email = document.getElementById('pEmail').value.trim();
+    p.email = email;
     p.phone = document.getElementById('pPhone').value.trim();
     p.address = document.getElementById('pAddress').value.trim();
     p.description = document.getElementById('pDescription').value.trim();
     p.booking_mode = document.getElementById('pBookingMode').value;
-    p.notification_emails = document.getElementById('pNotifyEmails').value.trim();
+    p.notification_emails = notifyEmails;
     saveData(data);
 
     if (window.reservoAuth && window.reservoAuth.auth.currentUser) {

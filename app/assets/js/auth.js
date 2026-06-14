@@ -349,9 +349,9 @@ function requireAuth() {
 function requireAdmin() {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (user) => {
-      if (!user) { location.href = 'login.html'; return; }
+      if (!user) { location.replace('login.html'); return; }
       const profile = await getUserProfile(user.uid).catch(() => null);
-      if (!profile || profile.role !== 'admin') { location.href = homeForProfile(profile); return; }
+      if (!profile || profile.role !== 'admin') { location.replace(homeForProfile(profile)); return; }
 
       document.documentElement.classList.remove('auth-pending');
       const displayName = profile.name || user.email;

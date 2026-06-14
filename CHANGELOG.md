@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-15 (Tabelle responsive su mobile per tutte le sezioni + controlli su form e route)
+- `style.css`: generalizzata la regola "tabella → lista di card" introdotta per `#bookingsTable` in una classe riutilizzabile `.responsive-table`, applicabile a qualsiasi tabella generata dinamicamente.
+- Applicata la classe `.responsive-table` (con attributi `data-label` sulle celle) a: tavoli (prenotazioni senza tavolo), eventi (elenco eventi + iscritti/lista d'attesa), clienti (elenco clienti + storico prenotazioni), comunicazioni (storico invii), admin (richieste di registrazione in attesa). Su mobile (≤640px) tutte queste tabelle non richiedono più scroll orizzontale.
+- `auth.js`: `requireAdmin()` usava ancora `location.href` per i redirect (utente non admin / non loggato), reintroducendo il "rimbalzo" al login col tasto indietro sulle pagine admin. Uniformato a `location.replace()` come già fatto per `requireAuth()`.
+- `login.html`: aggiunta validazione email (formato) su login, registrazione e recupero password, validazione nome obbligatorio su registrazione e completamento profilo, e password vuota non più accettata al login.
+- `impostazioni.js`: validazione formato email sui campi "Email" e "Email notifiche" del profilo attività prima del salvataggio.
+
 ## 2026-06-15 ("Tutte le prenotazioni" senza scroll orizzontale su mobile)
 - `prenotazioni.js`: aggiunti attributi `data-label` a ogni cella della tabella prenotazioni (Data, Ora, Cliente, Contatti, Persone, Stato, Note, azioni).
 - `style.css`: su mobile (≤640px) `#bookingsTable` non è più una tabella a 8 colonne (che richiedeva scroll orizzontale), ma una lista di "card" — ogni prenotazione è una riga con i campi impilati ed etichettati (tramite `::before` su `data-label`), tutto visibile senza scorrere lateralmente.

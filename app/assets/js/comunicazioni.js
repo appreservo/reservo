@@ -34,10 +34,10 @@
     broadcasts.sort((a, b) => fmtSentAt(b).localeCompare(fmtSentAt(a)));
     list.innerHTML = `<table><thead><tr><th>Data</th><th>Oggetto</th><th>Stato</th><th>Destinatari</th></tr></thead><tbody>` +
       broadcasts.map(b => `<tr>
-        <td>${fmtSentAt(b)}</td>
-        <td>${escapeHtml(b.subject || '')}</td>
-        <td><span class="badge badge-${b.status === 'sent' ? 'confirmed' : 'pending'}">${statusLabelBroadcast(b.status)}</span></td>
-        <td>${b.sent_count != null ? b.sent_count : '—'}</td>
+        <td data-label="Data">${fmtSentAt(b)}</td>
+        <td data-label="Oggetto">${escapeHtml(b.subject || '')}</td>
+        <td data-label="Stato"><span class="badge badge-${b.status === 'sent' ? 'confirmed' : 'pending'}">${statusLabelBroadcast(b.status)}</span></td>
+        <td data-label="Destinatari">${b.sent_count != null ? b.sent_count : '—'}</td>
       </tr>`).join('') + `</tbody></table>`;
   }
 

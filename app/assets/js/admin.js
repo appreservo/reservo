@@ -26,13 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <tbody>
           ${list.map(u => `
             <tr>
-              <td>${escapeHtml(u.businessName || '—')}</td>
-              <td>${typeLabel(u.businessType)}</td>
-              <td>${escapeHtml(u.name || '—')}</td>
-              <td>${escapeHtml(u.email || '—')}</td>
-              <td style="white-space:nowrap">
-                <button class="btn btn-gold btn-sm" data-approve="${u.id}">Approva</button>
-                <button class="btn btn-danger btn-sm" data-reject="${u.id}">Rifiuta</button>
+              <td data-label="Attività">${escapeHtml(u.businessName || '—')}</td>
+              <td data-label="Tipo">${typeLabel(u.businessType)}</td>
+              <td data-label="Referente">${escapeHtml(u.name || '—')}</td>
+              <td data-label="Email">${escapeHtml(u.email || '—')}</td>
+              <td data-label="" style="white-space:nowrap">
+                <div class="flex gap-2">
+                  <button class="btn btn-gold btn-sm" data-approve="${u.id}">Approva</button>
+                  <button class="btn btn-danger btn-sm" data-reject="${u.id}">Rifiuta</button>
+                </div>
               </td>
             </tr>`).join('')}
         </tbody>

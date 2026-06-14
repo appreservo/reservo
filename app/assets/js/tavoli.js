@@ -62,11 +62,11 @@
     } else {
       unassignedEl.innerHTML = `<table><thead><tr><th>Ora</th><th>Cliente</th><th>Persone</th><th>Stato</th><th>Tavolo</th></tr></thead><tbody>` +
         unassigned.map(b => `<tr>
-          <td>${b.time}</td>
-          <td>${escapeHtml(b.customer_name)}</td>
-          <td>${b.party_size}</td>
-          <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
-          <td><select data-assign="${b.id}" style="width:auto">${tableOptions(b)}</select></td>
+          <td data-label="Ora">${b.time}</td>
+          <td data-label="Cliente">${escapeHtml(b.customer_name)}</td>
+          <td data-label="Persone">${b.party_size}</td>
+          <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
+          <td data-label="Tavolo"><select data-assign="${b.id}" style="width:auto">${tableOptions(b)}</select></td>
         </tr>`).join('') + `</tbody></table>`;
     }
 

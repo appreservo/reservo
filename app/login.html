@@ -148,6 +148,11 @@
     }
   });
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function isValidEmail(email) {
+    return EMAIL_RE.test(email);
+  }
+
   const errorMessages = {
     'auth/invalid-email': 'Email non valida.',
     'auth/user-disabled': 'Account disabilitato.',
@@ -165,10 +170,22 @@
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
+    const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
     errorEl.classList.remove('show');
+
+    if (!isValidEmail(email)) {
+      errorEl.textContent = 'Inserisci un indirizzo email valido.';
+      errorEl.classList.add('show');
+      return;
+    }
+    if (!password) {
+      errorEl.textContent = 'Inserisci la password.';
+      errorEl.classList.add('show');
+      return;
+    }
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Accesso in corso…';
 
@@ -278,6 +295,16 @@
 
     registerError.classList.remove('show');
 
+    if (!name) {
+      registerError.textContent = 'Inserisci il tuo nome e cognome.';
+      registerError.classList.add('show');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      registerError.textContent = 'Inserisci un indirizzo email valido.';
+      registerError.classList.add('show');
+      return;
+    }
     if (password.length < 6) {
       registerError.textContent = 'La password deve avere almeno 6 caratteri.';
       registerError.classList.add('show');
@@ -368,6 +395,11 @@
 
     completeProfileError.classList.remove('show');
 
+    if (!name) {
+      completeProfileError.textContent = 'Inserisci il tuo nome e cognome.';
+      completeProfileError.classList.add('show');
+      return;
+    }
     if (cpSelectedRole === 'gestore' && !businessName) {
       completeProfileError.textContent = 'Inserisci il nome della tua attività.';
       completeProfileError.classList.add('show');
@@ -416,10 +448,17 @@
 
   resetForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('resetEmail').value;
+    const email = document.getElementById('resetEmail').value.trim();
 
     resetError.classList.remove('show');
     resetSuccess.classList.remove('show');
+
+    if (!isValidEmail(email)) {
+      resetError.textContent = 'Inserisci un indirizzo email valido.';
+      resetError.classList.add('show');
+      return;
+    }
+
     resetSubmit.disabled = true;
     resetSubmit.textContent = 'Invio in corso…';
 
