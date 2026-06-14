@@ -27,6 +27,32 @@ service cloud.firestore {
         && (!('comment' in data) || (data.comment is string && data.comment.size() <= 1000));
     }
 
+    function isValidBookingUpdate(data) {
+      return data.businessUid is string && data.businessUid.size() > 0
+        && data.date is string && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && data.time is string && data.time.matches('^[0-9]{2}:[0-9]{2}$')
+        && data.party_size is int && data.party_size >= 1 && data.party_size <= 50
+        && data.customer_name is string && data.customer_name.size() >= 1 && data.customer_name.size() <= 100
+        && data.status in ['pending', 'confirmed', 'rejected', 'cancelled']
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000))
+        && (!('email' in data) || (data.email is string && data.email.size() <= 100))
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 30));
+    }
+
+    function bookingOwnerFieldsUnchanged() {
+      return request.resource.data.businessUid == resource.data.businessUid
+        && request.resource.data.get('customerUid', null) == resource.data.get('customerUid', null);
+    }
+
+    function isValidReviewStatusUpdate() {
+      return request.resource.data.businessUid == resource.data.businessUid
+        && request.resource.data.customerUid == resource.data.customerUid
+        && request.resource.data.rating == resource.data.rating
+        && request.resource.data.customer_name == resource.data.customer_name
+        && request.resource.data.get('comment', null) == resource.data.get('comment', null)
+        && request.resource.data.status in ['pending', 'approved', 'rejected'];
+    }
+
     function isValidBusiness(data) {
       return data.business_name is string && data.business_name.size() >= 1 && data.business_name.size() <= 100
         && data.type in ['restaurant', 'artisan', 'professional']
@@ -62,10 +88,20 @@ service cloud.firestore {
 
     match /bookings/{bookingId} {
       allow create: if isValidBooking(request.resource.data);
-      allow read, update: if request.auth != null &&
+      allow read: if request.auth != null &&
         (resource.data.businessUid == request.auth.uid ||
          resource.data.customerUid == request.auth.uid ||
          isAdmin());
+      allow update: if request.auth != null && bookingOwnerFieldsUnchanged() &&
+        (
+          ((resource.data.businessUid == request.auth.uid || isAdmin())
+            && isValidBookingUpdate(request.resource.data))
+          ||
+          (resource.data.customerUid == request.auth.uid
+            && isValidBookingUpdate(request.resource.data)
+            && request.resource.data.status == 'cancelled'
+            && resource.data.status in ['pending', 'confirmed'])
+        );
       allow delete: if request.auth != null &&
         (resource.data.businessUid == request.auth.uid || isAdmin());
     }
@@ -73,7 +109,10 @@ service cloud.firestore {
     match /reviews/{reviewId} {
       allow create: if request.auth != null && isValidReview(request.resource.data);
       allow read: if true;
-      allow update, delete: if request.auth != null &&
+      allow update: if request.auth != null &&
+        (resource.data.businessUid == request.auth.uid || isAdmin())
+        && isValidReviewStatusUpdate();
+      allow delete: if request.auth != null &&
         (resource.data.businessUid == request.auth.uid || isAdmin());
     }
 

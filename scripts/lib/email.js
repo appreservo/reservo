@@ -5,6 +5,12 @@ function fmtDate(dateStr) {
   return `${d}/${m}/${y}`;
 }
 
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
 async function sendEmail({ to, subject, html }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!to || !apiKey) {
@@ -27,4 +33,4 @@ async function sendEmail({ to, subject, html }) {
   }
 }
 
-module.exports = { sendEmail, fmtDate };
+module.exports = { sendEmail, fmtDate, escapeHtml };

@@ -1,7 +1,7 @@
 /* Reservo demo - autenticazione reale via Firebase Authentication */
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, getCountFromServer, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAQNqwqsDX2bwNKjj1zt-PCfHH0R2KNjHM",
@@ -221,8 +221,8 @@ async function listGestoreUsers() {
 }
 
 async function countAllBookings() {
-  const snap = await getDocs(collection(db, 'bookings'));
-  return snap.size;
+  const snap = await getCountFromServer(collection(db, 'bookings'));
+  return snap.data().count;
 }
 
 async function listBusinesses() {

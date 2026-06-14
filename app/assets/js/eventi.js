@@ -18,8 +18,8 @@
         const past = ev.date < todayStr();
         return `<tr ${past ? 'style="opacity:.55"' : ''}>
           <td>${fmtDateLong(ev.date)}<br><span class="small text-mid">ore ${ev.time}</span></td>
-          <td><strong>${ev.title}</strong><div class="small text-mid">${(ev.description || '').slice(0, 80)}${(ev.description||'').length>80?'…':''}</div></td>
-          <td>${ev.location || '—'}</td>
+          <td><strong>${escapeHtml(ev.title)}</strong><div class="small text-mid">${escapeHtml((ev.description || '').slice(0, 80))}${(ev.description||'').length>80?'…':''}</div></td>
+          <td>${escapeHtml(ev.location || '—')}</td>
           <td>${peopleCount} / ${ev.max_participants}${waitlistCount ? `<div class="small text-mid">${waitlistCount} in lista d'attesa</div>` : ''}</td>
           <td>
             <div class="flex gap-2">
@@ -113,8 +113,8 @@
     } else {
       html += `<table><thead><tr><th>Nome</th><th>Contatti</th><th>Persone</th><th></th></tr></thead><tbody>` +
         regs.map(r => `<tr>
-          <td>${r.name}</td>
-          <td class="small text-mid">${[r.email, r.phone].filter(Boolean).join('<br>')}</td>
+          <td>${escapeHtml(r.name)}</td>
+          <td class="small text-mid">${[r.email, r.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
           <td>${r.people || 1}</td>
           <td><button class="btn btn-danger btn-sm" data-remove-reg="${r.id}">Rimuovi</button></td>
         </tr>`).join('') + `</tbody></table>`;
@@ -124,8 +124,8 @@
       html += `<h4 class="text-navy mt-3" style="margin-bottom:.5rem">Lista d'attesa</h4>`;
       html += `<table><thead><tr><th>Nome</th><th>Contatti</th><th>Persone</th><th></th></tr></thead><tbody>` +
         waitlist.map(r => `<tr>
-          <td>${r.name}</td>
-          <td class="small text-mid">${[r.email, r.phone].filter(Boolean).join('<br>')}</td>
+          <td>${escapeHtml(r.name)}</td>
+          <td class="small text-mid">${[r.email, r.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
           <td>${r.people || 1}</td>
           <td>
             <button class="btn btn-outline btn-sm" data-promote-reg="${r.id}">Promuovi</button>

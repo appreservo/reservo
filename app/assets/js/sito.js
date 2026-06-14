@@ -100,7 +100,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       html += `<div class="menu-category"><h3>${escapeHtml(cat)}</h3><div class="menu-grid">`;
       list.forEach(item => {
         html += `<div class="menu-card">
-          ${item.photo ? `<img src="${escapeHtml(item.photo)}" alt="${escapeHtml(item.name)}">` : ''}
+          ${item.photo ? `<img src="${escapeHtml(item.photo)}" alt="${escapeHtml(item.name)}" loading="lazy">` : ''}
           <div class="body">
             <h4>${escapeHtml(item.name)} <span>${euro(item.price)}</span></h4>
             <div class="desc">${escapeHtml(item.description || '')}</div>

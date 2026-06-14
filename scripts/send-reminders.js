@@ -2,7 +2,7 @@
  * il giorno successivo. Pensato per essere eseguito una volta al giorno
  * via GitHub Actions (cron). */
 const { initDb } = require('./lib/firebase');
-const { sendEmail, fmtDate } = require('./lib/email');
+const { sendEmail, fmtDate, escapeHtml } = require('./lib/email');
 
 (async () => {
   const db = initDb();
@@ -32,18 +32,18 @@ const { sendEmail, fmtDate } = require('./lib/email');
         ? (pubSnap.data().profile?.business_name || 'Reservo')
         : 'Reservo';
     }
-    const businessName = businessNames[booking.businessUid];
+    const businessName = escapeHtml(businessNames[booking.businessUid]);
 
     await sendEmail({
       to: booking.email,
       subject: `Promemoria prenotazione - ${businessName}`,
       html: `
-        <p>Ciao ${booking.customer_name || ''},</p>
+        <p>Ciao ${escapeHtml(booking.customer_name)},</p>
         <p>Ti ricordiamo la tua prenotazione di domani presso <strong>${businessName}</strong>:</p>
         <ul>
           <li>Data: ${fmtDate(booking.date)}</li>
-          <li>Ora: ${booking.time}</li>
-          <li>Persone: ${booking.party_size}</li>
+          <li>Ora: ${escapeHtml(booking.time)}</li>
+          <li>Persone: ${escapeHtml(booking.party_size)}</li>
         </ul>
         <p>A presto, il team di ${businessName}</p>
       `,
