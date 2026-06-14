@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-14 (Seconda passata da audit: update bookings/reviews, email-injection, eventi.js, SEO base)
+- `firestore.rules`: validazione anche su `update` di `bookings` (campi immutabili `businessUid`/`customerUid`, stato consentito, il cliente può solo annullare la propria prenotazione) e `reviews` (il gestore può solo cambiare lo stato, non rating/commento/nome).
+- `scripts/lib/email.js`/`send-emails.js`/`send-reminders.js`: aggiunta `escapeHtml()` su tutti i dati utente interpolati nei template email (rischio HTML/email injection); corretto il testo "in attesa di confermata" → "in attesa di conferma".
+- `eventi.js`: applicato `escapeHtml()` ai campi inseriti da gestore/iscritti (titolo, descrizione, luogo, nome/contatti iscritti), in linea col resto dell'hardening.
+- `sito.html`/`sito.js`: meta description, OG tags, preconnect font Google, `aria-label` sul burger menu, `loading="lazy"` sulle immagini del menu; nuovo `app/robots.txt`.
+- `auth.js`: `countAllBookings()` usa `getCountFromServer` invece di leggere tutta la collezione `bookings` (meno letture per la dashboard admin).
+
 ## 2026-06-14 (Hardening: XSS, regole Firestore, verifica email, pipeline email via GitHub Actions+Resend)
 - **XSS**: nuova funzione globale `escapeHtml()` in `db.js`, applicata a tutte le interpolazioni di dati utente (nomi, note, commenti, oggetti, descrizioni) dentro `innerHTML` in `prenotazioni.js`, `dashboard.js`, `clienti.js`, `recensioni.js`, `comunicazioni.js`, `tavoli.js`, `area.js`, `admin.js`, `sito.js`, `menu.js`.
 - **Regole Firestore** (`firestore.rules`): nuove funzioni `isValidBooking()`/`isValidReview()`/`isValidBusiness()`; `bookings` (create) e `reviews` (create) ora validano i campi inviati; nuovo blocco `match /broadcasts/{broadcastId}` (prima assente, default-deny bloccava `createBroadcast`); `businesses` write separato in `create`/`update`/`delete` con protezione anti-escalation (un gestore non può auto-approvarsi cambiando `status`).
