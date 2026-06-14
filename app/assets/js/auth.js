@@ -39,7 +39,7 @@ function loginWithGoogle() {
 
 function logout() {
   sessionStorage.removeItem('reservo_viewAs');
-  return signOut(auth).then(() => { location.href = 'login.html'; });
+  return signOut(auth).then(() => { location.replace('login.html'); });
 }
 
 function resetPassword(email) {
@@ -330,7 +330,7 @@ function requireAuth() {
 
         const home = homeForProfile(profile);
         const allowed = (GESTIONALE_PAGES.includes(current) && home === 'index.html') || current === home;
-        if (!allowed) { location.href = home; return; }
+        if (!allowed) { location.replace(home); return; }
 
         document.documentElement.classList.remove('auth-pending');
         const displayName = (profile && profile.name) || user.email;
@@ -340,7 +340,7 @@ function requireAuth() {
         window.dispatchEvent(new Event('reservo-auth-ready'));
         resolve(user);
       } else {
-        location.href = 'login.html';
+        location.replace('login.html');
       }
     });
   });

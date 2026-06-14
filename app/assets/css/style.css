@@ -14,6 +14,26 @@
   --sidebar-w: 250px;
 }
 
+html.auth-pending::before {
+  content: '';
+  visibility: visible;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  margin: -18px;
+  border: 3px solid var(--border);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: reservo-spin .8s linear infinite;
+  z-index: 9999;
+}
+
+@keyframes reservo-spin {
+  to { transform: rotate(360deg); }
+}
+
 * { box-sizing: border-box; }
 
 html, body {

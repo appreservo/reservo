@@ -141,7 +141,7 @@
     if (user) {
       const profile = await getUserProfile(user.uid).catch(() => null);
       if (profile) {
-        location.href = homeForProfile(profile);
+        location.replace(homeForProfile(profile));
       } else {
         showCompleteProfile(user);
       }
@@ -176,7 +176,7 @@
       const cred = await login(email, password);
       const profile = await getUserProfile(cred.user.uid).catch(() => null);
       if (profile) {
-        location.href = homeForProfile(profile);
+        location.replace(homeForProfile(profile));
       } else {
         showCompleteProfile(cred.user);
       }
@@ -197,7 +197,7 @@
       const cred = await loginWithGoogle();
       const profile = await getUserProfile(cred.user.uid).catch(() => null);
       if (profile) {
-        location.href = homeForProfile(profile);
+        location.replace(homeForProfile(profile));
       } else {
         showCompleteProfile(cred.user);
       }
@@ -321,9 +321,9 @@
         seed.profile.slug = slug;
         await window.reservoAuth.saveBusinessData(uid, seed);
         await window.reservoAuth.savePublicBusinessData(uid, buildPublicData(seed));
-        location.href = 'pending.html';
+        location.replace('pending.html');
       } else {
-        location.href = 'area.html';
+        location.replace('area.html');
       }
     } catch (err) {
       registerError.textContent = errorMessages[err.code] || 'Registrazione non riuscita. Riprova.';
@@ -402,9 +402,9 @@
         seed.profile.email = email;
         await window.reservoAuth.saveBusinessData(uid, seed);
         await window.reservoAuth.savePublicBusinessData(uid, buildPublicData(seed));
-        location.href = 'pending.html';
+        location.replace('pending.html');
       } else {
-        location.href = 'area.html';
+        location.replace('area.html');
       }
     } catch (err) {
       completeProfileError.textContent = 'Si è verificato un errore. Riprova.';

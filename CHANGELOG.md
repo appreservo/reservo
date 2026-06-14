@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-14 (Fix navigazione post-login e ritocchi mobile)
+- `login.html`/`auth.js`: tutti i redirect dopo login/registrazione/Google e dopo logout usano ora `location.replace()` invece di `location.href`, così la pagina di login (o la dashboard precedente) non resta nello storico del browser — premendo "indietro" dopo il login non si torna più alla pagina di login con effetto "rimbalzo".
+- `style.css`: aggiunto uno spinner di caricamento durante il controllo di autenticazione (`auth-pending`), che prima mostrava una pagina completamente bianca — utile su connessioni mobili lente.
+- `clienti.html`: il campo di ricerca aveva una larghezza fissa (`width:280px`) che andava in overflow su mobile, ora `width:100%; max-width:280px`.
+- `index.html`: la mock-UI nella hero aveva una griglia a 3 colonne fissa (`grid-cols-3`) troppo stretta su mobile, ora `grid-cols-1 sm:grid-cols-3` con padding ridotto su schermi piccoli.
+- `public.css`: titolo hero del sito pubblico ridotto sotto i 720px e `.menu-grid` forzata a 1 colonna su mobile per evitare overflow orizzontale.
+
 ## 2026-06-14 (Seconda passata da audit: update bookings/reviews, email-injection, eventi.js, SEO base)
 - `firestore.rules`: validazione anche su `update` di `bookings` (campi immutabili `businessUid`/`customerUid`, stato consentito, il cliente può solo annullare la propria prenotazione) e `reviews` (il gestore può solo cambiare lo stato, non rating/commento/nome).
 - `scripts/lib/email.js`/`send-emails.js`/`send-reminders.js`: aggiunta `escapeHtml()` su tutti i dati utente interpolati nei template email (rischio HTML/email injection); corretto il testo "in attesa di confermata" → "in attesa di conferma".
