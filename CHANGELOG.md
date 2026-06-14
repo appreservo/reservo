@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-15 (Banner "sola lettura"/"verifica email" più compatti su mobile)
+- `style.css`: su mobile (≤640px) i banner "Stai visualizzando in sola lettura..." e "Verifica il tuo indirizzo email..." occupavano troppo spazio verticale. Ridotti font-size e padding (anche dei pulsanti interni) su schermi piccoli.
+
 ## 2026-06-15 (Tabelle responsive su mobile per tutte le sezioni + controlli su form e route)
 - `style.css`: generalizzata la regola "tabella → lista di card" introdotta per `#bookingsTable` in una classe riutilizzabile `.responsive-table`, applicabile a qualsiasi tabella generata dinamicamente.
 - Applicata la classe `.responsive-table` (con attributi `data-label` sulle celle) a: tavoli (prenotazioni senza tavolo), eventi (elenco eventi + iscritti/lista d'attesa), clienti (elenco clienti + storico prenotazioni), comunicazioni (storico invii), admin (richieste di registrazione in attesa). Su mobile (≤640px) tutte queste tabelle non richiedono più scroll orizzontale.
