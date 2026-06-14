@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-14 (Fix radice overflow mobile: .main/.content senza min-width:0)
+- `style.css`: causa reale dell'overflow su mobile: `.card table { min-width: 460px }` si propagava come dimensione minima fino a `.main` e `.content` (flex item senza `min-width:0`, il default è `min-width:auto` = min-content), rendendo l'intera pagina più larga dello schermo (~460px contro ~330px) e tagliando a destra calendario, intestazioni tabella e filtri. Aggiunto `min-width: 0` su `.main` e `.content`: ora solo le tabelle larghe scorrono internamente nella propria `.card`, il resto della pagina resta nella larghezza dello schermo.
+
 ## 2026-06-14 (Fix overflow orizzontale a livello pagina su mobile)
 - `style.css`/`public.css`: aggiunto `overflow-x: hidden; max-width: 100%` su `html, body`. Su mobile, qualsiasi elemento che superi anche di poco la larghezza dello schermo (tabelle, calendario, banner) creava uno scroll orizzontale a livello di pagina che spostava tutto il contenuto (calendario, intestazioni tabella, filtri) lasciandolo tagliato a sinistra. Ora l'overflow viene contenuto e il contenuto resta sempre allineato a sinistra.
 
