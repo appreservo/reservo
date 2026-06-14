@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-06-14 (Fix calendario prenotazioni fuori schermo su mobile)
+- `style.css`: il calendario (`prenotazioni.html`) usava `grid-template-columns: repeat(7, 1fr)`, ma le pillole prenotazione (`white-space: nowrap`) impedivano alle colonne di restringersi sotto il loro contenuto, facendo allargare l'intera griglia oltre lo schermo (serviva scorrere orizzontalmente). Corretto con `minmax(0, 1fr)` + `min-width: 0`/`overflow: hidden` sulle celle, così le pillole troncano con ellissi invece di forzare overflow.
+- `style.css`: su mobile (≤640px) l'intestazione del calendario (pulsanti "Mese prec./succ." + titolo mese) va ora a capo e usa font/padding più compatti per non sforare la larghezza dello schermo.
+
 ## 2026-06-14 (Fix icona "Anteprima sito")
 - `style.css`: l'icona del pulsante "Anteprima sito" nel topbar (gestionale) non aveva una dimensione definita e veniva renderizzata alla dimensione di default del browser (~150px), rompendo il pulsante. Aggiunta regola `.btn svg { width: 16px; height: 16px; }`.
 
