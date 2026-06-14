@@ -42,6 +42,8 @@ html, body {
   font-family: 'Nunito', system-ui, sans-serif;
   background: var(--cream);
   color: var(--text-dark);
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 a { color: inherit; text-decoration: none; }

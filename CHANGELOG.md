@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-14 (Fix overflow orizzontale a livello pagina su mobile)
+- `style.css`/`public.css`: aggiunto `overflow-x: hidden; max-width: 100%` su `html, body`. Su mobile, qualsiasi elemento che superi anche di poco la larghezza dello schermo (tabelle, calendario, banner) creava uno scroll orizzontale a livello di pagina che spostava tutto il contenuto (calendario, intestazioni tabella, filtri) lasciandolo tagliato a sinistra. Ora l'overflow viene contenuto e il contenuto resta sempre allineato a sinistra.
+
 ## 2026-06-14 (Fix tabelle dashboard "Prossime prenotazioni"/"Da approvare" fuori schermo su mobile)
 - `style.css`: come per il calendario, le tabelle della dashboard (`#upcomingList`, `#pendingList`, 5 colonne) avevano `min-width: 460px` ereditato dalla regola generale `.card table`, costringendo a scorrere orizzontalmente su schermi piccoli. Ora `table-layout: fixed; width: 100%` con colonne a percentuale e troncamento ellissi sulla colonna "Cliente", così la tabella resta dentro lo schermo (pattern già usato per `#businessTable`).
 
