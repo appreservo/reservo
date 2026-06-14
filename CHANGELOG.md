@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-14 (Fix tabelle dashboard "Prossime prenotazioni"/"Da approvare" fuori schermo su mobile)
+- `style.css`: come per il calendario, le tabelle della dashboard (`#upcomingList`, `#pendingList`, 5 colonne) avevano `min-width: 460px` ereditato dalla regola generale `.card table`, costringendo a scorrere orizzontalmente su schermi piccoli. Ora `table-layout: fixed; width: 100%` con colonne a percentuale e troncamento ellissi sulla colonna "Cliente", così la tabella resta dentro lo schermo (pattern già usato per `#businessTable`).
+
 ## 2026-06-14 (Fix calendario prenotazioni fuori schermo su mobile)
 - `style.css`: il calendario (`prenotazioni.html`) usava `grid-template-columns: repeat(7, 1fr)`, ma le pillole prenotazione (`white-space: nowrap`) impedivano alle colonne di restringersi sotto il loro contenuto, facendo allargare l'intera griglia oltre lo schermo (serviva scorrere orizzontalmente). Corretto con `minmax(0, 1fr)` + `min-width: 0`/`overflow: hidden` sulle celle, così le pillole troncano con ellissi invece di forzare overflow.
 - `style.css`: su mobile (≤640px) l'intestazione del calendario (pulsanti "Mese prec./succ." + titolo mese) va ora a capo e usa font/padding più compatti per non sforare la larghezza dello schermo.

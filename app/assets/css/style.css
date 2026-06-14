@@ -471,6 +471,15 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
   #businessTable th:last-child, #businessTable td:last-child { width: 22%; }
   #businessTable .badge { font-size: .62rem; padding: .15rem .4rem; white-space: normal; line-height: 1.3; }
   #businessTable .btn-sm { padding: .22rem .35rem; font-size: .65rem; white-space: nowrap; }
+  #upcomingList table, #pendingList table { min-width: 0; width: 100%; table-layout: fixed; }
+  #upcomingList th, #upcomingList td, #pendingList th, #pendingList td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #upcomingList th:nth-child(1), #upcomingList td:nth-child(1), #pendingList th:nth-child(1), #pendingList td:nth-child(1) { width: 20%; }
+  #upcomingList th:nth-child(2), #upcomingList td:nth-child(2), #pendingList th:nth-child(2), #pendingList td:nth-child(2) { width: 14%; }
+  #upcomingList th:nth-child(3), #upcomingList td:nth-child(3), #pendingList th:nth-child(3), #pendingList td:nth-child(3) { width: 34%; }
+  #upcomingList th:nth-child(4), #upcomingList td:nth-child(4), #pendingList th:nth-child(4), #pendingList td:nth-child(4) { width: 12%; }
+  #upcomingList th:nth-child(5), #upcomingList td:nth-child(5), #pendingList th:nth-child(5), #pendingList td:nth-child(5) { width: 20%; overflow: visible; white-space: normal; text-overflow: clip; }
+  #upcomingList .badge { font-size: .62rem; padding: .15rem .35rem; white-space: normal; line-height: 1.3; }
+  #pendingList .btn-sm { padding: .22rem .35rem; font-size: .65rem; }
   .calendar-grid { gap: 4px; }
   .calendar-cell { min-height: 60px; padding: .25rem; }
   .cal-pill { font-size: .6rem; }
