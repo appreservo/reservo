@@ -17,6 +17,7 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
 function login(email, password) {
+  sessionStorage.removeItem('reservo_viewAs');
   return signInWithEmailAndPassword(auth, email, password);
 }
 
@@ -25,6 +26,7 @@ function register(email, password) {
 }
 
 function logout() {
+  sessionStorage.removeItem('reservo_viewAs');
   return signOut(auth).then(() => { location.href = 'login.html'; });
 }
 
