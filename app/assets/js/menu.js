@@ -1,7 +1,10 @@
 (async function () {
   const data = await loadData();
   const isRestaurant = data.profile.type === 'restaurant';
-  renderLayout(isRestaurant ? 'Menu' : 'Listino prezzi', data);
+  const pageLabel = isRestaurant ? 'Menu' : 'Listino prezzi';
+  renderLayout(pageLabel, data);
+  document.title = pageLabel + ' · Reservo';
+  document.getElementById('menuPageTitle').textContent = pageLabel;
   document.getElementById('allergenField').style.display = isRestaurant ? '' : 'none';
 
   let photoData = null; // base64 of currently selected photo in modal
@@ -27,7 +30,7 @@
 
     const container = document.getElementById('menuList');
     if (items.length === 0) {
-      container.innerHTML = `<div class="empty-state"><p>Nessuna voce nel menu. Aggiungi la prima voce.</p></div>`;
+      container.innerHTML = `<div class="empty-state"><p>Nessuna voce nel ${isRestaurant ? 'menu' : 'listino'}. Aggiungi la prima voce.</p></div>`;
       return;
     }
 
@@ -126,7 +129,7 @@
 
   document.getElementById('deleteItemBtn').addEventListener('click', () => {
     const id = document.getElementById('iId').value;
-    if (!id || !confirm('Eliminare questa voce dal menu?')) return;
+    if (!id || !confirm(`Eliminare questa voce dal ${isRestaurant ? 'menu' : 'listino'}?`)) return;
     data.menu = data.menu.filter(i => i.id !== id);
     saveData(data);
     modal.classList.remove('open');

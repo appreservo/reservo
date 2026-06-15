@@ -508,13 +508,14 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
   .review-card .flex { flex-wrap: wrap; }
   .stars { font-size: 1rem; }
   .impersonation-banner, .verify-email-banner {
-    font-size: .72rem;
-    padding: .35rem .6rem;
-    gap: .4rem;
-    line-height: 1.3;
+    font-size: .7rem;
+    padding: .3rem .5rem;
+    gap: .35rem;
+    line-height: 1.25;
   }
   .impersonation-banner .btn, .verify-email-banner .btn {
-    padding: .2rem .55rem;
-    font-size: .7rem;
+    padding: .18rem .5rem;
+    font-size: .68rem;
   }
+  .hide-mobile { display: none; }
 }

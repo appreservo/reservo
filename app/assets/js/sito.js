@@ -26,6 +26,11 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   }
 
   const p = data.profile;
+  const isRestaurant = p.type === 'restaurant';
+  const menuLabel = isRestaurant ? 'Menu' : 'Listino prezzi';
+  document.getElementById('navMenuLink').textContent = menuLabel;
+  document.getElementById('menuSectionTitle').textContent = menuLabel;
+  document.getElementById('qrDescription').textContent = `Stampa questo QR code e mettilo in vetrina o sui tavoli: i clienti potranno consultare ${isRestaurant ? 'il menu' : 'il listino prezzi'} e prenotare direttamente da smartphone.`;
   let businessUid = business ? business.id : null;
   if (!businessUid) {
     const user = await whoAmI();
@@ -90,7 +95,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     const container = document.getElementById('menuContainer');
     const items = data.menu.filter(i => i.available !== false);
     if (items.length === 0) {
-      container.innerHTML = `<p class="text-mid" style="text-align:center">Il menu non è ancora disponibile.</p>`;
+      container.innerHTML = `<p class="text-mid" style="text-align:center">${isRestaurant ? 'Il menu' : 'Il listino prezzi'} non è ancora disponibile.</p>`;
       return;
     }
     const groups = new Map();

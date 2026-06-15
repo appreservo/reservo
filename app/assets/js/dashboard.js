@@ -58,6 +58,8 @@
   document.getElementById('sumName').textContent = data.profile.business_name;
   document.getElementById('sumType').textContent = typeLabel(data.profile.type);
   document.getElementById('sumMode').textContent = data.profile.booking_mode === 'auto' ? 'Conferma automatica' : 'Approvazione manuale';
+  const isRestaurant = data.profile.type === 'restaurant';
+  document.getElementById('sumMenuLabel').textContent = isRestaurant ? 'Voci menu' : 'Voci listino';
   document.getElementById('sumMenu').textContent = data.menu.length + ' voci';
   document.getElementById('sumEvents').textContent = data.events.filter(e => e.date >= today).length;
   document.getElementById('sumStaff').textContent = data.staff.length + ' persone';

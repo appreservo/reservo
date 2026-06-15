@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-15 (Banner verifica email ancora più compatto + "Listino prezzi" senza riferimenti a "menu")
+- `style.css`: ridotti ulteriormente font-size/padding dei banner "sola lettura"/"verifica email" su mobile e aggiunta classe generica `.hide-mobile`.
+- `layout.js`: sul banner di verifica email, su mobile viene nascosta la seconda frase ("Controlla la posta in arrivo.") per ridurre l'altezza del banner.
+- `menu.js`/`menu.html`: per le attività non-ristorante ("Listino prezzi"), il titolo della pagina, l'intestazione, il messaggio "nessuna voce" e la conferma di eliminazione non mostrano più la parola "menu" ma "listino".
+- `dashboard.js`/`index.html`: l'etichetta della statistica "Voci menu/listino" diventa "Voci menu" o "Voci listino" in base al tipo di attività.
+- `sito.js`/`sito.html`: sul sito pubblico, link di navigazione, titolo sezione, messaggio "non ancora disponibile" e testo del QR code mostrano "Listino prezzi"/"il listino prezzi" invece di "Menu"/"il menu" per le attività non-ristorante.
+
 ## 2026-06-15 (Banner "sola lettura"/"verifica email" più compatti su mobile)
 - `style.css`: su mobile (≤640px) i banner "Stai visualizzando in sola lettura..." e "Verifica il tuo indirizzo email..." occupavano troppo spazio verticale. Ridotti font-size e padding (anche dei pulsanti interni) su schermi piccoli.
 

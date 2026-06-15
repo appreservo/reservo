@@ -28,7 +28,7 @@
   </a>
   <button class="nav-burger" id="navBurger" aria-label="Apri il menu di navigazione">☰</button>
   <nav class="site-nav" id="siteNav">
-    <a href="#menu">Menu</a>
+    <a href="#menu" id="navMenuLink">Menu</a>
     <a href="#prenota">Prenota</a>
     <a href="#cerca">Le mie prenotazioni</a>
     <a href="#eventi">Eventi</a>
@@ -48,7 +48,7 @@
 </section>
 
 <section class="section" id="menu">
-  <h2>Menu<span class="underline"></span></h2>
+  <h2><span id="menuSectionTitle">Menu</span><span class="underline"></span></h2>
   <div id="menuContainer"></div>
 </section>
 
@@ -148,7 +148,7 @@
 <section class="section" id="qr">
   <h2>QR Code<span class="underline"></span></h2>
   <div class="box qr-box">
-    <p class="text-mid">Stampa questo QR code e mettilo in vetrina o sui tavoli: i clienti potranno consultare il menu e prenotare direttamente da smartphone.</p>
+    <p class="text-mid" id="qrDescription">Stampa questo QR code e mettilo in vetrina o sui tavoli: i clienti potranno consultare il menu e prenotare direttamente da smartphone.</p>
     <div id="qrcode"></div>
     <button type="button" class="btn btn-outline" id="downloadQr">Scarica QR code</button>
   </div>

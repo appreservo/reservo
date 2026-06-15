@@ -142,7 +142,7 @@ function renderLayout(pageTitle, data) {
       verifyBanner.id = 'verifyEmailBanner';
       verifyBanner.className = 'verify-email-banner';
       verifyBanner.innerHTML = `
-        <span>Verifica il tuo indirizzo email per proteggere il tuo account. Controlla la posta in arrivo.</span>
+        <span>Verifica il tuo indirizzo email per proteggere il tuo account.<span class="hide-mobile"> Controlla la posta in arrivo.</span></span>
         <button class="btn btn-sm" id="resendVerificationBtn">Invia di nuovo</button>`;
       document.body.prepend(verifyBanner);
       document.getElementById('resendVerificationBtn').addEventListener('click', async (e) => {
