@@ -230,6 +230,17 @@ async function listBusinesses() {
   return list.filter(b => !b.status || b.status === 'active');
 }
 
+/* tutti i clienti registrati (account cross-tenant, role 'cliente'), per il pannello admin */
+async function listAllCustomers() {
+  const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'cliente')));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+/* elimina il profilo di un cliente (pannello admin) — non tocca le prenotazioni/recensioni gia' fatte */
+async function deleteCustomerAccount(uid) {
+  await deleteDoc(doc(db, 'users', uid));
+}
+
 async function listPendingAccounts() {
   const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'gestore'), where('status', '==', 'pending')));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -374,6 +385,7 @@ window.reservoAuth = {
   createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
   getBusinessUid, isViewingAs, resendVerificationEmail,
+  listAllCustomers, deleteCustomerAccount,
   serverTimestamp,
 };
 export {
@@ -386,5 +398,6 @@ export {
   createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
   getBusinessUid, isViewingAs, resendVerificationEmail,
+  listAllCustomers, deleteCustomerAccount,
   serverTimestamp,
 };

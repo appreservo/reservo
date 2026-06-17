@@ -25,7 +25,7 @@ const NAV = [
   ]},
   { group: 'Prenotazioni', items: [
     { href: 'prenotazioni.html', label: 'Prenotazioni', icon: 'bookings' },
-    { href: 'tavoli.html', label: 'Tavoli', icon: 'tables', types: ['restaurant'] },
+    { href: 'tavoli.html', label: 'Tavoli', icon: 'tables', types: ['restaurant'], feature: 'tables' },
     { href: 'clienti.html', label: 'Clienti', icon: 'customers' },
     { href: 'statistiche.html', label: 'Statistiche', icon: 'stats' },
   ]},
@@ -34,14 +34,14 @@ const NAV = [
     { href: 'sito.html', label: 'QR Code', icon: 'qr', external: true },
   ]},
   { group: 'Attività', items: [
-    { href: 'eventi.html', label: 'Eventi', icon: 'events', types: ['restaurant'] },
+    { href: 'eventi.html', label: 'Eventi', icon: 'events', types: ['restaurant'], feature: 'events' },
     { href: 'recensioni.html', label: 'Recensioni', icon: 'star' },
     { href: 'comunicazioni.html', label: 'Comunicazioni', icon: 'broadcast' },
   ]},
   { group: 'Configurazione', items: [
     { href: 'impostazioni.html#servizi', label: 'Servizi', icon: 'services', match: 'impostazioni.html' },
-    { href: 'impostazioni.html#staff', label: 'Staff', icon: 'staff', match: 'impostazioni.html' },
-    { href: 'impostazioni.html#postazioni', label: 'Postazioni', icon: 'tables', match: 'impostazioni.html', types: ['restaurant'] },
+    { href: 'impostazioni.html#staff', label: 'Staff', icon: 'staff', match: 'impostazioni.html', feature: 'staff' },
+    { href: 'impostazioni.html#postazioni', label: 'Postazioni', icon: 'tables', match: 'impostazioni.html', types: ['restaurant'], feature: 'tables' },
     { href: 'impostazioni.html#coupon', label: 'Coupon', icon: 'coupon', match: 'impostazioni.html' },
   ]},
   { group: 'Impostazioni', items: [
@@ -51,7 +51,8 @@ const NAV = [
 
 function renderLayout(pageTitle, data) {
   const current = location.pathname.split('/').pop() || 'index.html';
-  const businessType = (data && data.profile && data.profile.type) || 'restaurant';
+  const businessType = (data && data.profile && data.profile.type) || '';
+  const hiddenFeatures = (data && data.profile && data.profile.hidden_features) || [];
 
   let sidebarHtml = `
     <a href="index.html" class="sidebar-brand">
@@ -63,7 +64,10 @@ function renderLayout(pageTitle, data) {
     </a>`;
 
   NAV.forEach(group => {
-    const items = group.items.filter(item => !item.types || item.types.includes(businessType));
+    const items = group.items.filter(item =>
+      (!item.types || item.types.includes(businessType)) &&
+      (!item.feature || !hiddenFeatures.includes(item.feature))
+    );
     if (items.length === 0) return;
     if (group.group) {
       sidebarHtml += `<div class="sidebar-group"><div class="sidebar-group-label">${group.group}</div>`;

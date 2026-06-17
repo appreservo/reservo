@@ -28,6 +28,24 @@
   document.getElementById('pBookingMode').value = p.booking_mode || 'manual';
   document.getElementById('pNotifyEmails').value = p.notification_emails || '';
 
+  // ---------- funzionalità visibili ----------
+  // feature -> tipi di attività per cui ha senso mostrare il toggle (vuoto = tutti)
+  const FEATURE_TYPES = { featTables: ['restaurant'], featEvents: ['restaurant'], featStaff: [] };
+  const hiddenFeatures = p.hidden_features || [];
+  document.getElementById('featTables').checked = !hiddenFeatures.includes('tables');
+  document.getElementById('featEvents').checked = !hiddenFeatures.includes('events');
+  document.getElementById('featStaff').checked = !hiddenFeatures.includes('staff');
+
+  function updateFeatureRowsVisibility() {
+    const type = document.getElementById('pType').value;
+    Object.entries(FEATURE_TYPES).forEach(([id, types]) => {
+      const row = document.getElementById(id).closest('label');
+      row.style.display = (types.length === 0 || types.includes(type)) ? '' : 'none';
+    });
+  }
+  updateFeatureRowsVisibility();
+  document.getElementById('pType').addEventListener('change', updateFeatureRowsVisibility);
+
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   document.getElementById('profileForm').addEventListener('submit', (e) => {
@@ -55,6 +73,13 @@
     p.description = document.getElementById('pDescription').value.trim();
     p.booking_mode = document.getElementById('pBookingMode').value;
     p.notification_emails = notifyEmails;
+
+    const hidden = [];
+    if (!document.getElementById('featTables').checked) hidden.push('tables');
+    if (!document.getElementById('featEvents').checked) hidden.push('events');
+    if (!document.getElementById('featStaff').checked) hidden.push('staff');
+    p.hidden_features = hidden;
+
     saveData(data);
 
     if (window.reservoAuth && window.reservoAuth.auth.currentUser) {

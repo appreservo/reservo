@@ -243,6 +243,25 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
 .checkbox-row input { width: auto; }
 .checkbox-row label { margin: 0; }
 
+.password-wrap { position: relative; }
+.password-wrap input { padding-right: 38px; }
+.pwd-toggle-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+}
+.pwd-toggle-btn:hover { color: #475569; }
+.pwd-toggle-btn svg { width: 18px; height: 18px; }
+
 /* ---------- TABS ---------- */
 .tabs { display: flex; gap: .3rem; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; flex-wrap: wrap; }
 .tab {

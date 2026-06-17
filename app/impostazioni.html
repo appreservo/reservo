@@ -58,6 +58,17 @@
               </select>
             </div>
             <div class="field"><label>Email notifiche (separate da virgola)</label><input type="text" id="pNotifyEmails"></div>
+
+            <div class="field" id="featuresField">
+              <label>Funzionalità visibili</label>
+              <p class="text-mid small mt-3" style="margin-bottom:.5rem">Disattiva le funzioni opzionali che non usi: vengono nascoste sia dal menu del gestionale che dal sito pubblico.</p>
+              <div style="display:flex; flex-direction:column; gap:.4rem">
+                <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featTables" style="width:auto"> Tavoli e postazioni</label>
+                <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featEvents" style="width:auto"> Eventi</label>
+                <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featStaff" style="width:auto"> Staff</label>
+              </div>
+            </div>
+
             <button type="submit" class="btn btn-primary">Salva profilo</button>
           </form>
         </div>

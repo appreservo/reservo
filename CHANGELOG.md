@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-18 (Gestione clienti in admin, funzionalità nascondibili, fix tipo attività, mostra password)
+- `auth.js`/`admin.js`/`admin.html`: nuova sezione "Clienti registrati" nel pannello admin per cercare ed eliminare gli account cliente (role `cliente`) — le prenotazioni e recensioni già fatte restano intatte.
+- `layout.js`: rimosso il fallback nascosto `|| 'restaurant'` sul tipo attività nella sidebar (mascherava eventuali problemi facendo apparire l'attività come ristorante); aggiunta la possibilità di nascondere singolarmente le voci Tavoli, Eventi e Staff.
+- `impostazioni.html`/`impostazioni.js`: nuova sezione "Funzionalità visibili" nel tab Profilo — il gestore può disattivare Tavoli/Eventi/Staff se non li usa, con effetto immediato su sidebar e creazione prenotazione.
+- `prenotazioni.html`/`prenotazioni.js`: il campo "Tavolo" nella modale di nuova/modifica prenotazione ora è visibile solo per le attività di tipo ristorante (e solo se non disattivato dalle nuove Impostazioni) — prima compariva per tutti i tipi di attività.
+- `login.html`/`style.css`: aggiunto il pulsante mostra/nascondi su tutti i campi password (login, registrazione, conferma password).
+
 ## 2026-06-15 (Banner verifica email ancora più compatto + "Listino prezzi" senza riferimenti a "menu")
 - `style.css`: ridotti ulteriormente font-size/padding dei banner "sola lettura"/"verifica email" su mobile e aggiunta classe generica `.hide-mobile`.
 - `layout.js`: sul banner di verifica email, su mobile viene nascosta la seconda frase ("Controlla la posta in arrivo.") per ridurre l'altezza del banner.

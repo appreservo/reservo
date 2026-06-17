@@ -130,6 +130,10 @@
   tableSelect.innerHTML = '<option value="">— Nessuno —</option>' +
     (data.tables || []).map(t => `<option value="${t.id}">${t.name} (${t.capacity} posti)</option>`).join('');
 
+  // il campo "Tavolo" ha senso solo per i ristoranti, ed e' nascondibile anche dal gestore in Impostazioni
+  const hasTablesFeature = data.profile.type === 'restaurant' && !(data.profile.hidden_features || []).includes('tables');
+  document.getElementById('bTableField').style.display = hasTablesFeature ? '' : 'none';
+
   function openBookingModal(booking, presetDate) {
     document.getElementById('bookingModalTitle').textContent = booking ? 'Modifica prenotazione' : 'Nuova prenotazione';
     document.getElementById('bookingId').value = booking ? booking.id : '';
