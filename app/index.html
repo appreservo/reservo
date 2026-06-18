@@ -20,21 +20,21 @@
     <header class="topbar" id="topbar"></header>
     <main class="content">
 
-      <div class="grid grid-4 mb-3">
+      <div class="grid grid-3 mb-3">
         <div class="card stat-card">
           <div class="stat-icon" data-icon="bookings"></div>
-          <div class="stat-label">Prenotazioni oggi</div>
-          <div class="stat-value" id="statToday">0</div>
+          <div class="stat-label" id="statBookingsLabel">Prenotazioni giornaliere</div>
+          <div class="stat-value" id="statBookings">0</div>
+          <div class="flex gap-2" style="margin-top:.6rem">
+            <button type="button" class="btn btn-outline btn-sm" data-range="day">Giornaliere</button>
+            <button type="button" class="btn btn-outline btn-sm" data-range="month">Mensili</button>
+            <button type="button" class="btn btn-outline btn-sm" data-range="total">Totali</button>
+          </div>
         </div>
         <div class="card stat-card">
           <div class="stat-icon" data-icon="customers"></div>
           <div class="stat-label">In attesa</div>
           <div class="stat-value" id="statPending">0</div>
-        </div>
-        <div class="card stat-card">
-          <div class="stat-icon" data-icon="stats"></div>
-          <div class="stat-label">Prenotazioni questa settimana</div>
-          <div class="stat-value" id="statWeek">0</div>
         </div>
         <div class="card stat-card">
           <div class="stat-icon" data-icon="customers"></div>

@@ -47,7 +47,8 @@
       const dateStr = fmtDate(new Date(viewYear, viewMonth, d));
       const cell = document.createElement('div');
       cell.className = 'calendar-cell' + (dateStr === todayStrV ? ' today' : '');
-      const dayBookings = allBookings().filter(b => b.date === dateStr && b.status !== 'cancelled' && b.status !== 'rejected');
+      const dayBookings = allBookings().filter(b => b.date === dateStr && b.status !== 'cancelled' && b.status !== 'rejected')
+        .sort((a, b) => a.time.localeCompare(b.time));
       let pillsHtml = '';
       dayBookings.slice(0, 3).forEach(b => {
         pillsHtml += `<div class="cal-pill ${b.status}">${b.time} ${escapeHtml(b.customer_name)}</div>`;
@@ -66,7 +67,7 @@
     let list = allBookings();
     if (status) list = list.filter(b => b.status === status);
     if (filterDate) list = list.filter(b => b.date === filterDate);
-    list.sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+    list.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
     const container = document.getElementById('bookingsTable');
     if (list.length === 0) {
@@ -83,7 +84,7 @@
         <td data-label="Cliente">${escapeHtml(b.customer_name)}</td>
         <td data-label="Contatti" class="small text-mid">${[b.email, b.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
         <td data-label="Persone">${b.party_size}</td>
-        <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span>${b.businessUid ? ' <span class="badge badge-navy">Sito</span>' : ''}</td>
+        <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span>${b.businessUid ? ' <span class="badge badge-navy">Sito</span>' : ''}${b.is_reminder ? ' <span class="badge badge-navy">Promemoria</span>' : ''}</td>
         <td data-label="Note" class="small text-mid">${escapeHtml(b.notes || '')}</td>
         <td data-label="">
           <div class="flex gap-2">
@@ -134,6 +135,98 @@
   const hasTablesFeature = data.profile.type === 'restaurant' && !(data.profile.hidden_features || []).includes('tables');
   document.getElementById('bTableField').style.display = hasTablesFeature ? '' : 'none';
 
+  // ---------- slot picker (blocchi orari per la nuova prenotazione) ----------
+  const DEFAULT_SLOT_DURATION = 30; // minuti, usato quando l'attività non ha servizi configurati
+  const serviceSelect = document.getElementById('bService');
+  const reminderCheckbox = document.getElementById('bIsReminder');
+  const slotField = document.getElementById('bSlotField');
+  const slotGrid = document.getElementById('bSlotGrid');
+  const slotMessage = document.getElementById('bSlotMessage');
+  const timeField = document.getElementById('bTimeField');
+  const timeInput = document.getElementById('bTime');
+  const dateInput = document.getElementById('bDate');
+  let selectedSlotTime = '';
+
+  document.getElementById('bServiceField').style.display = (data.services || []).length > 0 ? '' : 'none';
+  serviceSelect.innerHTML = (data.services || [])
+    .map(s => `<option value="${s.id}">${escapeHtml(s.name)} (${s.duration} min)</option>`).join('');
+
+  function currentServiceDuration() {
+    const service = (data.services || []).find(s => s.id === serviceSelect.value);
+    return (service && service.duration) || DEFAULT_SLOT_DURATION;
+  }
+
+  function getDaySlots(dateStr, duration) {
+    const date = new Date(dateStr + 'T00:00:00');
+    const jsDay = date.getDay();
+    const ourDay = jsDay === 0 ? 6 : jsDay - 1;
+    const hours = data.hours.find(h => h.day === ourDay);
+    if (!hours || hours.closed || !hours.open || !hours.close) return [];
+    if ((data.closures || []).some(c => c.date === dateStr)) return [];
+
+    const [oh, om] = hours.open.split(':').map(Number);
+    const [ch, cm] = hours.close.split(':').map(Number);
+    let openMin = oh * 60 + om;
+    let closeMin = ch * 60 + cm;
+    if (closeMin <= openMin) closeMin += 24 * 60; // turno notturno
+
+    const editingId = document.getElementById('bookingId').value;
+    const existing = allBookings().filter(b => b.date === dateStr && b.id !== editingId
+      && b.status !== 'cancelled' && b.status !== 'rejected' && !b.is_reminder);
+    const partySize = parseInt(document.getElementById('bPartySize').value, 10) || 1;
+    const capacity = hasTablesFeature
+      ? Math.max(1, (data.tables || []).filter(t => t.capacity >= partySize).length)
+      : 1;
+
+    const slots = [];
+    for (let t = openMin; t + duration <= closeMin; t += duration) {
+      const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
+      const mm = String(t % 60).padStart(2, '0');
+      const timeStr = `${hh}:${mm}`;
+      const bookedCount = existing.filter(b => b.time === timeStr).length;
+      slots.push({ time: timeStr, busy: bookedCount >= capacity });
+    }
+    return slots;
+  }
+
+  function renderSlotGrid() {
+    const dateStr = dateInput.value;
+    slotMessage.textContent = '';
+    if (!dateStr) { slotGrid.innerHTML = ''; return; }
+
+    const slots = getDaySlots(dateStr, currentServiceDuration());
+    // se l'orario attualmente selezionato non rientra nei blocchi standard (es. dato legacy), lo aggiungo comunque
+    if (selectedSlotTime && !slots.some(s => s.time === selectedSlotTime)) {
+      slots.push({ time: selectedSlotTime, busy: false });
+      slots.sort((a, b) => a.time.localeCompare(b.time));
+    }
+
+    if (slots.length === 0) {
+      slotGrid.innerHTML = '';
+      slotMessage.textContent = 'Nessun blocco orario disponibile per la data scelta (controlla orari di apertura/chiusure).';
+      return;
+    }
+    slotGrid.innerHTML = slots.map(s =>
+      `<button type="button" class="slot-btn ${s.busy ? 'busy' : ''} ${s.time === selectedSlotTime ? 'selected' : ''}" data-time="${s.time}" title="${s.busy ? 'Orario già occupato, selezionabile comunque' : ''}">${s.time}</button>`).join('');
+    slotGrid.querySelectorAll('.slot-btn').forEach(btn => btn.addEventListener('click', () => {
+      selectedSlotTime = btn.dataset.time;
+      slotGrid.querySelectorAll('.slot-btn').forEach(b => b.classList.toggle('selected', b === btn));
+    }));
+  }
+
+  function updateModalMode() {
+    const isReminder = reminderCheckbox.checked;
+    slotField.style.display = isReminder ? 'none' : '';
+    document.getElementById('bServiceField').style.display = (!isReminder && (data.services || []).length > 0) ? '' : 'none';
+    timeField.style.display = isReminder ? '' : 'none';
+    if (!isReminder) renderSlotGrid();
+  }
+
+  reminderCheckbox.addEventListener('change', updateModalMode);
+  dateInput.addEventListener('change', renderSlotGrid);
+  serviceSelect.addEventListener('change', renderSlotGrid);
+  document.getElementById('bPartySize').addEventListener('change', renderSlotGrid);
+
   function openBookingModal(booking, presetDate) {
     document.getElementById('bookingModalTitle').textContent = booking ? 'Modifica prenotazione' : 'Nuova prenotazione';
     document.getElementById('bookingId').value = booking ? booking.id : '';
@@ -142,16 +235,23 @@
     document.getElementById('bEmail').value = booking ? (booking.email || '') : '';
     document.getElementById('bPhone').value = booking ? (booking.phone || '') : '';
     document.getElementById('bDate').value = booking ? booking.date : (presetDate || todayStr());
-    document.getElementById('bTime').value = booking ? booking.time : '20:00';
+    serviceSelect.value = booking ? (booking.service_id || '') : (((data.services || [])[0] || {}).id || '');
+    reminderCheckbox.checked = booking ? !!booking.is_reminder : false;
+    selectedSlotTime = booking ? booking.time : '';
+    timeInput.value = booking ? booking.time : '20:00';
     document.getElementById('bStatus').value = booking ? booking.status : 'confirmed';
     document.getElementById('bNotes').value = booking ? (booking.notes || '') : '';
     tableSelect.value = booking ? (booking.table_id || '') : '';
     document.getElementById('deleteBookingBtn').style.display = booking ? 'inline-flex' : 'none';
+    updateModalMode();
     bookingModal.classList.add('open');
   }
 
   bookingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const isReminder = reminderCheckbox.checked;
+    const time = isReminder ? timeInput.value : selectedSlotTime;
+    if (!time) { showToast('Seleziona un orario', 'error'); return; }
     const id = document.getElementById('bookingId').value;
     const payload = {
       customer_name: document.getElementById('bCustomerName').value.trim(),
@@ -159,10 +259,12 @@
       email: document.getElementById('bEmail').value.trim(),
       phone: document.getElementById('bPhone').value.trim(),
       date: document.getElementById('bDate').value,
-      time: document.getElementById('bTime').value,
+      time,
       status: document.getElementById('bStatus').value,
       notes: document.getElementById('bNotes').value.trim(),
       table_id: tableSelect.value || null,
+      service_id: isReminder ? null : (serviceSelect.value || null),
+      is_reminder: isReminder,
     };
     if (id) {
       const b = findBooking(id);
@@ -254,6 +356,14 @@
   });
   document.getElementById('nextMonth').addEventListener('click', () => {
     viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderCalendar();
+  });
+  document.getElementById('prevYear').addEventListener('click', () => {
+    viewYear--;
+    renderCalendar();
+  });
+  document.getElementById('nextYear').addEventListener('click', () => {
+    viewYear++;
     renderCalendar();
   });
   document.getElementById('filterStatus').addEventListener('change', renderTable);

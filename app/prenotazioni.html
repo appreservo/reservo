@@ -22,9 +22,15 @@
 
       <div class="card mb-3">
         <div class="calendar-header">
-          <button class="btn btn-outline btn-sm" id="prevMonth">&larr; Mese prec.</button>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm" id="prevYear">&laquo; Anno prec.</button>
+            <button class="btn btn-outline btn-sm" id="prevMonth">&larr; Mese prec.</button>
+          </div>
           <h2 id="calTitle"></h2>
-          <button class="btn btn-outline btn-sm" id="nextMonth">Mese succ. &rarr;</button>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm" id="nextMonth">Mese succ. &rarr;</button>
+            <button class="btn btn-outline btn-sm" id="nextYear">Anno succ. &raquo;</button>
+          </div>
         </div>
         <div class="calendar-grid" id="calGrid"></div>
       </div>
@@ -67,7 +73,22 @@
       </div>
       <div class="field-row">
         <div class="field"><label>Data</label><input type="date" id="bDate" required></div>
-        <div class="field"><label>Ora</label><input type="time" id="bTime" required></div>
+        <div class="field" id="bServiceField"><label>Servizio</label><select id="bService"></select></div>
+      </div>
+      <div class="field">
+        <label class="checkbox-label" style="display:flex; align-items:center; gap:.5rem; font-weight:600">
+          <input type="checkbox" id="bIsReminder" style="width:auto">
+          Inserisci come promemoria (orario libero, non vincolato agli slot di prenotazione)
+        </label>
+      </div>
+      <div class="field" id="bSlotField">
+        <label>Orario</label>
+        <div class="slot-grid" id="bSlotGrid"></div>
+        <div class="small text-mid" id="bSlotMessage"></div>
+      </div>
+      <div class="field" id="bTimeField" style="display:none">
+        <label>Ora</label>
+        <input type="time" id="bTime">
       </div>
       <div class="field-row">
         <div class="field">

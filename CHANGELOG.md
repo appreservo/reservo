@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-18 (Blocchi orario per le prenotazioni, promemoria, anagrafica clienti, dashboard e calendario)
+- `prenotazioni.html`/`prenotazioni.js`: la modale "Nuova/Modifica prenotazione" ora propone un selettore Servizio e dei blocchi orario (es. 10:00, 10:20, 10:40...) generati da orari di apertura, durata del servizio e disponibilità (tavoli/capacità) invece di un orario libero; gli slot già occupati restano selezionabili ma sono evidenziati. Aggiunta la checkbox "Inserisci come promemoria" che mostra un campo orario libero non vincolato agli slot/disponibilità (i promemoria non occupano i blocchi delle prenotazioni vere) e un badge "Promemoria" in tabella.
+- `prenotazioni.html`/`prenotazioni.js`: aggiunta la navigazione del calendario anche per anno ("Anno prec./succ.") oltre al mese.
+- `prenotazioni.js`: tabella prenotazioni e pillole del calendario ora ordinate in ordine cronologico crescente (prima erano a ritroso).
+- `style.css`: nuovi stili `.slot-grid`/`.slot-btn` (blocchi orario) riutilizzati anche nella modale prenotazioni dell'admin.
+- `db.js`: nuova collezione `customers` (anagrafica clienti) nel modello dati, inizializzata vuota per nuovi account e azzerata da "Ripristina dati di esempio"/cancellazione dati.
+- `clienti.html`/`clienti.js`: per le attività di tipo artigiano/professionista, nuova sezione "Anagrafica clienti" con pulsante "+ Aggiungi cliente", form completo (nome, cognome, email, telefono, data di nascita, codice fiscale, indirizzo, note) e "scheda anagrafica" cliente con storico prenotazioni collegato (per email/telefono).
+- `index.html`/`dashboard.js`: la card statistica "Prenotazioni" ora ha un filtro a pulsanti Giornaliere/Mensili/Totali invece delle due card fisse "oggi"/"questa settimana".
+
 ## 2026-06-18 (Gestione clienti in admin, funzionalità nascondibili, fix tipo attività, mostra password)
 - `auth.js`/`admin.js`/`admin.html`: nuova sezione "Clienti registrati" nel pannello admin per cercare ed eliminare gli account cliente (role `cliente`) — le prenotazioni e recensioni già fatte restano intatte.
 - `layout.js`: rimosso il fallback nascosto `|| 'restaurant'` sul tipo attività nella sidebar (mascherava eventuali problemi facendo apparire l'attività come ristorante); aggiunta la possibilità di nascondere singolarmente le voci Tavoli, Eventi e Staff.

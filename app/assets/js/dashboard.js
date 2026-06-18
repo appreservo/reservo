@@ -3,25 +3,35 @@
   renderLayout('Dashboard', data);
 
   const today = todayStr();
-  const now = new Date();
-  const dow = now.getDay(); // 0=Domenica..6=Sabato
-  const daysSinceMonday = dow === 0 ? 6 : dow - 1;
-  const weekStart = addDays(now, -daysSinceMonday);
-  const weekStartStr = fmtDate(weekStart);
-  const weekEndStr = fmtDate(addDays(weekStart, 6));
 
   const allBookings = await loadAllBookings();
   const bookings = allBookings.slice().sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const validBookings = bookings.filter(b => b.status !== 'rejected' && b.status !== 'cancelled');
 
-  const todayCount = bookings.filter(b => b.date === today && b.status !== 'rejected' && b.status !== 'cancelled').length;
+  const monthStr = today.slice(0, 7); // YYYY-MM
+  const bookingCounts = {
+    day: validBookings.filter(b => b.date === today).length,
+    month: validBookings.filter(b => b.date.slice(0, 7) === monthStr).length,
+    total: validBookings.length,
+  };
+  const bookingLabels = { day: 'Prenotazioni giornaliere', month: 'Prenotazioni mensili', total: 'Prenotazioni totali' };
+
   const pending = bookings.filter(b => b.status === 'pending');
-  const weekCount = bookings.filter(b => b.date >= weekStartStr && b.date <= weekEndStr && b.status !== 'rejected' && b.status !== 'cancelled').length;
   const customers = getCustomers(allBookings);
 
-  document.getElementById('statToday').textContent = todayCount;
   document.getElementById('statPending').textContent = pending.length;
-  document.getElementById('statWeek').textContent = weekCount;
   document.getElementById('statCustomers').textContent = customers.length;
+
+  function renderBookingStat(range) {
+    document.getElementById('statBookingsLabel').textContent = bookingLabels[range];
+    document.getElementById('statBookings').textContent = bookingCounts[range];
+    document.querySelectorAll('[data-range]').forEach(btn => {
+      btn.classList.toggle('btn-primary', btn.dataset.range === range);
+      btn.classList.toggle('btn-outline', btn.dataset.range !== range);
+    });
+  }
+  document.querySelectorAll('[data-range]').forEach(btn => btn.addEventListener('click', () => renderBookingStat(btn.dataset.range)));
+  renderBookingStat('day');
 
   // upcoming bookings (today onward, confirmed/pending)
   const upcoming = bookings.filter(b => b.date >= today && b.status !== 'rejected' && b.status !== 'cancelled').slice(0, 6);

@@ -290,6 +290,16 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
 .modal h3 { margin-top: 0; color: var(--navy); }
 .modal-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: 1.2rem; }
 
+/* ---------- SLOT PICKER ---------- */
+.slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: .5rem; margin-bottom: .4rem; }
+.slot-btn {
+  padding: .5rem; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; cursor: pointer; font-weight: 700; font-size: .85rem; font-family: inherit;
+}
+.slot-btn.selected { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+.slot-btn.busy { background: rgba(201,162,39,.08); border-style: dashed; }
+.slot-btn:disabled { opacity: .4; cursor: not-allowed; }
+
 /* ---------- CALENDAR ---------- */
 .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .calendar-header h2 { margin: 0; color: var(--navy); text-transform: capitalize; }

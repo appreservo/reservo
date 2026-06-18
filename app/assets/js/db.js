@@ -76,6 +76,7 @@ function emptyData(profile) {
     services: [],
     tables: [],
     staff: [],
+    customers: [],
     events: [],
     bookings: [],
   };
@@ -140,6 +141,7 @@ function demoData() {
       { id: uid(), name: 'Giulia Bianchi', role: 'Sala' },
       { id: uid(), name: 'Luca Verdi', role: 'Cameriere' },
     ],
+    customers: [],
     events: [
       {
         id: uid(), title: 'Serata di degustazione vini',
@@ -268,6 +270,7 @@ async function clearAllData() {
   data.services = [];
   data.tables = [];
   data.staff = [];
+  data.customers = [];
   _dataCache = data;
   await window.reservoAuth.saveBusinessData(uid, data);
   await window.reservoAuth.savePublicBusinessData(uid, buildPublicData(data));

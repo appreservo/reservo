@@ -20,6 +20,17 @@
     <header class="topbar" id="topbar"></header>
     <main class="content">
 
+      <div class="card mb-3" id="anagraficaCard" style="display:none">
+        <div class="card-header">
+          <h2>Anagrafica clienti</h2>
+          <div class="flex gap-2">
+            <input type="search" id="anagraficaSearch" placeholder="Cerca per nome, cognome, email, telefono o codice fiscale..." style="width:100%; max-width:320px">
+            <button class="btn btn-primary btn-sm" id="addCustomerBtn">+ Aggiungi cliente</button>
+          </div>
+        </div>
+        <div id="anagraficaTable" class="responsive-table"></div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h2>Clienti</h2>
@@ -42,6 +53,47 @@
     <div id="customerModalBody" class="responsive-table"></div>
     <div class="modal-actions">
       <button type="button" class="btn btn-outline" data-close>Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nuovo/modifica cliente (anagrafica) -->
+<div class="modal-overlay" id="anagraficaModal">
+  <div class="modal">
+    <h3 id="anagraficaModalTitle">Nuovo cliente</h3>
+    <form id="anagraficaForm">
+      <input type="hidden" id="acId">
+      <div class="field-row">
+        <div class="field"><label>Nome</label><input type="text" id="acName" required></div>
+        <div class="field"><label>Cognome</label><input type="text" id="acSurname"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Email</label><input type="email" id="acEmail"></div>
+        <div class="field"><label>Telefono</label><input type="text" id="acPhone"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Data di nascita</label><input type="date" id="acBirthDate"></div>
+        <div class="field"><label>Codice fiscale</label><input type="text" id="acFiscalCode" style="text-transform:uppercase"></div>
+      </div>
+      <div class="field"><label>Indirizzo</label><input type="text" id="acAddress"></div>
+      <div class="field"><label>Note</label><textarea id="acNotes" rows="3"></textarea></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" data-close>Annulla</button>
+        <button type="button" class="btn btn-danger" id="deleteCustomerBtn" style="display:none">Elimina</button>
+        <button type="submit" class="btn btn-primary">Salva</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal scheda anagrafica cliente -->
+<div class="modal-overlay" id="schedaModal">
+  <div class="modal">
+    <h3 id="schedaModalTitle">Scheda cliente</h3>
+    <div id="schedaModalBody"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" data-close>Chiudi</button>
+      <button type="button" class="btn btn-primary" id="schedaEditBtn">Modifica anagrafica</button>
     </div>
   </div>
 </div>
