@@ -24,10 +24,10 @@
         <button class="tab" data-tab="profilo">Profilo</button>
         <button class="tab" data-tab="orari">Orari</button>
         <button class="tab" data-tab="servizi">Servizi</button>
-        <button class="tab" data-tab="staff">Staff</button>
-        <button class="tab" data-tab="postazioni">Postazioni</button>
-        <button class="tab" data-tab="coupon">Coupon</button>
-        <button class="tab" data-tab="fedelta">Fedeltà</button>
+        <button class="tab" id="tabBtnStaff" data-tab="staff">Staff</button>
+        <button class="tab" id="tabBtnPostazioni" data-tab="postazioni">Postazioni</button>
+        <button class="tab" id="tabBtnCoupon" data-tab="coupon">Coupon</button>
+        <button class="tab" id="tabBtnFedelta" data-tab="fedelta">Fedeltà</button>
         <button class="tab" data-tab="dati">Dati</button>
       </div>
 
@@ -61,11 +61,44 @@
 
             <div class="field" id="featuresField">
               <label>Funzionalità visibili</label>
-              <p class="text-mid small mt-3" style="margin-bottom:.5rem">Disattiva le funzioni opzionali che non usi: vengono nascoste sia dal menu del gestionale che dal sito pubblico.</p>
-              <div style="display:flex; flex-direction:column; gap:.4rem">
-                <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featTables" style="width:auto"> Tavoli e postazioni</label>
-                <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featEvents" style="width:auto"> Eventi</label>
-                <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featStaff" style="width:auto"> Staff</label>
+              <p class="text-mid small mt-3" style="margin-bottom:.5rem">Disattiva le funzioni opzionali che non usi: vengono nascoste dal menu del gestionale, dalle relative tab qui in Impostazioni e dal sito pubblico dove applicabile.</p>
+              <div style="display:flex; flex-direction:column; gap:.7rem">
+                <div id="rowTables">
+                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featTables" style="width:auto"> Tavoli e postazioni</label>
+                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Gestione tavoli/postazioni e relativo campo nella prenotazione.</p>
+                </div>
+                <div id="rowEvents">
+                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featEvents" style="width:auto"> Eventi</label>
+                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Creazione e iscrizione a eventi/serate speciali.</p>
+                </div>
+                <div id="rowStaff">
+                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featStaff" style="width:auto"> Staff</label>
+                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Elenco del personale dell'attività.</p>
+                </div>
+                <div id="rowCoupons">
+                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featCoupons" style="width:auto"> Coupon</label>
+                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Codici promozionali utilizzabili dai clienti in fase di prenotazione.</p>
+                </div>
+                <div id="rowReviews">
+                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featReviews" style="width:auto"> Recensioni</label>
+                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Raccolta e pubblicazione delle recensioni dei clienti.</p>
+                </div>
+                <div id="rowCommunications">
+                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featCommunications" style="width:auto"> Comunicazioni</label>
+                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Invio di comunicazioni/email broadcast ai clienti.</p>
+                </div>
+                <div id="rowLoyalty">
+                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featLoyalty" style="width:auto"> Programma fedeltà</label>
+                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Punti assegnati per prenotazione, visibili ai clienti nella loro area personale.</p>
+                </div>
+                <div id="rowCustomersRegistry">
+                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featCustomersRegistry" style="width:auto"> Anagrafica clienti</label>
+                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Scheda cliente con dati personali (oltre alla lista derivata dalle prenotazioni), in "Clienti".</p>
+                  <div id="registryFieldsRow" style="margin:.4rem 0 0 1.6rem; display:flex; flex-direction:column; gap:.3rem">
+                    <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featShowBirthDate" style="width:auto"> Mostra data di nascita</label>
+                    <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featShowFiscalCode" style="width:auto"> Mostra codice fiscale</label>
+                  </div>
+                </div>
               </div>
             </div>
 

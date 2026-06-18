@@ -29,22 +29,63 @@
   document.getElementById('pNotifyEmails').value = p.notification_emails || '';
 
   // ---------- funzionalità visibili ----------
-  // feature -> tipi di attività per cui ha senso mostrare il toggle (vuoto = tutti)
-  const FEATURE_TYPES = { featTables: ['restaurant'], featEvents: ['restaurant'], featStaff: [] };
+  // checkbox -> { key: nome funzionalità salvato in hidden_features, types: tipi di attività per cui ha senso (vuoto = tutti) }
+  const FEATURES = {
+    featTables: { key: 'tables', types: ['restaurant'], row: 'rowTables' },
+    featEvents: { key: 'events', types: ['restaurant'], row: 'rowEvents' },
+    featStaff: { key: 'staff', types: [], row: 'rowStaff' },
+    featCoupons: { key: 'coupons', types: [], row: 'rowCoupons' },
+    featReviews: { key: 'reviews', types: [], row: 'rowReviews' },
+    featCommunications: { key: 'communications', types: [], row: 'rowCommunications' },
+    featLoyalty: { key: 'loyalty', types: [], row: 'rowLoyalty' },
+    featCustomersRegistry: { key: 'customers_registry', types: [], row: 'rowCustomersRegistry' },
+  };
   const hiddenFeatures = p.hidden_features || [];
-  document.getElementById('featTables').checked = !hiddenFeatures.includes('tables');
-  document.getElementById('featEvents').checked = !hiddenFeatures.includes('events');
-  document.getElementById('featStaff').checked = !hiddenFeatures.includes('staff');
+  Object.entries(FEATURES).forEach(([id, f]) => {
+    document.getElementById(id).checked = !hiddenFeatures.includes(f.key);
+  });
+
+  const hiddenFields = p.hidden_fields || [];
+  document.getElementById('featShowBirthDate').checked = !hiddenFields.includes('birth_date');
+  document.getElementById('featShowFiscalCode').checked = !hiddenFields.includes('fiscal_code');
 
   function updateFeatureRowsVisibility() {
     const type = document.getElementById('pType').value;
-    Object.entries(FEATURE_TYPES).forEach(([id, types]) => {
-      const row = document.getElementById(id).closest('label');
-      row.style.display = (types.length === 0 || types.includes(type)) ? '' : 'none';
+    Object.entries(FEATURES).forEach(([id, f]) => {
+      document.getElementById(f.row).style.display = (f.types.length === 0 || f.types.includes(type)) ? '' : 'none';
     });
   }
+  function updateRegistryFieldsVisibility() {
+    document.getElementById('registryFieldsRow').style.display = document.getElementById('featCustomersRegistry').checked ? '' : 'none';
+  }
   updateFeatureRowsVisibility();
-  document.getElementById('pType').addEventListener('change', updateFeatureRowsVisibility);
+  updateRegistryFieldsVisibility();
+  document.getElementById('pType').addEventListener('change', () => {
+    updateFeatureRowsVisibility();
+    updateTabsVisibility();
+  });
+  document.getElementById('featCustomersRegistry').addEventListener('change', updateRegistryFieldsVisibility);
+
+  // tab di Impostazioni legate a una funzionalità disattivabile: si nascondono insieme alla relativa voce di menu
+  const TAB_FEATURES = {
+    tabBtnStaff: { feature: 'staff', types: [] },
+    tabBtnPostazioni: { feature: 'tables', types: ['restaurant'] },
+    tabBtnCoupon: { feature: 'coupons', types: [] },
+    tabBtnFedelta: { feature: 'loyalty', types: [] },
+  };
+  function updateTabsVisibility() {
+    const hidden = p.hidden_features || [];
+    const type = document.getElementById('pType').value;
+    let activeHidden = false;
+    Object.entries(TAB_FEATURES).forEach(([btnId, cfg]) => {
+      const btn = document.getElementById(btnId);
+      const visible = !hidden.includes(cfg.feature) && (cfg.types.length === 0 || cfg.types.includes(type));
+      btn.style.display = visible ? '' : 'none';
+      if (!visible && btn.classList.contains('active')) activeHidden = true;
+    });
+    if (activeHidden) activateTab('profilo');
+  }
+  updateTabsVisibility();
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -75,12 +116,18 @@
     p.notification_emails = notifyEmails;
 
     const hidden = [];
-    if (!document.getElementById('featTables').checked) hidden.push('tables');
-    if (!document.getElementById('featEvents').checked) hidden.push('events');
-    if (!document.getElementById('featStaff').checked) hidden.push('staff');
+    Object.entries(FEATURES).forEach(([id, f]) => {
+      if (!document.getElementById(id).checked) hidden.push(f.key);
+    });
     p.hidden_features = hidden;
 
+    const hiddenFieldsNow = [];
+    if (!document.getElementById('featShowBirthDate').checked) hiddenFieldsNow.push('birth_date');
+    if (!document.getElementById('featShowFiscalCode').checked) hiddenFieldsNow.push('fiscal_code');
+    p.hidden_fields = hiddenFieldsNow;
+
     saveData(data);
+    updateTabsVisibility();
 
     if (window.reservoAuth && window.reservoAuth.auth.currentUser) {
       window.reservoAuth.upsertBusinessDirectory(window.reservoAuth.getBusinessUid(), {

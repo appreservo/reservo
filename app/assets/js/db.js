@@ -45,13 +45,27 @@ function typeLabel(t) {
   return { restaurant: 'Ristorante / Bar', artisan: 'Artigiano / Estetista', professional: 'Professionista / Studio' }[t] || t;
 }
 
+/* funzionalità opzionali nascoste di default in base al tipo di attività, per i nuovi account */
+function defaultHiddenFeatures(type) {
+  if (type === 'restaurant') return ['customers_registry', 'loyalty'];
+  if (type === 'artisan') return ['reviews', 'loyalty'];
+  if (type === 'professional') return ['reviews', 'loyalty'];
+  return [];
+}
+/* campi di dettaglio nascosti di default (es. anagrafica cliente) in base al tipo di attività */
+function defaultHiddenFields(type) {
+  if (type === 'artisan') return ['fiscal_code'];
+  return [];
+}
+
 /* dati vuoti per un nuovo account: solo il profilo, personalizzato con i dati di registrazione */
 function emptyData(profile) {
   profile = profile || {};
+  const type = profile.businessType || 'restaurant';
   return {
     profile: {
       business_name: profile.businessName || '',
-      type: profile.businessType || 'restaurant',
+      type,
       slug: profile.businessName ? slugify(profile.businessName) : '',
       email: profile.email || '',
       phone: '',
@@ -60,6 +74,8 @@ function emptyData(profile) {
       booking_mode: 'manual',
       notification_emails: profile.email || '',
       loyalty_points_per_booking: 10,
+      hidden_features: defaultHiddenFeatures(type),
+      hidden_fields: defaultHiddenFields(type),
     },
     coupons: [],
     hours: [

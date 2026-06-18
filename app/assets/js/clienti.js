@@ -4,10 +4,16 @@
 
   const customers = getCustomers(await loadAllBookings());
 
-  // ---------- anagrafica clienti (solo artigiani/professionisti) ----------
-  const isAnagraficaBusiness = data.profile.type === 'artisan' || data.profile.type === 'professional';
+  // ---------- anagrafica clienti (attivabile/disattivabile da Impostazioni, per qualsiasi tipo di attività) ----------
+  const hiddenFeatures = data.profile.hidden_features || [];
+  const hiddenFields = data.profile.hidden_fields || [];
+  const isAnagraficaBusiness = !hiddenFeatures.includes('customers_registry');
+  const showBirthDate = !hiddenFields.includes('birth_date');
+  const showFiscalCode = !hiddenFields.includes('fiscal_code');
   data.customers = data.customers || [];
   document.getElementById('anagraficaCard').style.display = isAnagraficaBusiness ? '' : 'none';
+  document.querySelectorAll('.ac-birth-date').forEach(el => el.style.display = showBirthDate ? '' : 'none');
+  document.querySelectorAll('.ac-fiscal-code').forEach(el => el.style.display = showFiscalCode ? '' : 'none');
 
   function fullName(c) {
     return [c.name, c.surname].filter(Boolean).join(' ');
@@ -41,13 +47,13 @@
     }
 
     container.innerHTML = `<table><thead><tr>
-        <th>Nome</th><th>Contatti</th><th>Data di nascita</th><th>Codice fiscale</th><th></th>
+        <th>Nome</th><th>Contatti</th>${showBirthDate ? '<th>Data di nascita</th>' : ''}${showFiscalCode ? '<th>Codice fiscale</th>' : ''}<th></th>
       </tr></thead><tbody>` +
       list.map(c => `<tr>
         <td data-label="Nome"><strong>${escapeHtml(fullName(c))}</strong></td>
         <td data-label="Contatti" class="small text-mid">${[c.email, c.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
-        <td data-label="Data di nascita">${c.birth_date ? fmtDateShort(c.birth_date) : ''}</td>
-        <td data-label="Codice fiscale" class="small text-mid">${escapeHtml(c.fiscal_code || '')}</td>
+        ${showBirthDate ? `<td data-label="Data di nascita">${c.birth_date ? fmtDateShort(c.birth_date) : ''}</td>` : ''}
+        ${showFiscalCode ? `<td data-label="Codice fiscale" class="small text-mid">${escapeHtml(c.fiscal_code || '')}</td>` : ''}
         <td data-label="">
           <div class="flex gap-2">
             <button class="btn btn-outline btn-sm" data-scheda="${c.id}">Scheda</button>
@@ -127,8 +133,8 @@
         <tbody>
           <tr><td><strong>Email</strong></td><td>${escapeHtml(customer.email || '—')}</td></tr>
           <tr><td><strong>Telefono</strong></td><td>${escapeHtml(customer.phone || '—')}</td></tr>
-          <tr><td><strong>Data di nascita</strong></td><td>${customer.birth_date ? fmtDateShort(customer.birth_date) : '—'}</td></tr>
-          <tr><td><strong>Codice fiscale</strong></td><td>${escapeHtml(customer.fiscal_code || '—')}</td></tr>
+          ${showBirthDate ? `<tr><td><strong>Data di nascita</strong></td><td>${customer.birth_date ? fmtDateShort(customer.birth_date) : '—'}</td></tr>` : ''}
+          ${showFiscalCode ? `<tr><td><strong>Codice fiscale</strong></td><td>${escapeHtml(customer.fiscal_code || '—')}</td></tr>` : ''}
           <tr><td><strong>Indirizzo</strong></td><td>${escapeHtml(customer.address || '—')}</td></tr>
           <tr><td><strong>Note</strong></td><td>${escapeHtml(customer.notes || '—')}</td></tr>
         </tbody>

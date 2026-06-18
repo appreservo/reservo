@@ -35,14 +35,15 @@ const NAV = [
   ]},
   { group: 'Attività', items: [
     { href: 'eventi.html', label: 'Eventi', icon: 'events', types: ['restaurant'], feature: 'events' },
-    { href: 'recensioni.html', label: 'Recensioni', icon: 'star' },
-    { href: 'comunicazioni.html', label: 'Comunicazioni', icon: 'broadcast' },
+    { href: 'recensioni.html', label: 'Recensioni', icon: 'star', feature: 'reviews' },
+    { href: 'comunicazioni.html', label: 'Comunicazioni', icon: 'broadcast', feature: 'communications' },
   ]},
   { group: 'Configurazione', items: [
     { href: 'impostazioni.html#servizi', label: 'Servizi', icon: 'services', match: 'impostazioni.html' },
     { href: 'impostazioni.html#staff', label: 'Staff', icon: 'staff', match: 'impostazioni.html', feature: 'staff' },
     { href: 'impostazioni.html#postazioni', label: 'Postazioni', icon: 'tables', match: 'impostazioni.html', types: ['restaurant'], feature: 'tables' },
-    { href: 'impostazioni.html#coupon', label: 'Coupon', icon: 'coupon', match: 'impostazioni.html' },
+    { href: 'impostazioni.html#coupon', label: 'Coupon', icon: 'coupon', match: 'impostazioni.html', feature: 'coupons' },
+    { href: 'impostazioni.html#fedelta', label: 'Fedeltà', icon: 'coupon', match: 'impostazioni.html', feature: 'loyalty' },
   ]},
   { group: 'Impostazioni', items: [
     { href: 'impostazioni.html', label: 'Impostazioni', icon: 'settings' },
