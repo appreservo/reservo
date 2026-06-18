@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-18 (Normalizzazione fine riga del repository)
+- Aggiunto `.gitattributes` (`* text=auto eol=lf`): forza il salvataggio dei file di testo con fine riga LF, indipendentemente dall'editor/sistema operativo usato. Rinormalizzati tutti i file già presenti nel repo che erano stati salvati con CRLF (nessuna modifica al contenuto, solo ai caratteri di fine riga) — evita diff enormi e fuorvianti nei prossimi commit.
+
 ## 2026-06-18 (Funzionalità nascondibili estese: recensioni, comunicazioni, coupon, anagrafica clienti, fedeltà, preset per tipo, campi anagrafica)
 - `db.js`: nuovi default automatici per i nuovi account in base al tipo di attività — `defaultHiddenFeatures(type)` e `defaultHiddenFields(type)` decidono quali funzionalità/campi sono attivi al primo avvio (Ristorante: Recensioni e Comunicazioni attive, Anagrafica clienti e Fedeltà disattive; Artigiano/Professionista: Comunicazioni e Anagrafica clienti attive, Recensioni e Fedeltà disattive; per l'Artigiano il campo "Codice fiscale" in anagrafica parte disattivato). Resta sempre possibile cambiare ogni preset manualmente in Impostazioni.
 - `impostazioni.html`/`impostazioni.js`: la sezione "Funzionalità visibili" ora include anche Coupon, Recensioni, Comunicazioni, Programma fedeltà e Anagrafica clienti (oltre a Tavoli/Eventi/Staff già esistenti), ciascuna con una breve descrizione dell'effetto. Le tab "Staff"/"Postazioni"/"Coupon"/"Fedeltà" della pagina Impostazioni ora si nascondono insieme alla relativa funzionalità (prima restavano sempre visibili anche se disattivate dal menu). Aggiunti due sotto-toggle "Mostra data di nascita"/"Mostra codice fiscale" per l'anagrafica clienti.
