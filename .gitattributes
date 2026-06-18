@@ -1,0 +1,9 @@
+# Normalizza i fine riga: tutti i file di testo vengono salvati in git con LF,
+# indipendentemente dal sistema operativo/editor usato per modificarli.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
