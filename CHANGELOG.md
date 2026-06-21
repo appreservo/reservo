@@ -2,6 +2,7 @@
 
 ## 2026-06-22 (3)
 - `prenotazioni.html`/`prenotazioni.js`: il campo "Persone" nella modale admin "Nuova prenotazione" parte ora da 1 (prima da 2).
+- `sito.html`/`sito.js`: stesso default a 1 anche nel form pubblico di prenotazione (sito cliente), incluso il reset dopo l'invio di una nuova prenotazione.
 
 ## 2026-06-22 (2) (Servizi assegnabili a più persone dello staff)
 - `impostazioni.html`/`impostazioni.js`: la colonna "Assegnato a" sui servizi ora è una selezione multipla (checkbox) invece di una singola persona — un servizio può richiedere competenze di più membri dello staff contemporaneamente disponibili.
