@@ -286,7 +286,7 @@
     document.getElementById('bookingModalTitle').textContent = booking ? 'Modifica prenotazione' : 'Nuova prenotazione';
     document.getElementById('bookingId').value = booking ? booking.id : '';
     document.getElementById('bCustomerName').value = booking ? booking.customer_name : '';
-    document.getElementById('bPartySize').value = booking ? booking.party_size : 2;
+    document.getElementById('bPartySize').value = booking ? booking.party_size : 1;
     document.getElementById('bEmail').value = booking ? (booking.email || '') : '';
     document.getElementById('bPhone').value = booking ? (booking.phone || '') : '';
     document.getElementById('bDate').value = booking ? booking.date : (presetDate || todayStr());
