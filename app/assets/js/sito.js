@@ -133,7 +133,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   const BOOKING_ADVANCE_DAYS = 30;
 
   const bookingForm = document.getElementById('bookingForm');
-  const bookingState = { step: 1, serviceId: null, partySize: 2, date: '', time: '', coupon: null };
+  const bookingState = { step: 1, serviceId: null, partySize: 1, date: '', time: '', coupon: null };
 
   function goToStep(step) {
     bookingState.step = step;
@@ -413,7 +413,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
 
   document.getElementById('newBookingBtn').addEventListener('click', () => {
     bookingForm.reset();
-    document.getElementById('cParty').value = 2;
+    document.getElementById('cParty').value = 1;
     document.getElementById('couponMessage').textContent = '';
     document.getElementById('couponMessage').className = 'small';
     bookingState.serviceId = null;
