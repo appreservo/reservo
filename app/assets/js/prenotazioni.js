@@ -156,7 +156,16 @@
     return (service && service.duration) || DEFAULT_SLOT_DURATION;
   }
 
-  function getDaySlots(dateStr, duration) {
+  // Passo della griglia: sempre la durata del servizio più breve configurato,
+  // così i blocchi orari restano fini indipendentemente da quale servizio è
+  // selezionato (la durata del servizio scelto resta comunque quella usata
+  // per il controllo di sovrapposizione, vedi candidateDuration sotto).
+  function minServiceDuration() {
+    const durations = (data.services || []).map(s => s.duration).filter(Boolean);
+    return durations.length ? Math.min(...durations) : DEFAULT_SLOT_DURATION;
+  }
+
+  function getDaySlots(dateStr) {
     const date = new Date(dateStr + 'T00:00:00');
     const jsDay = date.getDay();
     const ourDay = jsDay === 0 ? 6 : jsDay - 1;
@@ -190,14 +199,17 @@
       return startA < startB + durB && startB < startA + durA;
     }
 
+    const candidateDuration = currentServiceDuration();
+    const step = minServiceDuration();
+
     const slots = [];
-    for (let t = openMin; t + duration <= closeMin; t += duration) {
+    for (let t = openMin; t + candidateDuration <= closeMin; t += step) {
       const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
       const mm = String(t % 60).padStart(2, '0');
       const timeStr = `${hh}:${mm}`;
       const overlapCount = existing.filter(b => {
         const [bh, bm] = b.time.split(':').map(Number);
-        return overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b));
+        return overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b));
       }).length;
       slots.push({ time: timeStr, busy: overlapCount >= capacity });
     }
@@ -209,7 +221,7 @@
     slotMessage.textContent = '';
     if (!dateStr) { slotGrid.innerHTML = ''; return; }
 
-    const slots = getDaySlots(dateStr, currentServiceDuration());
+    const slots = getDaySlots(dateStr);
     // se l'orario attualmente selezionato non rientra nei blocchi standard (es. dato legacy), lo aggiungo comunque
     if (selectedSlotTime && !slots.some(s => s.time === selectedSlotTime)) {
       slots.push({ time: selectedSlotTime, busy: false });

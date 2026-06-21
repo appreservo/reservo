@@ -297,7 +297,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
   background: #fff; cursor: pointer; font-weight: 700; font-size: .85rem; font-family: inherit;
 }
 .slot-btn.selected { background: var(--gold); border-color: var(--gold); color: var(--navy); }
-.slot-btn.busy { background: rgba(201,162,39,.08); border-style: dashed; }
+.slot-btn.busy { background: rgba(220,38,38,.1); border-color: var(--red); color: var(--red); border-style: dashed; }
 .slot-btn:disabled { opacity: .4; cursor: not-allowed; }
 
 /* ---------- CALENDAR ---------- */
