@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-22 (Dashboard, sovrapposizione appuntamenti, capacità basata sullo staff)
+- `index.html`/`dashboard.js`: i pulsanti Giornaliere/Mensili/Totali sopra le statistiche ora aggiornano anche la tabella "Prossime prenotazioni" sotto con lo stesso criterio (prima restava sempre fissa su "da oggi in poi" senza distinzione).
+- `prenotazioni.js`/`sito.js`: corretto un bug per cui il controllo di disponibilità verificava solo l'orario di inizio identico, non la sovrapposizione di intervalli — un appuntamento di 45 minuti ora blocca correttamente tutta la sua finestra temporale, anche per slot generati con durate diverse.
+- `style.css`: gli slot orario occupati nella modale prenotazioni sono ora evidenziati in rosso (prima erano dorati/tratteggiati, poco distinguibili dallo stile "selezionato").
+- `prenotazioni.js`: la griglia "blocchi orari" usa sempre il passo del servizio più breve configurato, indipendentemente da quale servizio è selezionato nella prenotazione (prima la griglia cambiava interamente passo in base al servizio scelto, rendendo gli slot incoerenti tra una selezione e l'altra).
+- `impostazioni.html`/`impostazioni.js`: nella tab Servizi, nuova colonna "Assegnato a" per associare un servizio a una persona specifica dello staff — visibile solo qui (lato gestione), il cliente non la vede mai sul sito pubblico.
+- `prenotazioni.js`/`sito.js`/`db.js`: la capacità di prenotazioni sovrapposte per le attività senza tavoli (non-ristorante) ora è basata sul numero di persone in staff, non più fissa a 1. Se un servizio è assegnato a una persona specifica, contano come occupate solo le prenotazioni di quella persona (le altre risorse restano libere); se è assegnato a "Chiunque", la capacità è il totale dello staff. Il sito pubblico riceve solo il conteggio dello staff (`staffCount`), non i nomi, per non esporre dati sensibili.
+
 ## 2026-06-18 (Normalizzazione fine riga del repository)
 - Aggiunto `.gitattributes` (`* text=auto eol=lf`): forza il salvataggio dei file di testo con fine riga LF, indipendentemente dall'editor/sistema operativo usato. Rinormalizzati tutti i file già presenti nel repo che erano stati salvati con CRLF (nessuna modifica al contenuto, solo ai caratteri di fine riga) — evita diff enormi e fuorvianti nei prossimi commit.
 
