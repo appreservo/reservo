@@ -22,6 +22,33 @@
   document.getElementById('statPending').textContent = pending.length;
   document.getElementById('statCustomers').textContent = customers.length;
 
+  // "Prossime prenotazioni" filtrata con lo stesso criterio dei pulsanti
+  // Giornaliere/Mensili/Totali sopra: giornaliere -> solo oggi, mensili ->
+  // mese corrente, totali -> tutte le prenotazioni future senza altro limite.
+  function getUpcoming(range) {
+    const upcoming = validBookings.filter(b => b.date >= today);
+    if (range === 'day') return upcoming.filter(b => b.date === today);
+    if (range === 'month') return upcoming.filter(b => b.date.slice(0, 7) === monthStr);
+    return upcoming;
+  }
+
+  const upcomingList = document.getElementById('upcomingList');
+  function renderUpcoming(range) {
+    const upcoming = getUpcoming(range).slice(0, 6);
+    if (upcoming.length === 0) {
+      upcomingList.innerHTML = `<div class="empty-state"><p>Nessuna prenotazione in programma.</p></div>`;
+    } else {
+      upcomingList.innerHTML = `<table><thead><tr><th>Data</th><th>Ora</th><th>Cliente</th><th>Persone</th><th>Stato</th></tr></thead><tbody>` +
+        upcoming.map(b => `<tr>
+          <td>${fmtDateShort(b.date)}</td>
+          <td>${b.time}</td>
+          <td>${escapeHtml(b.customer_name)}</td>
+          <td>${b.party_size}</td>
+          <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
+        </tr>`).join('') + `</tbody></table>`;
+    }
+  }
+
   function renderBookingStat(range) {
     document.getElementById('statBookingsLabel').textContent = bookingLabels[range];
     document.getElementById('statBookings').textContent = bookingCounts[range];
@@ -29,25 +56,10 @@
       btn.classList.toggle('btn-primary', btn.dataset.range === range);
       btn.classList.toggle('btn-outline', btn.dataset.range !== range);
     });
+    renderUpcoming(range);
   }
   document.querySelectorAll('[data-range]').forEach(btn => btn.addEventListener('click', () => renderBookingStat(btn.dataset.range)));
   renderBookingStat('day');
-
-  // upcoming bookings (today onward, confirmed/pending)
-  const upcoming = bookings.filter(b => b.date >= today && b.status !== 'rejected' && b.status !== 'cancelled').slice(0, 6);
-  const upcomingList = document.getElementById('upcomingList');
-  if (upcoming.length === 0) {
-    upcomingList.innerHTML = `<div class="empty-state"><p>Nessuna prenotazione in programma.</p></div>`;
-  } else {
-    upcomingList.innerHTML = `<table><thead><tr><th>Data</th><th>Ora</th><th>Cliente</th><th>Persone</th><th>Stato</th></tr></thead><tbody>` +
-      upcoming.map(b => `<tr>
-        <td>${fmtDateShort(b.date)}</td>
-        <td>${b.time}</td>
-        <td>${escapeHtml(b.customer_name)}</td>
-        <td>${b.party_size}</td>
-        <td><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
-      </tr>`).join('') + `</tbody></table>`;
-  }
 
   // pending list
   const pendingList = document.getElementById('pendingList');

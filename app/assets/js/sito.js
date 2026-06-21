@@ -213,6 +213,18 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       existing = existing.concat(liveBookings);
     }
 
+    // Durata di una prenotazione esistente (dal suo servizio, se presente).
+    function existingBookingDuration(b) {
+      const svc = (data.services || []).find(s => s.id === b.service_id);
+      return (svc && svc.duration) || duration;
+    }
+    // Confronto per sovrapposizione di intervalli, non solo per orario di inizio
+    // identico: una prenotazione da 45 min deve bloccare tutta la sua finestra,
+    // non solo lo slot che inizia esattamente alla stessa ora.
+    function overlaps(startA, durA, startB, durB) {
+      return startA < startB + durB && startB < startA + durA;
+    }
+
     const slots = [];
     for (let t = openMin; t + duration <= closeMin; t += duration) {
       const slotStart = new Date(date);
@@ -221,8 +233,11 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
       const mm = String(t % 60).padStart(2, '0');
       const timeStr = `${hh}:${mm}`;
-      const bookedCount = existing.filter(b => b.time === timeStr).length;
-      slots.push({ time: timeStr, available: bookedCount < suitableTables.length });
+      const overlapCount = existing.filter(b => {
+        const [bh, bm] = b.time.split(':').map(Number);
+        return overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b));
+      }).length;
+      slots.push({ time: timeStr, available: overlapCount < suitableTables.length });
     }
     return slots;
   }
