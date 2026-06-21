@@ -19,6 +19,11 @@
     return [c.name, c.surname].filter(Boolean).join(' ');
   }
 
+  function formatAddress(c) {
+    const cityProvince = [c.city, c.province].filter(Boolean).join(' ');
+    return [c.address, cityProvince].filter(Boolean).join(', ');
+  }
+
   function bookingsForCustomer(c) {
     const key = (c.email || '').toLowerCase();
     const keyPhone = (c.phone || '').toLowerCase();
@@ -80,6 +85,8 @@
     document.getElementById('acBirthDate').value = customer ? (customer.birth_date || '') : '';
     document.getElementById('acFiscalCode').value = customer ? (customer.fiscal_code || '') : '';
     document.getElementById('acAddress').value = customer ? (customer.address || '') : '';
+    document.getElementById('acCity').value = customer ? (customer.city || '') : '';
+    document.getElementById('acProvince').value = customer ? (customer.province || '') : '';
     document.getElementById('acNotes').value = customer ? (customer.notes || '') : '';
     document.getElementById('deleteCustomerBtn').style.display = customer ? 'inline-flex' : 'none';
     document.getElementById('schedaModal').classList.remove('open');
@@ -97,6 +104,8 @@
       birth_date: document.getElementById('acBirthDate').value,
       fiscal_code: document.getElementById('acFiscalCode').value.trim().toUpperCase(),
       address: document.getElementById('acAddress').value.trim(),
+      city: document.getElementById('acCity').value.trim(),
+      province: document.getElementById('acProvince').value.trim().toUpperCase(),
       notes: document.getElementById('acNotes').value.trim(),
     };
     if (id) {
@@ -135,7 +144,7 @@
           <tr><td><strong>Telefono</strong></td><td>${escapeHtml(customer.phone || '—')}</td></tr>
           ${showBirthDate ? `<tr><td><strong>Data di nascita</strong></td><td>${customer.birth_date ? fmtDateShort(customer.birth_date) : '—'}</td></tr>` : ''}
           ${showFiscalCode ? `<tr><td><strong>Codice fiscale</strong></td><td>${escapeHtml(customer.fiscal_code || '—')}</td></tr>` : ''}
-          <tr><td><strong>Indirizzo</strong></td><td>${escapeHtml(customer.address || '—')}</td></tr>
+          <tr><td><strong>Indirizzo</strong></td><td>${escapeHtml(formatAddress(customer) || '—')}</td></tr>
           <tr><td><strong>Note</strong></td><td>${escapeHtml(customer.notes || '—')}</td></tr>
         </tbody>
       </table>
