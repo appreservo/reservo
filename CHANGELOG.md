@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-22 (2) (Servizi assegnabili a più persone dello staff)
+- `impostazioni.html`/`impostazioni.js`: la colonna "Assegnato a" sui servizi ora è una selezione multipla (checkbox) invece di una singola persona — un servizio può richiedere competenze di più membri dello staff contemporaneamente disponibili.
+- `prenotazioni.js`/`sito.js`: la capacità per i servizi senza tavoli ora è il numero di persone assegnate al servizio (se nessuna, il totale dello staff). Due servizi competono per la stessa disponibilità solo se assegnati esattamente allo stesso gruppo di persone (gruppi diversi, anche se si sovrappongono parzialmente, sono trattati come risorse indipendenti — per seguire la singola persona tra servizi diversi servirebbe un'assegnazione per-prenotazione, non per-servizio).
+- Compatibilità mantenuta con i vecchi servizi salvati con la singola persona (`staff_id`): vengono letti automaticamente come gruppo di una persona.
+
 ## 2026-06-22 (Dashboard, sovrapposizione appuntamenti, capacità basata sullo staff)
 - `index.html`/`dashboard.js`: i pulsanti Giornaliere/Mensili/Totali sopra le statistiche ora aggiornano anche la tabella "Prossime prenotazioni" sotto con lo stesso criterio (prima restava sempre fissa su "da oggi in poi" senza distinzione).
 - `prenotazioni.js`/`sito.js`: corretto un bug per cui il controllo di disponibilità verificava solo l'orario di inizio identico, non la sovrapposizione di intervalli — un appuntamento di 45 minuti ora blocca correttamente tutta la sua finestra temporale, anche per slot generati con durate diverse.
