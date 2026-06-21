@@ -27,6 +27,12 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
 
   const p = data.profile;
   const isRestaurant = p.type === 'restaurant';
+  // Stesso criterio usato nel form admin (prenotazioni.js): per i ristoranti
+  // con tavoli attivi la capacità è il numero di tavoli adatti, altrimenti
+  // è il numero di persone in staff (o 1 se il servizio è assegnato a una
+  // persona specifica).
+  const hasTablesFeature = isRestaurant && !(p.hidden_features || []).includes('tables');
+  const staffCount = isPublicMode ? Math.max(1, data.staffCount || 1) : Math.max(1, (data.staff || []).length);
   const menuLabel = isRestaurant ? 'Menu' : 'Listino prezzi';
   document.getElementById('navMenuLink').textContent = menuLabel;
   document.getElementById('menuSectionTitle').textContent = menuLabel;
@@ -204,8 +210,14 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     let closeMin = ch * 60 + cm;
     if (closeMin <= openMin) closeMin += 24 * 60; // overnight
 
-    const suitableTables = (data.tables || []).filter(t => t.capacity >= bookingState.partySize);
-    if (suitableTables.length === 0) return [];
+    let capacity = 1;
+    if (hasTablesFeature) {
+      const suitableTables = (data.tables || []).filter(t => t.capacity >= bookingState.partySize);
+      if (suitableTables.length === 0) return [];
+      capacity = suitableTables.length;
+    } else {
+      capacity = service.staff_id ? 1 : staffCount;
+    }
 
     let existing = data.bookings.filter(b => b.date === dateStr && (b.status === 'confirmed' || b.status === 'pending'));
     if (isPublicMode) {
@@ -213,9 +225,12 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       existing = existing.concat(liveBookings);
     }
 
+    function existingService(b) {
+      return (data.services || []).find(s => s.id === b.service_id);
+    }
     // Durata di una prenotazione esistente (dal suo servizio, se presente).
     function existingBookingDuration(b) {
-      const svc = (data.services || []).find(s => s.id === b.service_id);
+      const svc = existingService(b);
       return (svc && svc.duration) || duration;
     }
     // Confronto per sovrapposizione di intervalli, non solo per orario di inizio
@@ -223,6 +238,13 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     // non solo lo slot che inizia esattamente alla stessa ora.
     function overlaps(startA, durA, startB, durB) {
       return startA < startB + durB && startB < startA + durA;
+    }
+    // Stesso criterio del form admin: se il servizio scelto è assegnato a una
+    // persona specifica, contano come occupate solo le prenotazioni di quella
+    // persona; se è di "chiunque", contano solo le altre prenotazioni generiche.
+    function competesForSameResource(b) {
+      const existingStaffId = (existingService(b) || {}).staff_id || '';
+      return service.staff_id ? existingStaffId === service.staff_id : !existingStaffId;
     }
 
     const slots = [];
@@ -235,9 +257,10 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       const timeStr = `${hh}:${mm}`;
       const overlapCount = existing.filter(b => {
         const [bh, bm] = b.time.split(':').map(Number);
-        return overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b));
+        if (!overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b))) return false;
+        return hasTablesFeature || competesForSameResource(b);
       }).length;
-      slots.push({ time: timeStr, available: overlapCount < suitableTables.length });
+      slots.push({ time: timeStr, available: overlapCount < capacity });
     }
     return slots;
   }

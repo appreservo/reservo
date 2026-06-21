@@ -220,6 +220,10 @@ function buildPublicData(data) {
     menu: data.menu,
     services: data.services,
     tables: data.tables,
+    // Solo il numero, non i nomi: serve a calcolare quante prenotazioni
+    // sovrapposte sono gestibili quando un servizio non è assegnato a una
+    // persona specifica (vedi Impostazioni -> Servizi -> "Assegnato a").
+    staffCount: Math.max(1, (data.staff || []).length),
     events: (data.events || []).map(ev => ({
       id: ev.id, title: ev.title, description: ev.description,
       date: ev.date, time: ev.time, location: ev.location,
@@ -228,7 +232,7 @@ function buildPublicData(data) {
     })),
     bookings: (data.bookings || [])
       .filter(b => b.status === 'confirmed' || b.status === 'pending')
-      .map(b => ({ date: b.date, time: b.time, status: b.status })),
+      .map(b => ({ date: b.date, time: b.time, status: b.status, service_id: b.service_id || null })),
     coupons: (data.coupons || [])
       .filter(c => c.active && (!c.valid_to || c.valid_to >= todayStr()))
       .map(c => ({ code: c.code, type: c.type, value: c.value, valid_from: c.valid_from, valid_to: c.valid_to, max_uses: c.max_uses, used_count: c.used_count })),

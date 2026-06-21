@@ -211,7 +211,14 @@
     function render() {
       body.innerHTML = items.map((item, i) => `
         <tr>
-          ${fields.map(f => `<td><input type="${f.type}" data-field="${f.key}" data-i="${i}" value="${item[f.key] ?? ''}" ${f.type==='number'?'min="0"':''} style="min-width:80px"></td>`).join('')}
+          ${fields.map(f => {
+            if (f.type === 'select') {
+              const current = String(item[f.key] ?? '');
+              return `<td><select data-field="${f.key}" data-i="${i}" style="min-width:120px">${f.options().map(o =>
+                `<option value="${o.value}" ${String(o.value) === current ? 'selected' : ''}>${o.label}</option>`).join('')}</select></td>`;
+            }
+            return `<td><input type="${f.type}" data-field="${f.key}" data-i="${i}" value="${item[f.key] ?? ''}" ${f.type==='number'?'min="0"':''} style="min-width:80px"></td>`;
+          }).join('')}
           <td><button class="btn btn-danger btn-sm" data-remove="${i}">Rimuovi</button></td>
         </tr>`).join('');
 
@@ -244,9 +251,20 @@
       { key: 'name', type: 'text' },
       { key: 'duration', type: 'number' },
       { key: 'price', type: 'number' },
+      {
+        key: 'staff_id',
+        type: 'select',
+        // Visibile solo qui (lato attività): il sito pubblico non mostra mai
+        // a chi è assegnato un servizio, lo usa solo per calcolare gli orari
+        // disponibili (vedi prenotazioni.js/sito.js).
+        options: () => [
+          { value: '', label: '— Chiunque —' },
+          ...data.staff.map(s => ({ value: s.id, label: s.name })),
+        ],
+      },
     ],
     addBtn: document.getElementById('addServiceBtn'),
-    defaultItem: { name: 'Nuovo servizio', duration: 30, price: 0 },
+    defaultItem: { name: 'Nuovo servizio', duration: 30, price: 0, staff_id: '' },
   });
 
   setupEditableList({

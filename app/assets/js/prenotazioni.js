@@ -183,21 +183,38 @@
     const existing = allBookings().filter(b => b.date === dateStr && b.id !== editingId
       && b.status !== 'cancelled' && b.status !== 'rejected' && !b.is_reminder);
     const partySize = parseInt(document.getElementById('bPartySize').value, 10) || 1;
-    const capacity = hasTablesFeature
-      ? Math.max(1, (data.tables || []).filter(t => t.capacity >= partySize).length)
-      : 1;
 
+    function existingService(b) {
+      return (data.services || []).find(s => s.id === b.service_id);
+    }
     // Durata di una prenotazione esistente (dal suo servizio, se presente).
     function existingBookingDuration(b) {
-      const svc = (data.services || []).find(s => s.id === b.service_id);
+      const svc = existingService(b);
       return (svc && svc.duration) || DEFAULT_SLOT_DURATION;
     }
-    // Confronto per sovrapposizione di intervalli: con un solo dipendente
-    // (capacity 1), un appuntamento da 45 min deve bloccare tutta la sua
-    // finestra, non solo lo slot che inizia esattamente alla stessa ora.
+    // Confronto per sovrapposizione di intervalli: con una sola risorsa
+    // disponibile (capacity 1), un appuntamento da 45 min deve bloccare
+    // tutta la sua finestra, non solo lo slot che inizia esattamente alla
+    // stessa ora.
     function overlaps(startA, durA, startB, durB) {
       return startA < startB + durB && startB < startA + durA;
     }
+    // Se il servizio scelto è assegnato a una persona specifica dello staff
+    // (vedi Impostazioni -> Servizi -> "Assegnato a"), conta come occupate
+    // solo le prenotazioni di QUELLA persona: chi altro c'è in staff resta
+    // libero. Se invece il servizio è di "chiunque", la capacità è il numero
+    // totale di persone in staff e contano solo le altre prenotazioni
+    // generiche (stesso criterio, in modo che i due "pool" non si mescolino).
+    function competesForSameResource(b, candidateStaffId) {
+      const existingStaffId = (existingService(b) || {}).staff_id || '';
+      return candidateStaffId ? existingStaffId === candidateStaffId : !existingStaffId;
+    }
+
+    const candidateService = (data.services || []).find(s => s.id === serviceSelect.value);
+    const candidateStaffId = hasTablesFeature ? '' : ((candidateService && candidateService.staff_id) || '');
+    const capacity = hasTablesFeature
+      ? Math.max(1, (data.tables || []).filter(t => t.capacity >= partySize).length)
+      : (candidateStaffId ? 1 : Math.max(1, (data.staff || []).length));
 
     const candidateDuration = currentServiceDuration();
     const step = minServiceDuration();
@@ -209,7 +226,8 @@
       const timeStr = `${hh}:${mm}`;
       const overlapCount = existing.filter(b => {
         const [bh, bm] = b.time.split(':').map(Number);
-        return overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b));
+        if (!overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b))) return false;
+        return hasTablesFeature || competesForSameResource(b, candidateStaffId);
       }).length;
       slots.push({ time: timeStr, busy: overlapCount >= capacity });
     }
