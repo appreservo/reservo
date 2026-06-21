@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-22 (3)
+- `prenotazioni.html`/`prenotazioni.js`: il campo "Persone" nella modale admin "Nuova prenotazione" parte ora da 1 (prima da 2).
+
 ## 2026-06-22 (2) (Servizi assegnabili a più persone dello staff)
 - `impostazioni.html`/`impostazioni.js`: la colonna "Assegnato a" sui servizi ora è una selezione multipla (checkbox) invece di una singola persona — un servizio può richiedere competenze di più membri dello staff contemporaneamente disponibili.
 - `prenotazioni.js`/`sito.js`: la capacità per i servizi senza tavoli ora è il numero di persone assegnate al servizio (se nessuna, il totale dello staff). Due servizi competono per la stessa disponibilità solo se assegnati esattamente allo stesso gruppo di persone (gruppi diversi, anche se si sovrappongono parzialmente, sono trattati come risorse indipendenti — per seguire la singola persona tra servizi diversi servirebbe un'assegnazione per-prenotazione, non per-servizio).
