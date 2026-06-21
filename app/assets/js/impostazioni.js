@@ -217,6 +217,15 @@
               return `<td><select data-field="${f.key}" data-i="${i}" style="min-width:120px">${f.options().map(o =>
                 `<option value="${o.value}" ${String(o.value) === current ? 'selected' : ''}>${o.label}</option>`).join('')}</select></td>`;
             }
+            if (f.type === 'checkboxes') {
+              const selected = Array.isArray(item[f.key]) ? item[f.key] : [];
+              const opts = f.options();
+              if (opts.length === 0) return `<td><span class="small text-mid">Nessuno staff configurato</span></td>`;
+              return `<td>${opts.map(o =>
+                `<label style="display:inline-flex; align-items:center; gap:.25rem; margin:0 .6rem .2rem 0; font-size:.8rem; white-space:nowrap">
+                  <input type="checkbox" data-field="${f.key}" data-i="${i}" data-value="${o.value}" ${selected.includes(o.value) ? 'checked' : ''}> ${o.label}
+                </label>`).join('')}</td>`;
+            }
             return `<td><input type="${f.type}" data-field="${f.key}" data-i="${i}" value="${item[f.key] ?? ''}" ${f.type==='number'?'min="0"':''} style="min-width:80px"></td>`;
           }).join('')}
           <td><button class="btn btn-danger btn-sm" data-remove="${i}">Rimuovi</button></td>
@@ -225,7 +234,13 @@
       body.querySelectorAll('[data-field]').forEach(inp => inp.addEventListener('change', () => {
         const i = parseInt(inp.dataset.i, 10);
         const field = fields.find(f => f.key === inp.dataset.field);
-        items[i][inp.dataset.field] = field.type === 'number' ? (parseFloat(inp.value) || 0) : inp.value;
+        if (field.type === 'checkboxes') {
+          items[i][field.key] = Array.from(
+            body.querySelectorAll(`[data-field="${field.key}"][data-i="${i}"]:checked`)
+          ).map(c => c.dataset.value);
+        } else {
+          items[i][field.key] = field.type === 'number' ? (parseFloat(inp.value) || 0) : inp.value;
+        }
         saveData(data);
         showToast('Salvato', 'success');
       }));
@@ -252,19 +267,17 @@
       { key: 'duration', type: 'number' },
       { key: 'price', type: 'number' },
       {
-        key: 'staff_id',
-        type: 'select',
+        key: 'staff_ids',
+        type: 'checkboxes',
         // Visibile solo qui (lato attività): il sito pubblico non mostra mai
         // a chi è assegnato un servizio, lo usa solo per calcolare gli orari
-        // disponibili (vedi prenotazioni.js/sito.js).
-        options: () => [
-          { value: '', label: '— Chiunque —' },
-          ...data.staff.map(s => ({ value: s.id, label: s.name })),
-        ],
+        // disponibili (vedi prenotazioni.js/sito.js). Nessuna spunta = "chiunque
+        // in staff", una o più spunte = solo quelle persone sanno fare il servizio.
+        options: () => data.staff.map(s => ({ value: s.id, label: s.name })),
       },
     ],
     addBtn: document.getElementById('addServiceBtn'),
-    defaultItem: { name: 'Nuovo servizio', duration: 30, price: 0, staff_id: '' },
+    defaultItem: { name: 'Nuovo servizio', duration: 30, price: 0, staff_ids: [] },
   });
 
   setupEditableList({

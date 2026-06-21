@@ -210,13 +210,25 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     let closeMin = ch * 60 + cm;
     if (closeMin <= openMin) closeMin += 24 * 60; // overnight
 
+    function assignedStaffIds(svc) {
+      if (!svc) return [];
+      if (Array.isArray(svc.staff_ids)) return svc.staff_ids;
+      return svc.staff_id ? [svc.staff_id] : [];
+    }
+    function staffSetKey(ids) {
+      return ids.length ? ids.slice().sort().join(',') : '';
+    }
+
+    const candidateStaffIds = hasTablesFeature ? [] : assignedStaffIds(service);
+    const candidateSetKey = staffSetKey(candidateStaffIds);
+
     let capacity = 1;
     if (hasTablesFeature) {
       const suitableTables = (data.tables || []).filter(t => t.capacity >= bookingState.partySize);
       if (suitableTables.length === 0) return [];
       capacity = suitableTables.length;
     } else {
-      capacity = service.staff_id ? 1 : staffCount;
+      capacity = candidateStaffIds.length ? candidateStaffIds.length : staffCount;
     }
 
     let existing = data.bookings.filter(b => b.date === dateStr && (b.status === 'confirmed' || b.status === 'pending'));
@@ -239,12 +251,11 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     function overlaps(startA, durA, startB, durB) {
       return startA < startB + durB && startB < startA + durA;
     }
-    // Stesso criterio del form admin: se il servizio scelto è assegnato a una
-    // persona specifica, contano come occupate solo le prenotazioni di quella
-    // persona; se è di "chiunque", contano solo le altre prenotazioni generiche.
+    // Stesso criterio del form admin: due servizi competono per la stessa
+    // risorsa solo se assegnati esattamente allo stesso gruppo di persone
+    // (gruppo vuoto incluso = "chiunque in staff").
     function competesForSameResource(b) {
-      const existingStaffId = (existingService(b) || {}).staff_id || '';
-      return service.staff_id ? existingStaffId === service.staff_id : !existingStaffId;
+      return staffSetKey(assignedStaffIds(existingService(b))) === candidateSetKey;
     }
 
     const slots = [];

@@ -199,22 +199,32 @@
     function overlaps(startA, durA, startB, durB) {
       return startA < startB + durB && startB < startA + durA;
     }
-    // Se il servizio scelto è assegnato a una persona specifica dello staff
-    // (vedi Impostazioni -> Servizi -> "Assegnato a"), conta come occupate
-    // solo le prenotazioni di QUELLA persona: chi altro c'è in staff resta
-    // libero. Se invece il servizio è di "chiunque", la capacità è il numero
-    // totale di persone in staff e contano solo le altre prenotazioni
-    // generiche (stesso criterio, in modo che i due "pool" non si mescolino).
-    function competesForSameResource(b, candidateStaffId) {
-      const existingStaffId = (existingService(b) || {}).staff_id || '';
-      return candidateStaffId ? existingStaffId === candidateStaffId : !existingStaffId;
+    // Persone assegnate a un servizio (vedi Impostazioni -> Servizi ->
+    // "Assegnato a"); compatibile anche col vecchio campo staff_id singolo.
+    function assignedStaffIds(service) {
+      if (!service) return [];
+      if (Array.isArray(service.staff_ids)) return service.staff_ids;
+      return service.staff_id ? [service.staff_id] : [];
+    }
+    // Due servizi "competono per la stessa risorsa" solo se assegnati
+    // esattamente allo stesso gruppo di persone (incluso il gruppo vuoto =
+    // "chiunque in staff"): gruppi diversi, anche se si sovrappongono in
+    // parte, vengono trattati come risorse indipendenti — per seguire
+    // davvero la singola persona tra servizi diversi servirebbe assegnare lo
+    // staff alla singola prenotazione, non al servizio.
+    function staffSetKey(ids) {
+      return ids.length ? ids.slice().sort().join(',') : '';
+    }
+    function competesForSameResource(b, candidateSetKey) {
+      return staffSetKey(assignedStaffIds(existingService(b))) === candidateSetKey;
     }
 
     const candidateService = (data.services || []).find(s => s.id === serviceSelect.value);
-    const candidateStaffId = hasTablesFeature ? '' : ((candidateService && candidateService.staff_id) || '');
+    const candidateStaffIds = hasTablesFeature ? [] : assignedStaffIds(candidateService);
+    const candidateSetKey = staffSetKey(candidateStaffIds);
     const capacity = hasTablesFeature
       ? Math.max(1, (data.tables || []).filter(t => t.capacity >= partySize).length)
-      : (candidateStaffId ? 1 : Math.max(1, (data.staff || []).length));
+      : (candidateStaffIds.length ? candidateStaffIds.length : Math.max(1, (data.staff || []).length));
 
     const candidateDuration = currentServiceDuration();
     const step = minServiceDuration();
@@ -227,7 +237,7 @@
       const overlapCount = existing.filter(b => {
         const [bh, bm] = b.time.split(':').map(Number);
         if (!overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b))) return false;
-        return hasTablesFeature || competesForSameResource(b, candidateStaffId);
+        return hasTablesFeature || competesForSameResource(b, candidateSetKey);
       }).length;
       slots.push({ time: timeStr, busy: overlapCount >= capacity });
     }
