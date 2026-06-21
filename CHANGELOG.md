@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-22 (4)
+- `clienti.html`/`clienti.js`: aggiunti i campi "Città" e "Provincia" all'anagrafica clienti, accanto all'Indirizzo già esistente. Mostrati uniti in un'unica riga nella scheda cliente (es. "Via Roma 1, Milano MI").
+
 ## 2026-06-22 (3)
 - `prenotazioni.html`/`prenotazioni.js`: il campo "Persone" nella modale admin "Nuova prenotazione" parte ora da 1 (prima da 2).
 - `sito.html`/`sito.js`: stesso default a 1 anche nel form pubblico di prenotazione (sito cliente), incluso il reset dopo l'invio di una nuova prenotazione.
