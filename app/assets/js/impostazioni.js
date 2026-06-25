@@ -145,30 +145,31 @@
   // ---------- orari ----------
   function renderHours() {
     const body = document.getElementById('hoursBody');
-    body.innerHTML = data.hours.map((h, di) => {
-      const intervals = getIntervals(h);
-      const dis = h.closed ? 'disabled' : '';
-      const intervalsHtml = intervals.map((iv, si) => `
-        <div class="flex gap-2 items-center" style="flex-wrap:nowrap">
-          <input type="time" data-day="${di}" data-si="${si}" data-f="open" value="${iv.open}" ${dis} style="min-width:88px">
-          <span style="color:var(--text-mid)">–</span>
-          <input type="time" data-day="${di}" data-si="${si}" data-f="close" value="${iv.close}" ${dis} style="min-width:88px">
-          ${intervals.length > 1 ? `<button class="btn btn-danger btn-sm" data-rm-slot="${di}-${si}" ${dis} style="padding:.2rem .45rem">×</button>` : ''}
-        </div>`).join('');
-      return `
-        <tr>
-          <td>${DAYS[h.day]}</td>
-          <td>
-            <div style="display:flex;flex-direction:column;gap:.35rem">
-              ${intervalsHtml}
-              <div><button class="btn btn-outline btn-sm" data-add-slot="${di}" ${dis}>+ Pausa</button></div>
-            </div>
-          </td>
-          <td style="vertical-align:middle;text-align:center">
-            <input type="checkbox" data-hour-closed="${di}" ${h.closed ? 'checked' : ''} style="width:auto">
-          </td>
-        </tr>`;
-    }).join('');
+    const rows = (data.hours || []).map((h, di) => {
+      const ivals = getIntervals(h);
+      const dis = h.closed ? ' disabled' : '';
+      let ivsHtml = '';
+      ivals.forEach((iv, si) => {
+        const rmBtn = ivals.length > 1
+          ? '<button class="btn btn-danger btn-sm" data-rm-slot="' + di + '-' + si + '"' + dis + ' style="padding:.2rem .45rem">×</button>'
+          : '';
+        ivsHtml += '<div class="flex gap-2 items-center" style="flex-wrap:nowrap">'
+          + '<input type="time" data-day="' + di + '" data-si="' + si + '" data-f="open" value="' + iv.open + '"' + dis + ' style="min-width:88px">'
+          + '<span style="color:var(--text-mid)">–</span>'
+          + '<input type="time" data-day="' + di + '" data-si="' + si + '" data-f="close" value="' + iv.close + '"' + dis + ' style="min-width:88px">'
+          + rmBtn + '</div>';
+      });
+      return '<tr>'
+        + '<td>' + DAYS[h.day] + '</td>'
+        + '<td><div style="display:flex;flex-direction:column;gap:.35rem">'
+        + ivsHtml
+        + '<div><button class="btn btn-outline btn-sm" data-add-slot="' + di + '"' + dis + '>+ Pausa</button></div>'
+        + '</div></td>'
+        + '<td style="vertical-align:middle;text-align:center">'
+        + '<input type="checkbox" data-hour-closed="' + di + '"' + (h.closed ? ' checked' : '') + ' style="width:auto">'
+        + '</td></tr>';
+    });
+    body.innerHTML = rows.join('');
 
     body.querySelectorAll('[data-hour-closed]').forEach(chk => chk.addEventListener('change', () => {
       const di = parseInt(chk.dataset.hourClosed, 10);
