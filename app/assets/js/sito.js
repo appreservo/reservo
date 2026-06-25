@@ -44,10 +44,21 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     businessUid = user ? user.uid : null;
   }
 
+  // ---------- personalizzazione colore / copertina ----------
+  if (p.primary_color) {
+    document.documentElement.style.setProperty('--primary', p.primary_color);
+  }
+  if (p.cover_url) {
+    const hero = document.querySelector('.hero');
+    hero.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.55)), url(' + JSON.stringify(p.cover_url) + ')';
+    hero.style.backgroundSize = 'cover';
+    hero.style.backgroundPosition = 'center';
+  }
+
   // ---------- header / hero / footer ----------
   document.getElementById('brandName').textContent = p.business_name;
   document.getElementById('heroName').textContent = p.business_name;
-  document.getElementById('heroDesc').textContent = p.description || '';
+  document.getElementById('heroDesc').textContent = p.welcome_message || p.description || '';
   document.getElementById('heroAddress').textContent = p.address ? '📍 ' + p.address : '';
   document.getElementById('heroPhone').textContent = p.phone ? '📞 ' + p.phone : '';
   document.getElementById('footerName').textContent = p.business_name;

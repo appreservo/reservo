@@ -16,7 +16,7 @@
     history.replaceState(null, '', '#' + t.dataset.tab);
   }));
   const initialTab = location.hash ? location.hash.slice(1) : 'profilo';
-  activateTab(['profilo','orari','servizi','staff','postazioni','coupon','dati'].includes(initialTab) ? initialTab : 'profilo');
+  activateTab(['profilo','sito','orari','servizi','staff','postazioni','coupon','dati'].includes(initialTab) ? initialTab : 'profilo');
 
   // ---------- profilo ----------
   const p = data.profile;
@@ -140,6 +140,20 @@
     }
 
     showToast('Profilo salvato', 'success');
+  });
+
+  // ---------- sito pubblico ----------
+  document.getElementById('sPrimaryColor').value = p.primary_color || '#1B2F6E';
+  document.getElementById('sCoverUrl').value = p.cover_url || '';
+  document.getElementById('sWelcomeMessage').value = p.welcome_message || '';
+
+  document.getElementById('sitoForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    p.primary_color = document.getElementById('sPrimaryColor').value;
+    p.cover_url = document.getElementById('sCoverUrl').value.trim();
+    p.welcome_message = document.getElementById('sWelcomeMessage').value.trim();
+    saveData(data);
+    showToast('Impostazioni sito salvate', 'success');
   });
 
   // ---------- orari ----------

@@ -22,6 +22,7 @@
 
       <div class="tabs">
         <button class="tab" data-tab="profilo">Profilo</button>
+        <button class="tab" data-tab="sito">Sito pubblico</button>
         <button class="tab" data-tab="orari">Orari</button>
         <button class="tab" data-tab="servizi">Servizi</button>
         <button class="tab" id="tabBtnStaff" data-tab="staff">Staff</button>
@@ -94,6 +95,31 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Salva profilo</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- SITO PUBBLICO -->
+      <div class="tab-content" id="tab-sito">
+        <div class="card" style="max-width:640px">
+          <div class="card-header"><h2>Personalizzazione sito pubblico</h2></div>
+          <form id="sitoForm">
+            <div class="field">
+              <label>Colore principale</label>
+              <input type="color" id="sPrimaryColor" value="#1B2F6E" style="height:2.4rem;padding:.2rem .3rem;cursor:pointer;border-radius:6px">
+              <p class="text-mid small mt-3">Usato per header, pulsanti e testi in evidenza sul sito di prenotazione.</p>
+            </div>
+            <div class="field">
+              <label>Immagine di copertina (URL)</label>
+              <input type="url" id="sCoverUrl" placeholder="https://esempio.com/foto-locale.jpg">
+              <p class="text-mid small mt-3">Sfondo della sezione hero. Consigliata: almeno 1200×400px.</p>
+            </div>
+            <div class="field">
+              <label>Messaggio di benvenuto</label>
+              <textarea id="sWelcomeMessage" rows="2" placeholder="Benvenuti nel nostro locale!"></textarea>
+              <p class="text-mid small mt-3">Testo breve mostrato sotto il nome dell'attività nel sito pubblico.</p>
+            </div>
+            <button type="submit" class="btn btn-primary">Salva impostazioni sito</button>
           </form>
         </div>
       </div>
