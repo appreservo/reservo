@@ -4,13 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const businessTable = document.getElementById('businessTable');
   const businessSearch = document.getElementById('businessSearch');
   const businessStatusFilter = document.getElementById('businessStatusFilter');
-  const reviewsTable = document.getElementById('reviewsTable');
-  const reviewStatusFilter = document.getElementById('reviewStatusFilter');
   const growthPeriodFilter = document.getElementById('growthPeriodFilter');
   const logoutBtn = document.getElementById('logoutBtn');
 
   let allBusinesses = [];
-  let allReviews = [];
   let allGestori = [];
 
   logoutBtn.addEventListener('click', () => window.reservoAuth.logout());
@@ -100,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     businessTable.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const b = allBusinesses.find(x => x.id === btn.dataset.delete);
-      if (!confirm(`Eliminare definitivamente "${(b && b.business_name) || 'questa attività'}"? Verranno rimossi profilo, dati attività, prenotazioni e recensioni. L'operazione non può essere annullata.`)) return;
+      if (!confirm(`Eliminare definitivamente "${(b && b.business_name) || 'questa attività'}"? Verranno rimossi profilo, dati attività e prenotazioni. L'operazione non può essere annullata.`)) return;
       btn.disabled = true;
       try {
         await window.reservoAuth.deleteBusinessAccount(btn.dataset.delete);
@@ -114,59 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
-  function renderReviews(list) {
-    const status = reviewStatusFilter.value;
-    const filtered = status ? list.filter(r => r.status === status) : list.slice();
-    filtered.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-
-    if (!filtered.length) {
-      reviewsTable.innerHTML = '<div class="empty-state">Nessuna recensione da mostrare.</div>';
-      return;
-    }
-    reviewsTable.innerHTML = filtered.map(r => `
-      <div class="review-card">
-        <div class="review-head">
-          <div>
-            <strong>${escapeHtml(r.businessName || 'Attività')}</strong> · ${escapeHtml(r.customer_name || 'Cliente')}
-            <div class="review-meta">${r.created_at ? fmtDateLong(r.created_at.slice(0, 10)) : ''}</div>
-          </div>
-          <div class="flex items-center gap-2">
-            ${starsHtml(r.rating)}
-            <span class="badge badge-${r.status === 'approved' ? 'confirmed' : r.status === 'rejected' ? 'rejected' : 'pending'}">${r.status === 'approved' ? 'Approvata' : r.status === 'rejected' ? 'Rifiutata' : 'In attesa'}</span>
-          </div>
-        </div>
-        ${r.comment ? `<div class="review-comment">${escapeHtml(r.comment)}</div>` : ''}
-        <div class="flex gap-2 mt-3">
-          ${r.status !== 'approved' ? `<button class="btn btn-outline btn-sm" data-approve="${r.id}">Approva</button>` : ''}
-          ${r.status !== 'rejected' ? `<button class="btn btn-outline btn-sm" data-reject="${r.id}">Rifiuta</button>` : ''}
-          <button class="btn btn-danger btn-sm" data-delete="${r.id}">Elimina</button>
-        </div>
-      </div>`).join('');
-
-    reviewsTable.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', () => setReviewStatus(btn.dataset.approve, 'approved')));
-    reviewsTable.querySelectorAll('[data-reject]').forEach(btn => btn.addEventListener('click', () => setReviewStatus(btn.dataset.reject, 'rejected')));
-    reviewsTable.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', () => removeReview(btn.dataset.delete)));
-  }
-
-  async function setReviewStatus(id, status) {
-    await window.reservoAuth.updateReviewStatus(id, status);
-    const r = allReviews.find(x => x.id === id);
-    if (r) r.status = status;
-    showToast(status === 'approved' ? 'Recensione approvata' : 'Recensione rifiutata', status === 'approved' ? 'success' : '');
-    renderReviews(allReviews);
-  }
-
-  async function removeReview(id) {
-    if (!confirm('Eliminare questa recensione?')) return;
-    await window.reservoAuth.deleteReview(id);
-    allReviews = allReviews.filter(x => x.id !== id);
-    showToast('Recensione eliminata');
-    renderReviews(allReviews);
-  }
-
   businessSearch.addEventListener('input', () => renderBusinesses(allBusinesses));
   businessStatusFilter.addEventListener('change', () => renderBusinesses(allBusinesses));
-  reviewStatusFilter.addEventListener('change', () => renderReviews(allReviews));
   growthPeriodFilter.addEventListener('change', () => renderGrowthChart(allGestori));
 
   let growthChart;
@@ -229,27 +175,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function refresh() {
-    const [pending, businesses, gestori, bookingsCount, reviews] = await Promise.all([
+    const [pending, businesses, gestori, bookingsCount] = await Promise.all([
       window.reservoAuth.listPendingAccounts(),
       window.reservoAuth.listAllBusinesses(),
       window.reservoAuth.listGestoreUsers().catch(() => []),
       window.reservoAuth.countAllBookings().catch(() => 0),
-      window.reservoAuth.listAllReviews().catch(() => []),
     ]);
     allBusinesses = businesses;
-    allReviews = reviews;
     allGestori = gestori;
     renderPending(pending);
     renderBusinesses(allBusinesses);
     renderStats(businesses, bookingsCount);
     renderGrowthChart(allGestori);
-    renderReviews(allReviews);
   }
 
   function start() { refresh().catch(() => {
     pendingTable.innerHTML = '<div class="empty-state">Impossibile caricare le richieste al momento.</div>';
     businessTable.innerHTML = '';
-    reviewsTable.innerHTML = '';
   }); }
 
   if (window.reservoAuth && window.reservoAuth.currentUser) start();

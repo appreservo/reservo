@@ -338,16 +338,6 @@ function exportCSV(filename, rows, columns) {
   URL.revokeObjectURL(url);
 }
 
-/* render di stelle (rating 1-5), readOnly=true per visualizzazione */
-function starsHtml(rating, readOnly = true, name = 'rating') {
-  const r = Math.round(rating || 0);
-  if (readOnly) {
-    return `<span class="stars">${[1,2,3,4,5].map(i => `<span class="star ${i <= r ? 'filled' : ''}">★</span>`).join('')}</span>`;
-  }
-  return `<span class="stars stars-input" data-name="${name}">${[1,2,3,4,5].map(i =>
-    `<span class="star ${i <= r ? 'filled' : ''}" data-value="${i}">★</span>`).join('')}</span>`;
-}
-
 /* toast helper */
 function showToast(msg, type = '') {
   let el = document.getElementById('toast');

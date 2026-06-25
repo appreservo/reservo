@@ -139,10 +139,8 @@ async function deleteAllBusinessBookings(businessUid) {
 
 /* elimina completamente il profilo di un gestore (pannello admin) */
 async function deleteBusinessAccount(uid) {
-  const reviewsSnap = await getDocs(query(collection(db, 'reviews'), where('businessUid', '==', uid)));
   await Promise.all([
     deleteAllBusinessBookings(uid),
-    ...reviewsSnap.docs.map(d => deleteDoc(d.ref)),
     deleteDoc(doc(db, 'businessData', uid)).catch(() => {}),
     deleteDoc(doc(db, 'businessPublic', uid)).catch(() => {}),
     deleteDoc(doc(db, 'businesses', uid)).catch(() => {}),
@@ -160,37 +158,6 @@ function whoAmI() {
 async function listAllBusinesses() {
   const snap = await getDocs(collection(db, 'businesses'));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-
-/* recensioni (collezione top-level 'reviews') */
-function createReview(review) {
-  return addDoc(collection(db, 'reviews'), review);
-}
-
-async function getBusinessReviews(businessUid) {
-  const snap = await getDocs(query(collection(db, 'reviews'), where('businessUid', '==', businessUid)));
-  return snap.docs.map(d => ({ ...d.data(), id: d.id }));
-}
-
-async function getApprovedReviews(businessUid) {
-  const snap = await getDocs(query(collection(db, 'reviews'), where('businessUid', '==', businessUid), where('status', '==', 'approved')));
-  return snap.docs.map(d => ({ ...d.data(), id: d.id }));
-}
-
-/* tutte le recensioni di tutte le attività (pannello admin) */
-async function listAllReviews() {
-  const snap = await getDocs(collection(db, 'reviews'));
-  return snap.docs.map(d => ({ ...d.data(), id: d.id }));
-}
-
-function updateReviewStatus(reviewId, status) {
-  if (blockedInViewAs()) return Promise.resolve();
-  return setDoc(doc(db, 'reviews', reviewId), { status }, { merge: true });
-}
-
-function deleteReview(reviewId) {
-  if (blockedInViewAs()) return Promise.resolve();
-  return deleteDoc(doc(db, 'reviews', reviewId));
 }
 
 /* comunicazioni broadcast (collezione top-level 'broadcasts', elaborate da una Cloud Function) */
@@ -360,7 +327,6 @@ window.reservoAuth = {
   createPublicBooking, getBusinessBookingsForDate, getBusinessBookings,
   updateBookingStatus, updateBooking, deleteBooking, deleteAllBusinessBookings, deleteBusinessAccount, whoAmI,
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
-  createReview, getBusinessReviews, getApprovedReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
   getBusinessUid, isViewingAs, resendVerificationEmail,
   serverTimestamp,
@@ -372,7 +338,6 @@ export {
   createPublicBooking, getBusinessBookingsForDate, getBusinessBookings,
   updateBookingStatus, updateBooking, deleteBooking, deleteAllBusinessBookings, deleteBusinessAccount, whoAmI,
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
-  createReview, getBusinessReviews, getApprovedReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
   getBusinessUid, isViewingAs, resendVerificationEmail,
   serverTimestamp,
