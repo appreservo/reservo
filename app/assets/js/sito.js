@@ -28,9 +28,10 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   const p = data.profile;
   const isRestaurant = p.type === 'restaurant';
   // Stesso criterio usato nel form admin (prenotazioni.js): per i ristoranti
-  // con tavoli attivi la capacità è il numero di tavoli adatti, altrimenti
-  // è il numero di persone in staff (o 1 se il servizio è assegnato a una
-  // persona specifica).
+  // con tavoli attivi la capacità è il numero di tavoli adatti; per i
+  // ristoranti senza tavoli non c'è alcun limite di sovrapposizione (vedi
+  // getAvailableSlots); per le altre attività è il numero di persone in
+  // staff (o 1 se il servizio è assegnato a una persona specifica).
   const hasTablesFeature = isRestaurant && !(p.hidden_features || []).includes('tables');
   const staffCount = isPublicMode ? Math.max(1, data.staffCount || 1) : Math.max(1, (data.staff || []).length);
   const menuLabel = isRestaurant ? 'Menu' : 'Listino prezzi';
@@ -227,6 +228,10 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       const suitableTables = (data.tables || []).filter(t => t.capacity >= bookingState.partySize);
       if (suitableTables.length === 0) return [];
       capacity = suitableTables.length;
+    } else if (isRestaurant) {
+      // Ristorante senza tavoli: nessun limite di capacità, le prenotazioni
+      // possono accavallarsi liberamente (l'attività le confermerà a mano).
+      capacity = Infinity;
     } else {
       capacity = candidateStaffIds.length ? candidateStaffIds.length : staffCount;
     }
@@ -269,7 +274,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       const overlapCount = existing.filter(b => {
         const [bh, bm] = b.time.split(':').map(Number);
         if (!overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b))) return false;
-        return hasTablesFeature || competesForSameResource(b);
+        return hasTablesFeature || (!isRestaurant && competesForSameResource(b));
       }).length;
       slots.push({ time: timeStr, available: overlapCount < capacity });
     }

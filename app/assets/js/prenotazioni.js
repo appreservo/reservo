@@ -132,7 +132,8 @@
     (data.tables || []).map(t => `<option value="${t.id}">${t.name} (${t.capacity} posti)</option>`).join('');
 
   // il campo "Tavolo" ha senso solo per i ristoranti, ed e' nascondibile anche dal gestore in Impostazioni
-  const hasTablesFeature = data.profile.type === 'restaurant' && !(data.profile.hidden_features || []).includes('tables');
+  const isRestaurant = data.profile.type === 'restaurant';
+  const hasTablesFeature = isRestaurant && !(data.profile.hidden_features || []).includes('tables');
   document.getElementById('bTableField').style.display = hasTablesFeature ? '' : 'none';
 
   // ---------- slot picker (blocchi orari per la nuova prenotazione) ----------
@@ -224,6 +225,8 @@
     const candidateSetKey = staffSetKey(candidateStaffIds);
     const capacity = hasTablesFeature
       ? Math.max(1, (data.tables || []).filter(t => t.capacity >= partySize).length)
+      // Ristorante senza tavoli: nessun limite di capacità (vedi overlapCount sotto).
+      : isRestaurant ? Infinity
       : (candidateStaffIds.length ? candidateStaffIds.length : Math.max(1, (data.staff || []).length));
 
     const candidateDuration = currentServiceDuration();
@@ -237,7 +240,7 @@
       const overlapCount = existing.filter(b => {
         const [bh, bm] = b.time.split(':').map(Number);
         if (!overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b))) return false;
-        return hasTablesFeature || competesForSameResource(b, candidateSetKey);
+        return hasTablesFeature || (!isRestaurant && competesForSameResource(b, candidateSetKey));
       }).length;
       slots.push({ time: timeStr, busy: overlapCount >= capacity });
     }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-25
+- `prenotazioni.js`/`sito.js`: corretto un bug per cui il limite di capacità sulle prenotazioni sovrapposte pensato per le attività non-ristorante (basato sullo staff) veniva applicato per errore anche ai ristoranti con la funzionalità Tavoli disattivata, impedendo loro di accavallare le prenotazioni. Ora per questi ristoranti non c'è alcun limite di capacità; resta invece inalterato il limite basato sul numero di tavoli quando la funzionalità è attiva.
+
 ## 2026-06-22 (4)
 - `clienti.html`/`clienti.js`: aggiunti i campi "Città" e "Provincia" all'anagrafica clienti, accanto all'Indirizzo già esistente. Mostrati uniti in un'unica riga nella scheda cliente (es. "Via Roma 1, Milano MI").
 
