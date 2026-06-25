@@ -1,6 +1,7 @@
 (async function () {
   let data = await loadData();
   renderLayout('Impostazioni', data);
+  const isRestaurant = data.profile && data.profile.type === 'restaurant';
 
   // ---------- tabs ----------
   const tabs = document.querySelectorAll('.tab');
@@ -223,7 +224,7 @@
                   <input type="checkbox" data-field="${f.key}" data-i="${i}" data-value="${o.value}" ${selected.includes(o.value) ? 'checked' : ''}> ${o.label}
                 </label>`).join('')}</td>`;
             }
-            return `<td><input type="${f.type}" data-field="${f.key}" data-i="${i}" value="${item[f.key] ?? ''}" ${f.type==='number'?'min="0"':''} style="min-width:80px"></td>`;
+            return `<td><input type="${f.type}" data-field="${f.key}" data-i="${i}" value="${item[f.key] != null ? item[f.key] : ''}" ${f.type==='number' && !f.optional ? 'min="0"' : ''} placeholder="${f.optional ? 'libera' : ''}" style="min-width:80px"></td>`;
           }).join('')}
           <td><button class="btn btn-danger btn-sm" data-remove="${i}">Rimuovi</button></td>
         </tr>`).join('');
@@ -236,7 +237,9 @@
             body.querySelectorAll(`[data-field="${field.key}"][data-i="${i}"]:checked`)
           ).map(c => c.dataset.value);
         } else {
-          items[i][field.key] = field.type === 'number' ? (parseFloat(inp.value) || 0) : inp.value;
+          items[i][field.key] = field.type === 'number'
+            ? (field.optional && inp.value.trim() === '' ? null : (parseFloat(inp.value) || 0))
+            : inp.value;
         }
         saveData(data);
         showToast('Salvato', 'success');
@@ -261,7 +264,7 @@
     items: data.services,
     fields: [
       { key: 'name', type: 'text' },
-      { key: 'duration', type: 'number' },
+      { key: 'duration', type: 'number', optional: isRestaurant },
       { key: 'price', type: 'number' },
       {
         key: 'staff_ids',
@@ -274,8 +277,12 @@
       },
     ],
     addBtn: document.getElementById('addServiceBtn'),
-    defaultItem: { name: 'Nuovo servizio', duration: 30, price: 0, staff_ids: [] },
+    defaultItem: { name: 'Nuovo servizio', duration: isRestaurant ? null : 30, price: 0, staff_ids: [] },
   });
+  if (isRestaurant) {
+    const durTh = document.querySelector('#servicesBody').closest('table').querySelector('th:nth-child(2)');
+    if (durTh) durTh.textContent = 'Durata (min, opz.)';
+  }
 
   setupEditableList({
     body: document.getElementById('staffBody'),
