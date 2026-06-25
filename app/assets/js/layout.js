@@ -99,8 +99,8 @@ function renderLayout(pageTitle, data) {
       <h1>${pageTitle}</h1>
     </div>
     <div class="topbar-actions">
+      <span class="topbar-biz-name">${data && data.profile ? data.profile.business_name : ''}</span>
       <a href="${siteHref}" target="_blank" class="btn btn-outline btn-sm">${ICONS.external} <span class="btn-label">Anteprima sito</span></a>
-      <div class="badge badge-navy">${data && data.profile ? data.profile.business_name : ''}</div>
       <button class="btn btn-outline btn-sm" id="logoutBtn">Esci</button>
     </div>`;
 
