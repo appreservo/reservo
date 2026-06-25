@@ -12,6 +12,7 @@
   --red: #dc2626;
   --orange: #d97706;
   --sidebar-w: 250px;
+  --topbar-h: 62px;
 }
 
 html.auth-pending::before {
@@ -62,7 +63,7 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   position: fixed;
-  top: 0; bottom: 0; left: 0;
+  top: var(--topbar-h); bottom: 0; left: 0;
   overflow-y: auto;
   z-index: 50;
   transition: transform .25s ease;
@@ -122,18 +123,20 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  padding-top: var(--topbar-h);
 }
 
 .topbar {
   background: var(--navy);
   border-bottom: 1px solid rgba(255,255,255,.1);
-  padding: .85rem 1.6rem;
+  padding: 0 1.6rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--topbar-h);
+  z-index: 100;
 }
 .topbar h1 { font-size: 1.15rem; font-weight: 800; margin: 0; color: var(--white); }
 .topbar-actions { display: flex; align-items: center; gap: .75rem; }
@@ -460,6 +463,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
 
 @media (min-width: 901px) {
   .topbar-brand { display: none; }
+  .topbar { padding-left: calc(var(--sidebar-w) + 1.6rem); }
 }
 
 @media (max-width: 900px) {
@@ -476,7 +480,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
 
 @media (max-width: 640px) {
   .content { padding: 1rem; }
-  .topbar { padding: .7rem 1rem; flex-wrap: nowrap; }
+  .topbar { padding: 0 1rem; flex-wrap: nowrap; }
   .topbar h1 { font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .topbar > .flex.items-center.gap-3 { min-width: 0; overflow: hidden; }
   .topbar-brand { min-width: 0; flex-shrink: 0; }
