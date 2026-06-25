@@ -179,6 +179,44 @@ function renderLayout(pageTitle, data) {
   }
 
   fillIcons();
+
+  const profile = window.reservoAuth.currentProfile;
+  const uid = window.reservoAuth.getBusinessUid && window.reservoAuth.getBusinessUid();
+  if (uid && profile && profile.role === 'gestore' && !window.reservoAuth.isViewingAs()) {
+    initBookingNotifications(uid);
+  }
+}
+
+let _bookingsUnsub = null;
+let _prevPendingCount = -1;
+
+function initBookingNotifications(businessUid) {
+  if (_bookingsUnsub) { _bookingsUnsub(); _bookingsUnsub = null; }
+  _prevPendingCount = -1;
+  _bookingsUnsub = window.reservoAuth.subscribeToNewBookings(businessUid, (pendingBookings) => {
+    const count = pendingBookings.length;
+
+    let badge = document.getElementById('bookingsBadge');
+    if (!badge) {
+      const link = document.querySelector('#sidebar a[href="prenotazioni.html"]');
+      if (link) {
+        badge = document.createElement('span');
+        badge.id = 'bookingsBadge';
+        badge.className = 'nav-badge';
+        link.appendChild(badge);
+      }
+    }
+    if (badge) {
+      badge.textContent = count > 9 ? '9+' : String(count);
+      badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+
+    if (_prevPendingCount >= 0 && count > _prevPendingCount) {
+      const n = count - _prevPendingCount;
+      showToast(n === 1 ? 'Nuova prenotazione ricevuta' : `${n} nuove prenotazioni ricevute`, 'success');
+    }
+    _prevPendingCount = count;
+  });
 }
 
 function fillIcons(root = document) {
