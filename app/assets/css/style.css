@@ -483,8 +483,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
 }
 
 @media (min-width: 901px) {
-  .topbar-brand { display: none; }
-  .topbar { padding-left: calc(var(--sidebar-w) + 1.6rem); }
+  .sidebar-brand { display: none; }
 }
 
 @media (max-width: 900px) {
