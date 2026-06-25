@@ -44,6 +44,13 @@ function statusLabel(s) {
 function typeLabel(t) {
   return { restaurant: 'Ristorante / Bar', artisan: 'Artigiano / Estetista', professional: 'Professionista / Studio' }[t] || t;
 }
+/* Restituisce gli intervalli orari di un giorno, gestendo sia il nuovo formato
+ * {slots:[{open,close},...]} sia il vecchio {open,close} per retrocompatibilità. */
+function getIntervals(h) {
+  if (h.slots && h.slots.length) return h.slots;
+  if (h.open || h.close) return [{ open: h.open || '09:00', close: h.close || '18:00' }];
+  return [{ open: '09:00', close: '18:00' }];
+}
 
 /* funzionalità opzionali nascoste di default in base al tipo di attività, per i nuovi account */
 function defaultHiddenFeatures(type) {

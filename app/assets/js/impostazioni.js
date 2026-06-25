@@ -145,28 +145,68 @@
   // ---------- orari ----------
   function renderHours() {
     const body = document.getElementById('hoursBody');
-    body.innerHTML = data.hours.map((h, i) => `
-      <tr>
-        <td>${DAYS[h.day]}</td>
-        <td><input type="time" data-hour-open="${i}" value="${h.open}" ${h.closed ? 'disabled' : ''}></td>
-        <td><input type="time" data-hour-close="${i}" value="${h.close}" ${h.closed ? 'disabled' : ''}></td>
-        <td><input type="checkbox" data-hour-closed="${i}" ${h.closed ? 'checked' : ''} style="width:auto"></td>
-      </tr>`).join('');
+    body.innerHTML = data.hours.map((h, di) => {
+      const intervals = getIntervals(h);
+      const dis = h.closed ? 'disabled' : '';
+      const intervalsHtml = intervals.map((iv, si) => `
+        <div class="flex gap-2 items-center" style="flex-wrap:nowrap">
+          <input type="time" data-day="${di}" data-si="${si}" data-f="open" value="${iv.open}" ${dis} style="min-width:88px">
+          <span style="color:var(--text-mid)">–</span>
+          <input type="time" data-day="${di}" data-si="${si}" data-f="close" value="${iv.close}" ${dis} style="min-width:88px">
+          ${intervals.length > 1 ? `<button class="btn btn-danger btn-sm" data-rm-slot="${di}-${si}" ${dis} style="padding:.2rem .45rem">×</button>` : ''}
+        </div>`).join('');
+      return `
+        <tr>
+          <td>${DAYS[h.day]}</td>
+          <td>
+            <div style="display:flex;flex-direction:column;gap:.35rem">
+              ${intervalsHtml}
+              <div><button class="btn btn-outline btn-sm" data-add-slot="${di}" ${dis}>+ Pausa</button></div>
+            </div>
+          </td>
+          <td style="vertical-align:middle;text-align:center">
+            <input type="checkbox" data-hour-closed="${di}" ${h.closed ? 'checked' : ''} style="width:auto">
+          </td>
+        </tr>`;
+    }).join('');
 
     body.querySelectorAll('[data-hour-closed]').forEach(chk => chk.addEventListener('change', () => {
-      const i = parseInt(chk.dataset.hourClosed, 10);
-      data.hours[i].closed = chk.checked;
+      const di = parseInt(chk.dataset.hourClosed, 10);
+      data.hours[di].closed = chk.checked;
+      renderHours();
+    }));
+
+    body.querySelectorAll('[data-add-slot]').forEach(btn => btn.addEventListener('click', () => {
+      const di = parseInt(btn.dataset.addSlot, 10);
+      const intervals = getIntervals(data.hours[di]);
+      const last = intervals[intervals.length - 1];
+      const [lh, lm] = last.close.split(':').map(Number);
+      const newCloseH = Math.min(lh + 3, 23);
+      data.hours[di].slots = [...intervals, { open: last.close, close: String(newCloseH).padStart(2, '0') + ':' + String(lm).padStart(2, '0') }];
+      delete data.hours[di].open; delete data.hours[di].close;
+      renderHours();
+    }));
+
+    body.querySelectorAll('[data-rm-slot]').forEach(btn => btn.addEventListener('click', () => {
+      const [di, si] = btn.dataset.rmSlot.split('-').map(Number);
+      const intervals = getIntervals(data.hours[di]);
+      intervals.splice(si, 1);
+      data.hours[di].slots = intervals;
+      delete data.hours[di].open; delete data.hours[di].close;
       renderHours();
     }));
   }
   renderHours();
 
   document.getElementById('saveHoursBtn').addEventListener('click', () => {
-    document.querySelectorAll('[data-hour-open]').forEach(inp => {
-      data.hours[parseInt(inp.dataset.hourOpen, 10)].open = inp.value;
-    });
-    document.querySelectorAll('[data-hour-close]').forEach(inp => {
-      data.hours[parseInt(inp.dataset.hourClose, 10)].close = inp.value;
+    data.hours.forEach((h, di) => {
+      const openInputs = [...document.querySelectorAll(`[data-day="${di}"][data-f="open"]`)];
+      const newSlots = openInputs.map(inp => {
+        const closeInp = document.querySelector(`[data-day="${di}"][data-si="${inp.dataset.si}"][data-f="close"]`);
+        return { open: inp.value, close: closeInp ? closeInp.value : inp.value };
+      }).filter(s => s.open && s.close);
+      h.slots = newSlots.length ? newSlots : getIntervals(h);
+      delete h.open; delete h.close;
     });
     saveData(data);
     showToast('Orari salvati', 'success');

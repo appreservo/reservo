@@ -225,14 +225,18 @@
     const jsDay = date.getDay();
     const ourDay = jsDay === 0 ? 6 : jsDay - 1;
     const hours = data.hours.find(h => h.day === ourDay);
-    if (!hours || hours.closed || !hours.open || !hours.close) return [];
+    if (!hours || hours.closed) return [];
     if ((data.closures || []).some(c => c.date === dateStr)) return [];
 
-    const [oh, om] = hours.open.split(':').map(Number);
-    const [ch, cm] = hours.close.split(':').map(Number);
-    let openMin = oh * 60 + om;
-    let closeMin = ch * 60 + cm;
-    if (closeMin <= openMin) closeMin += 24 * 60; // turno notturno
+    const dayIntervals = getIntervals(hours).map(iv => {
+      const [oh, om] = iv.open.split(':').map(Number);
+      const [ch, cm] = iv.close.split(':').map(Number);
+      let openMin = oh * 60 + om;
+      let closeMin = ch * 60 + cm;
+      if (closeMin <= openMin) closeMin += 24 * 60;
+      return { openMin, closeMin };
+    });
+    if (!dayIntervals.length) return [];
 
     const editingId = document.getElementById('bookingId').value;
     const existing = allBookings().filter(b => b.date === dateStr && b.id !== editingId
@@ -287,16 +291,19 @@
     const step = minServiceDuration();
 
     const slots = [];
-    for (let t = openMin; t + candidateDuration <= closeMin; t += step) {
-      const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
-      const mm = String(t % 60).padStart(2, '0');
-      const timeStr = `${hh}:${mm}`;
-      const overlapCount = existing.filter(b => {
-        const [bh, bm] = b.time.split(':').map(Number);
-        if (!overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b))) return false;
-        return hasTablesFeature || (!isRestaurant && competesForSameResource(b, candidateSetKey));
-      }).length;
-      slots.push({ time: timeStr, busy: overlapCount >= capacity });
+    for (const { openMin, closeMin } of dayIntervals) {
+      for (let t = openMin; t + candidateDuration <= closeMin; t += step) {
+        const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
+        const mm = String(t % 60).padStart(2, '0');
+        const timeStr = `${hh}:${mm}`;
+        if (slots.some(s => s.time === timeStr)) continue;
+        const overlapCount = existing.filter(b => {
+          const [bh, bm] = b.time.split(':').map(Number);
+          if (!overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b))) return false;
+          return hasTablesFeature || (!isRestaurant && competesForSameResource(b, candidateSetKey));
+        }).length;
+        slots.push({ time: timeStr, busy: overlapCount >= capacity });
+      }
     }
     return slots;
   }

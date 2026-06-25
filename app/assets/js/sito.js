@@ -64,11 +64,13 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     const todayClosed = data.closures.some(c => c.date === todayStr());
     if (!h || h.closed || todayClosed) return false;
     const cur = now.getHours() * 60 + now.getMinutes();
-    const [oh, om] = h.open.split(':').map(Number);
-    const [ch, cm] = h.close.split(':').map(Number);
-    const open = oh * 60 + om, close = ch * 60 + cm;
-    if (close <= open) return cur >= open || cur < close; // overnight
-    return cur >= open && cur < close;
+    return getIntervals(h).some(iv => {
+      const [oh, om] = iv.open.split(':').map(Number);
+      const [ch, cm] = iv.close.split(':').map(Number);
+      const open = oh * 60 + om, close = ch * 60 + cm;
+      if (close <= open) return cur >= open || cur < close;
+      return cur >= open && cur < close;
+    });
   }
   const isOpen = computeStatus();
   const badge = document.getElementById('statusBadge');
@@ -199,17 +201,21 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     const jsDay = date.getDay();
     const ourDay = jsDay === 0 ? 6 : jsDay - 1;
     const hours = data.hours.find(h => h.day === ourDay);
-    if (!hours || hours.closed || !hours.open || !hours.close) return [];
+    if (!hours || hours.closed) return [];
     if (data.closures.some(c => c.date === dateStr)) return [];
 
     const minNotice = new Date(Date.now() + BOOKING_MIN_NOTICE_HOURS * 3600 * 1000);
     const duration = service.duration || 90;
 
-    const [oh, om] = hours.open.split(':').map(Number);
-    const [ch, cm] = hours.close.split(':').map(Number);
-    let openMin = oh * 60 + om;
-    let closeMin = ch * 60 + cm;
-    if (closeMin <= openMin) closeMin += 24 * 60; // overnight
+    const dayIntervals = getIntervals(hours).map(iv => {
+      const [oh, om] = iv.open.split(':').map(Number);
+      const [ch, cm] = iv.close.split(':').map(Number);
+      let openMin = oh * 60 + om;
+      let closeMin = ch * 60 + cm;
+      if (closeMin <= openMin) closeMin += 24 * 60;
+      return { openMin, closeMin };
+    });
+    if (!dayIntervals.length) return [];
 
     function assignedStaffIds(svc) {
       if (!svc) return [];
@@ -264,19 +270,22 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     }
 
     const slots = [];
-    for (let t = openMin; t + duration <= closeMin; t += duration) {
-      const slotStart = new Date(date);
-      slotStart.setMinutes(slotStart.getMinutes() + t);
-      if (slotStart <= minNotice) continue;
-      const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
-      const mm = String(t % 60).padStart(2, '0');
-      const timeStr = `${hh}:${mm}`;
-      const overlapCount = existing.filter(b => {
-        const [bh, bm] = b.time.split(':').map(Number);
-        if (!overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b))) return false;
-        return hasTablesFeature || (!isRestaurant && competesForSameResource(b));
-      }).length;
-      slots.push({ time: timeStr, available: overlapCount < capacity });
+    for (const { openMin, closeMin } of dayIntervals) {
+      for (let t = openMin; t + duration <= closeMin; t += duration) {
+        const slotStart = new Date(date);
+        slotStart.setMinutes(slotStart.getMinutes() + t);
+        if (slotStart <= minNotice) continue;
+        const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
+        const mm = String(t % 60).padStart(2, '0');
+        const timeStr = `${hh}:${mm}`;
+        if (slots.some(s => s.time === timeStr)) continue;
+        const overlapCount = existing.filter(b => {
+          const [bh, bm] = b.time.split(':').map(Number);
+          if (!overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b))) return false;
+          return hasTablesFeature || (!isRestaurant && competesForSameResource(b));
+        }).length;
+        slots.push({ time: timeStr, available: overlapCount < capacity });
+      }
     }
     return slots;
   }
@@ -528,8 +537,10 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   renderEvents();
 
   // ---------- footer hours ----------
-  document.getElementById('hoursTable').innerHTML = data.hours.map(h =>
-    `<div><span>${DAYS[h.day]}</span><span>${h.closed ? 'Chiuso' : h.open + ' - ' + h.close}</span></div>`).join('');
+  document.getElementById('hoursTable').innerHTML = data.hours.map(h => {
+    const timesText = h.closed ? 'Chiuso' : getIntervals(h).map(iv => iv.open + ' – ' + iv.close).join(', ');
+    return `<div><span>${DAYS[h.day]}</span><span>${timesText}</span></div>`;
+  }).join('');
 
   // ---------- QR code ----------
   const qrUrl = location.href.split('#')[0];
