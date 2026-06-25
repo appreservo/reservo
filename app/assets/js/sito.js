@@ -1,4 +1,4 @@
-import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusinessBookingsForDate, getApprovedReviews, whoAmI } from './auth.js';
+import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusinessBookingsForDate, whoAmI } from './auth.js';
 
 (async function () {
   const slug = new URLSearchParams(location.search).get('b');
@@ -386,13 +386,11 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     }
 
     if (isPublicMode) {
-      const user = await whoAmI();
       await createPublicBooking({
         ...booking,
         businessUid: business.id,
         businessName: p.business_name,
         businessSlug: p.slug,
-        customerUid: user ? user.uid : null,
       });
     } else {
       data.bookings.push(booking);
@@ -526,38 +524,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     }));
   }
   renderEvents();
-
-  // ---------- recensioni ----------
-  async function renderReviews() {
-    const container = document.getElementById('reviewsContainer');
-    if (!businessUid) { container.innerHTML = ''; return; }
-    let reviews = [];
-    try {
-      reviews = await getApprovedReviews(businessUid);
-    } catch (e) {}
-    if (reviews.length === 0) {
-      container.innerHTML = `<p class="text-mid" style="text-align:center">Nessuna recensione pubblicata al momento.</p>`;
-      return;
-    }
-    reviews.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-    const avg = reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length;
-    container.innerHTML = `
-      <div class="review-summary">
-        <div class="score">${avg.toFixed(1)}</div>
-        ${starsHtml(avg)}
-        <div class="text-mid small">${reviews.length} recensioni</div>
-      </div>` +
-      reviews.map(r => `
-        <div class="review-card">
-          <div class="review-head">
-            <span class="review-author">${escapeHtml(r.customer_name || 'Cliente')}</span>
-            ${starsHtml(r.rating)}
-          </div>
-          <div class="review-date">${r.created_at ? fmtDateLong(r.created_at.slice(0, 10)) : ''}</div>
-          ${r.comment ? `<div class="review-comment">${escapeHtml(r.comment)}</div>` : ''}
-        </div>`).join('');
-  }
-  renderReviews();
 
   // ---------- footer hours ----------
   document.getElementById('hoursTable').innerHTML = data.hours.map(h =>

@@ -1,22 +1,102 @@
 /* Reservo - pannello admin: approvazione registrazioni gestori */
+
+/* sidebar + topbar del pannello admin (sezioni in pagina, niente cambio di file: stesso pattern a tab-via-hash di impostazioni.js) */
+const ADMIN_NAV = [
+  { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { id: 'attivita', label: 'Attività', icon: 'customers' },
+];
+
+function renderAdminLayout() {
+  const profile = window.reservoAuth.currentProfile;
+
+  const sidebarHtml = `
+    <a href="admin.html" class="sidebar-brand">
+      <img src="assets/img/logo.png" alt="Reservo">
+      <span class="sidebar-brand-text">
+        <span class="sidebar-brand-name">Reservo · Admin</span>
+        <span class="js-user-name"></span>
+      </span>
+    </a>
+    <div class="sidebar-group">` +
+    ADMIN_NAV.map(item => `<a href="#${item.id}" data-admin-tab="${item.id}" class="sidebar-link">${ICONS[item.icon]}<span>${item.label}</span></a>`).join('') +
+    `</div>`;
+
+  const topbarHtml = `
+    <div class="flex items-center gap-3">
+      <button class="menu-btn" id="menuToggle">${ICONS.menuburger}</button>
+      <div class="topbar-brand">
+        <img src="assets/img/logo.png" alt="Reservo">
+        <span class="topbar-brand-text topbar-brand-text--app">
+          <span class="topbar-brand-name">Reservo · Admin</span>
+          <span class="js-user-name"></span>
+        </span>
+      </div>
+      <h1 id="adminPageTitle"></h1>
+    </div>
+    <div class="topbar-actions">
+      <div class="badge badge-navy">${(profile && profile.name) || ''}</div>
+      <button class="btn btn-outline btn-sm" id="logoutBtn">Esci</button>
+    </div>`;
+
+  document.getElementById('sidebar').innerHTML = sidebarHtml;
+  document.getElementById('topbar').innerHTML = topbarHtml;
+
+  let overlay = document.getElementById('sidebarOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'sidebarOverlay';
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+  }
+  function setSidebarOpen(open) {
+    document.getElementById('sidebar').classList.toggle('open', open);
+    overlay.classList.toggle('open', open);
+  }
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    setSidebarOpen(!document.getElementById('sidebar').classList.contains('open'));
+  });
+  overlay.addEventListener('click', () => setSidebarOpen(false));
+  document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar.classList.contains('open')) return;
+    if (sidebar.contains(e.target) || e.target.closest('#menuToggle')) return;
+    setSidebarOpen(false);
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => window.reservoAuth.logout());
+
+  function activateAdminTab(id) {
+    const valid = ADMIN_NAV.some(item => item.id === id) ? id : 'dashboard';
+    document.querySelectorAll('[data-admin-tab]').forEach(a => a.classList.toggle('active', a.dataset.adminTab === valid));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + valid));
+    document.getElementById('adminPageTitle').textContent = ADMIN_NAV.find(item => item.id === valid).label;
+    setSidebarOpen(false);
+  }
+  document.querySelectorAll('[data-admin-tab]').forEach(a => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    history.replaceState(null, '', '#' + a.dataset.adminTab);
+    activateAdminTab(a.dataset.adminTab);
+  }));
+  activateAdminTab(location.hash ? location.hash.slice(1) : 'dashboard');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const pendingTable = document.getElementById('pendingTable');
   const businessTable = document.getElementById('businessTable');
   const businessSearch = document.getElementById('businessSearch');
   const businessStatusFilter = document.getElementById('businessStatusFilter');
-  const customerTable = document.getElementById('customerTable');
-  const customerSearch = document.getElementById('customerSearch');
-  const reviewsTable = document.getElementById('reviewsTable');
-  const reviewStatusFilter = document.getElementById('reviewStatusFilter');
   const growthPeriodFilter = document.getElementById('growthPeriodFilter');
-  const logoutBtn = document.getElementById('logoutBtn');
 
   let allBusinesses = [];
-  let allReviews = [];
   let allGestori = [];
-  let allCustomers = [];
 
-  logoutBtn.addEventListener('click', () => window.reservoAuth.logout());
+  function start() {
+    renderAdminLayout();
+    refresh().catch(() => {
+      pendingTable.innerHTML = '<div class="empty-state">Impossibile caricare le richieste al momento.</div>';
+      businessTable.innerHTML = '';
+    });
+  }
 
   function renderPending(list) {
     if (!list.length) {
@@ -103,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     businessTable.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const b = allBusinesses.find(x => x.id === btn.dataset.delete);
-      if (!confirm(`Eliminare definitivamente "${(b && b.business_name) || 'questa attività'}"? Verranno rimossi profilo, dati attività, prenotazioni e recensioni. L'operazione non può essere annullata.`)) return;
+      if (!confirm(`Eliminare definitivamente "${(b && b.business_name) || 'questa attività'}"? Verranno rimossi profilo, dati attività e prenotazioni. L'operazione non può essere annullata.`)) return;
       btn.disabled = true;
       try {
         await window.reservoAuth.deleteBusinessAccount(btn.dataset.delete);
@@ -117,101 +197,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
-  function renderCustomers(list) {
-    const search = (customerSearch.value || '').trim().toLowerCase();
-    const filtered = list.filter(c => {
-      if (!search) return true;
-      const haystack = `${c.name || ''} ${c.email || ''}`.toLowerCase();
-      return haystack.includes(search);
-    });
-
-    if (!filtered.length) {
-      customerTable.innerHTML = '<div class="empty-state">Nessun cliente trovato.</div>';
-      return;
-    }
-    customerTable.innerHTML = `
-      <table>
-        <thead><tr><th>Nome</th><th class="truncate-cell">Email</th><th></th></tr></thead>
-        <tbody>
-          ${filtered.map(c => `
-            <tr>
-              <td>${escapeHtml(c.name || '—')}</td>
-              <td class="truncate-cell">${escapeHtml(c.email || '—')}</td>
-              <td style="white-space:nowrap"><button class="btn btn-danger btn-sm" data-delete="${c.id}">Elimina</button></td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`;
-
-    customerTable.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
-      const c = allCustomers.find(x => x.id === btn.dataset.delete);
-      if (!confirm(`Eliminare l'account cliente di "${(c && (c.name || c.email)) || 'questo cliente'}"? Le prenotazioni e recensioni già fatte resteranno visibili alle attività, ma il cliente perderà l'accesso. L'operazione non può essere annullata.`)) return;
-      btn.disabled = true;
-      try {
-        await window.reservoAuth.deleteCustomerAccount(btn.dataset.delete);
-        allCustomers = allCustomers.filter(x => x.id !== btn.dataset.delete);
-        showToast('Account cliente eliminato', 'success');
-        renderCustomers(allCustomers);
-      } catch (err) {
-        btn.disabled = false;
-        showToast('Errore durante l\'eliminazione', 'error');
-      }
-    }));
-  }
-
-  function renderReviews(list) {
-    const status = reviewStatusFilter.value;
-    const filtered = status ? list.filter(r => r.status === status) : list.slice();
-    filtered.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-
-    if (!filtered.length) {
-      reviewsTable.innerHTML = '<div class="empty-state">Nessuna recensione da mostrare.</div>';
-      return;
-    }
-    reviewsTable.innerHTML = filtered.map(r => `
-      <div class="review-card">
-        <div class="review-head">
-          <div>
-            <strong>${escapeHtml(r.businessName || 'Attività')}</strong> · ${escapeHtml(r.customer_name || 'Cliente')}
-            <div class="review-meta">${r.created_at ? fmtDateLong(r.created_at.slice(0, 10)) : ''}</div>
-          </div>
-          <div class="flex items-center gap-2">
-            ${starsHtml(r.rating)}
-            <span class="badge badge-${r.status === 'approved' ? 'confirmed' : r.status === 'rejected' ? 'rejected' : 'pending'}">${r.status === 'approved' ? 'Approvata' : r.status === 'rejected' ? 'Rifiutata' : 'In attesa'}</span>
-          </div>
-        </div>
-        ${r.comment ? `<div class="review-comment">${escapeHtml(r.comment)}</div>` : ''}
-        <div class="flex gap-2 mt-3">
-          ${r.status !== 'approved' ? `<button class="btn btn-outline btn-sm" data-approve="${r.id}">Approva</button>` : ''}
-          ${r.status !== 'rejected' ? `<button class="btn btn-outline btn-sm" data-reject="${r.id}">Rifiuta</button>` : ''}
-          <button class="btn btn-danger btn-sm" data-delete="${r.id}">Elimina</button>
-        </div>
-      </div>`).join('');
-
-    reviewsTable.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', () => setReviewStatus(btn.dataset.approve, 'approved')));
-    reviewsTable.querySelectorAll('[data-reject]').forEach(btn => btn.addEventListener('click', () => setReviewStatus(btn.dataset.reject, 'rejected')));
-    reviewsTable.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', () => removeReview(btn.dataset.delete)));
-  }
-
-  async function setReviewStatus(id, status) {
-    await window.reservoAuth.updateReviewStatus(id, status);
-    const r = allReviews.find(x => x.id === id);
-    if (r) r.status = status;
-    showToast(status === 'approved' ? 'Recensione approvata' : 'Recensione rifiutata', status === 'approved' ? 'success' : '');
-    renderReviews(allReviews);
-  }
-
-  async function removeReview(id) {
-    if (!confirm('Eliminare questa recensione?')) return;
-    await window.reservoAuth.deleteReview(id);
-    allReviews = allReviews.filter(x => x.id !== id);
-    showToast('Recensione eliminata');
-    renderReviews(allReviews);
-  }
-
   businessSearch.addEventListener('input', () => renderBusinesses(allBusinesses));
   businessStatusFilter.addEventListener('change', () => renderBusinesses(allBusinesses));
-  customerSearch.addEventListener('input', () => renderCustomers(allCustomers));
-  reviewStatusFilter.addEventListener('change', () => renderReviews(allReviews));
   growthPeriodFilter.addEventListener('change', () => renderGrowthChart(allGestori));
 
   let growthChart;
@@ -274,32 +261,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function refresh() {
-    const [pending, businesses, gestori, bookingsCount, reviews, customers] = await Promise.all([
+    const [pending, businesses, gestori, bookingsCount] = await Promise.all([
       window.reservoAuth.listPendingAccounts(),
       window.reservoAuth.listAllBusinesses(),
       window.reservoAuth.listGestoreUsers().catch(() => []),
       window.reservoAuth.countAllBookings().catch(() => 0),
-      window.reservoAuth.listAllReviews().catch(() => []),
-      window.reservoAuth.listAllCustomers().catch(() => []),
     ]);
     allBusinesses = businesses;
-    allReviews = reviews;
     allGestori = gestori;
-    allCustomers = customers;
     renderPending(pending);
     renderBusinesses(allBusinesses);
     renderStats(businesses, bookingsCount);
     renderGrowthChart(allGestori);
-    renderReviews(allReviews);
-    renderCustomers(allCustomers);
   }
-
-  function start() { refresh().catch(() => {
-    pendingTable.innerHTML = '<div class="empty-state">Impossibile caricare le richieste al momento.</div>';
-    businessTable.innerHTML = '';
-    reviewsTable.innerHTML = '';
-    customerTable.innerHTML = '';
-  }); }
 
   if (window.reservoAuth && window.reservoAuth.currentUser) start();
   else window.addEventListener('reservo-auth-ready', start, { once: true });

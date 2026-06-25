@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-25 (2) (Rimozione account cliente, recensioni e fedeltà)
+- Rimossa la registrazione/login dei clienti finali: da ora i clienti prenotano solo come ospiti (nessun account, nessuna "area cliente"). La registrazione su `login.html` crea sempre un account attività; rimossi `area.html`/`area.js`.
+- Rimosse le **recensioni** (`recensioni.html`/`recensioni.js`, sezione "Moderazione recensioni" in `admin.html`, sezione recensioni del sito pubblico) e il **programma fedeltà** (tab "Fedeltà" in Impostazioni): entrambe le funzionalità erano ancorate a un account cliente persistente e non avevano senso senza di esso.
+- `firestore.rules`: rimosse le regole della collezione `reviews`; semplificate le regole di `bookings` (lettura/aggiornamento solo per l'attività proprietaria o l'admin, non più per un `customerUid` che non esiste più).
+- `admin.html`: aggiunta una sidebar in stile gestionale con due sezioni (Dashboard, Attività), al posto dell'unica pagina lunga; rimossa anche la sezione "Clienti registrati" (account cliente non esistono più).
+- Corretto un bug preesistente in `login.html`: la registrazione chiamava una funzione `defaultData()` inesistente (doveva essere `emptyData()`), che avrebbe sempre fatto fallire la creazione di un nuovo account attività.
+
 ## 2026-06-25
 - `prenotazioni.js`/`sito.js`: corretto un bug per cui il limite di capacità sulle prenotazioni sovrapposte pensato per le attività non-ristorante (basato sullo staff) veniva applicato per errore anche ai ristoranti con la funzionalità Tavoli disattivata, impedendo loro di accavallare le prenotazioni. Ora per questi ristoranti non c'è alcun limite di capacità; resta invece inalterato il limite basato sul numero di tavoli quando la funzionalità è attiva.
 

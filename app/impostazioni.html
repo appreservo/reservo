@@ -27,7 +27,6 @@
         <button class="tab" id="tabBtnStaff" data-tab="staff">Staff</button>
         <button class="tab" id="tabBtnPostazioni" data-tab="postazioni">Postazioni</button>
         <button class="tab" id="tabBtnCoupon" data-tab="coupon">Coupon</button>
-        <button class="tab" id="tabBtnFedelta" data-tab="fedelta">Fedeltà</button>
         <button class="tab" data-tab="dati">Dati</button>
       </div>
 
@@ -79,17 +78,9 @@
                   <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featCoupons" style="width:auto"> Coupon</label>
                   <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Codici promozionali utilizzabili dai clienti in fase di prenotazione.</p>
                 </div>
-                <div id="rowReviews">
-                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featReviews" style="width:auto"> Recensioni</label>
-                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Raccolta e pubblicazione delle recensioni dei clienti.</p>
-                </div>
                 <div id="rowCommunications">
                   <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featCommunications" style="width:auto"> Comunicazioni</label>
                   <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Invio di comunicazioni/email broadcast ai clienti.</p>
-                </div>
-                <div id="rowLoyalty">
-                  <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featLoyalty" style="width:auto"> Programma fedeltà</label>
-                  <p class="text-mid small" style="margin:.15rem 0 0 1.6rem">Punti assegnati per prenotazione, visibili ai clienti nella loro area personale.</p>
                 </div>
                 <div id="rowCustomersRegistry">
                   <label class="flex items-center gap-2" style="font-weight:normal"><input type="checkbox" id="featCustomersRegistry" style="width:auto"> Anagrafica clienti</label>
@@ -163,19 +154,6 @@
           <div class="card-header"><h2>Codici promozionali</h2><button class="btn btn-primary btn-sm" id="addCouponBtn">+ Aggiungi coupon</button></div>
           <table><thead><tr><th>Codice</th><th>Tipo</th><th>Valore</th><th>Scadenza</th><th>Max utilizzi</th><th>Utilizzi</th><th>Attivo</th><th></th></tr></thead><tbody id="couponsBody"></tbody></table>
           <p class="text-mid small mt-3">I coupon attivi e non scaduti possono essere inseriti dai clienti durante la prenotazione dal sito pubblico.</p>
-        </div>
-      </div>
-
-      <!-- FEDELTA -->
-      <div class="tab-content" id="tab-fedelta">
-        <div class="card" style="max-width:480px">
-          <div class="card-header"><h2>Programma fedeltà</h2></div>
-          <div class="field">
-            <label>Punti assegnati per ogni prenotazione completata</label>
-            <input type="number" id="loyaltyPoints" min="0" step="1">
-          </div>
-          <button class="btn btn-primary" id="saveLoyaltyBtn">Salva</button>
-          <p class="text-mid small mt-3">I punti sono visibili ai clienti nella loro area personale, calcolati sulle prenotazioni confermate e già concluse presso la tua attività.</p>
         </div>
       </div>
 
