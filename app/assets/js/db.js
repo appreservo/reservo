@@ -47,9 +47,7 @@ function typeLabel(t) {
 
 /* funzionalità opzionali nascoste di default in base al tipo di attività, per i nuovi account */
 function defaultHiddenFeatures(type) {
-  if (type === 'restaurant') return ['customers_registry', 'loyalty'];
-  if (type === 'artisan') return ['reviews', 'loyalty'];
-  if (type === 'professional') return ['reviews', 'loyalty'];
+  if (type === 'restaurant') return ['customers_registry'];
   return [];
 }
 /* campi di dettaglio nascosti di default (es. anagrafica cliente) in base al tipo di attività */
@@ -73,7 +71,6 @@ function emptyData(profile) {
       description: '',
       booking_mode: 'manual',
       notification_emails: profile.email || '',
-      loyalty_points_per_booking: 10,
       hidden_features: defaultHiddenFeatures(type),
       hidden_fields: defaultHiddenFields(type),
     },
@@ -113,7 +110,6 @@ function demoData() {
       description: 'Cucina tradizionale italiana nel cuore di Milano. Ingredienti freschi, ricette di famiglia, atmosfera accogliente.',
       booking_mode: 'manual',
       notification_emails: 'info@damario.it',
-      loyalty_points_per_booking: 10,
     },
     coupons: [
       { id: uid(), code: 'BENVENUTO10', type: 'percent', value: 10, valid_from: '', valid_to: '', max_uses: 0, used_count: 0, active: true },

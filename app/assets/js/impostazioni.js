@@ -15,7 +15,7 @@
     history.replaceState(null, '', '#' + t.dataset.tab);
   }));
   const initialTab = location.hash ? location.hash.slice(1) : 'profilo';
-  activateTab(['profilo','orari','servizi','staff','postazioni','coupon','fedelta','dati'].includes(initialTab) ? initialTab : 'profilo');
+  activateTab(['profilo','orari','servizi','staff','postazioni','coupon','dati'].includes(initialTab) ? initialTab : 'profilo');
 
   // ---------- profilo ----------
   const p = data.profile;
@@ -35,9 +35,7 @@
     featEvents: { key: 'events', types: ['restaurant'], row: 'rowEvents' },
     featStaff: { key: 'staff', types: [], row: 'rowStaff' },
     featCoupons: { key: 'coupons', types: [], row: 'rowCoupons' },
-    featReviews: { key: 'reviews', types: [], row: 'rowReviews' },
     featCommunications: { key: 'communications', types: [], row: 'rowCommunications' },
-    featLoyalty: { key: 'loyalty', types: [], row: 'rowLoyalty' },
     featCustomersRegistry: { key: 'customers_registry', types: [], row: 'rowCustomersRegistry' },
   };
   const hiddenFeatures = p.hidden_features || [];
@@ -71,7 +69,6 @@
     tabBtnStaff: { feature: 'staff', types: [] },
     tabBtnPostazioni: { feature: 'tables', types: ['restaurant'] },
     tabBtnCoupon: { feature: 'coupons', types: [] },
-    tabBtnFedelta: { feature: 'loyalty', types: [] },
   };
   function updateTabsVisibility() {
     const hidden = p.hidden_features || [];
@@ -352,14 +349,6 @@
     data.coupons.push({ id: uid(), code: 'SCONTO' + (data.coupons.length + 1), type: 'percent', value: 10, valid_from: '', valid_to: '', max_uses: 0, used_count: 0, active: true });
     saveData(data);
     renderCoupons();
-  });
-
-  // ---------- fedeltà ----------
-  document.getElementById('loyaltyPoints').value = p.loyalty_points_per_booking ?? 10;
-  document.getElementById('saveLoyaltyBtn').addEventListener('click', () => {
-    p.loyalty_points_per_booking = parseInt(document.getElementById('loyaltyPoints').value, 10) || 0;
-    saveData(data);
-    showToast('Programma fedeltà salvato', 'success');
   });
 
   // ---------- dati ----------

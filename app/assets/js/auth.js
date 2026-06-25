@@ -105,11 +105,6 @@ function createPublicBooking(booking) {
   return addDoc(collection(db, 'bookings'), { ...booking, notified: false });
 }
 
-async function getCustomerBookings(customerUid) {
-  const snap = await getDocs(query(collection(db, 'bookings'), where('customerUid', '==', customerUid)));
-  return snap.docs.map(d => ({ ...d.data(), id: d.id }));
-}
-
 async function getBusinessBookingsForDate(businessUid, date) {
   const snap = await getDocs(query(collection(db, 'bookings'), where('businessUid', '==', businessUid), where('date', '==', date)));
   return snap.docs.map(d => d.data()).filter(b => b.status === 'confirmed' || b.status === 'pending');
@@ -188,11 +183,6 @@ async function listAllReviews() {
   return snap.docs.map(d => ({ ...d.data(), id: d.id }));
 }
 
-async function getCustomerReviews(customerUid) {
-  const snap = await getDocs(query(collection(db, 'reviews'), where('customerUid', '==', customerUid)));
-  return snap.docs.map(d => ({ ...d.data(), id: d.id }));
-}
-
 function updateReviewStatus(reviewId, status) {
   if (blockedInViewAs()) return Promise.resolve();
   return setDoc(doc(db, 'reviews', reviewId), { status }, { merge: true });
@@ -228,17 +218,6 @@ async function countAllBookings() {
 async function listBusinesses() {
   const list = await listAllBusinesses();
   return list.filter(b => !b.status || b.status === 'active');
-}
-
-/* tutti i clienti registrati (account cross-tenant, role 'cliente'), per il pannello admin */
-async function listAllCustomers() {
-  const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'cliente')));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-
-/* elimina il profilo di un cliente (pannello admin) — non tocca le prenotazioni/recensioni gia' fatte */
-async function deleteCustomerAccount(uid) {
-  await deleteDoc(doc(db, 'users', uid));
 }
 
 async function listPendingAccounts() {
@@ -293,12 +272,11 @@ function isViewingAs() {
 function homeForProfile(profile) {
   if (!profile) return 'index.html';
   if (profile.role === 'admin') return 'admin.html';
-  if (profile.role === 'cliente') return 'area.html';
   if (profile.role === 'gestore' && (profile.status === 'pending' || profile.status === 'rejected')) return 'pending.html';
   return 'index.html';
 }
 
-const GESTIONALE_PAGES = ['index.html', 'prenotazioni.html', 'clienti.html', 'statistiche.html', 'menu.html', 'eventi.html', 'impostazioni.html', 'recensioni.html', 'tavoli.html', 'comunicazioni.html'];
+const GESTIONALE_PAGES = ['index.html', 'prenotazioni.html', 'clienti.html', 'statistiche.html', 'menu.html', 'eventi.html', 'impostazioni.html', 'tavoli.html', 'comunicazioni.html'];
 
 function requireAuth() {
   return new Promise((resolve) => {
@@ -379,25 +357,23 @@ window.reservoAuth = {
   auth, db, login, register, loginWithGoogle, logout, requireAuth, requireAdmin, resetPassword,
   createUserProfile, getUserProfile, upsertBusinessDirectory, getBusinessDirectory, listBusinesses, listAllBusinesses,
   getBusinessData, saveBusinessData, getPublicBusinessData, savePublicBusinessData, getBusinessBySlug,
-  createPublicBooking, getCustomerBookings, getBusinessBookingsForDate, getBusinessBookings,
+  createPublicBooking, getBusinessBookingsForDate, getBusinessBookings,
   updateBookingStatus, updateBooking, deleteBooking, deleteAllBusinessBookings, deleteBusinessAccount, whoAmI,
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
-  createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, listAllReviews, updateReviewStatus, deleteReview,
+  createReview, getBusinessReviews, getApprovedReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
   getBusinessUid, isViewingAs, resendVerificationEmail,
-  listAllCustomers, deleteCustomerAccount,
   serverTimestamp,
 };
 export {
   auth, db, login, register, loginWithGoogle, logout, requireAuth, requireAdmin, resetPassword,
   createUserProfile, getUserProfile, upsertBusinessDirectory, getBusinessDirectory, listBusinesses, listAllBusinesses,
   getBusinessData, saveBusinessData, getPublicBusinessData, savePublicBusinessData, getBusinessBySlug,
-  createPublicBooking, getCustomerBookings, getBusinessBookingsForDate, getBusinessBookings,
+  createPublicBooking, getBusinessBookingsForDate, getBusinessBookings,
   updateBookingStatus, updateBooking, deleteBooking, deleteAllBusinessBookings, deleteBusinessAccount, whoAmI,
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
-  createReview, getBusinessReviews, getApprovedReviews, getCustomerReviews, listAllReviews, updateReviewStatus, deleteReview,
+  createReview, getBusinessReviews, getApprovedReviews, listAllReviews, updateReviewStatus, deleteReview,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
   getBusinessUid, isViewingAs, resendVerificationEmail,
-  listAllCustomers, deleteCustomerAccount,
   serverTimestamp,
 };

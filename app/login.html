@@ -78,7 +78,7 @@
         </div>
       </div>
 
-      <div id="businessFields" class="hidden">
+      <div id="businessFields">
         <div class="field">
           <label>Nome attività</label>
           <input type="text" id="regBusinessName" autocomplete="organization">
@@ -97,7 +97,6 @@
       <button type="submit" class="btn btn-primary w-full" id="registerSubmit">Crea account</button>
       <p class="login-forgot">
         <a href="#" id="backToLoginFromRegisterLink">Torna al login</a>
-        · <a href="#" id="roleToggleLink">Sei un'attività?</a>
       </p>
     </form>
 
@@ -109,7 +108,7 @@
         <input type="text" id="cpName" autocomplete="name" required>
       </div>
 
-      <div id="cpBusinessFields" class="hidden">
+      <div id="cpBusinessFields">
         <div class="field">
           <label>Nome attività</label>
           <input type="text" id="cpBusinessName" autocomplete="organization">
@@ -126,9 +125,6 @@
 
       <div id="completeProfileError" class="login-error"></div>
       <button type="submit" class="btn btn-primary w-full" id="completeProfileSubmit">Continua</button>
-      <p class="login-forgot">
-        <a href="#" id="cpRoleToggleLink">Sei un'attività?</a>
-      </p>
     </form>
   </div>
 
@@ -256,15 +252,12 @@
   const registerSubmit = document.getElementById('registerSubmit');
   const registerLink = document.getElementById('registerLink');
   const backToLoginFromRegisterLink = document.getElementById('backToLoginFromRegisterLink');
-  const roleToggleLink = document.getElementById('roleToggleLink');
-  const businessFields = document.getElementById('businessFields');
-  let selectedRole = 'cliente';
+  const selectedRole = 'gestore';
 
   registerLink.addEventListener('click', (e) => {
     e.preventDefault();
     form.classList.add('hidden');
     registerForm.classList.remove('hidden');
-    setRole('cliente');
   });
 
   backToLoginFromRegisterLink.addEventListener('click', (e) => {
@@ -272,16 +265,6 @@
     registerForm.classList.add('hidden');
     form.classList.remove('hidden');
     registerError.classList.remove('show');
-  });
-
-  function setRole(role) {
-    selectedRole = role;
-    businessFields.classList.toggle('hidden', role !== 'gestore');
-    roleToggleLink.textContent = role === 'gestore' ? 'Sei un cliente?' : "Sei un'attività?";
-  }
-  roleToggleLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    setRole(selectedRole === 'gestore' ? 'cliente' : 'gestore');
   });
 
   registerForm.addEventListener('submit', async (e) => {
@@ -335,23 +318,19 @@
       }
       await createUserProfile(uid, userProfile);
 
-      if (selectedRole === 'gestore') {
-        const slug = slugify(businessName);
-        await upsertBusinessDirectory(uid, {
-          business_name: businessName, type: businessType, slug,
-          description: '', address: '', phone: '', email,
-          status: 'pending',
-        });
-        const seed = defaultData();
-        seed.profile.business_name = businessName;
-        seed.profile.type = businessType;
-        seed.profile.slug = slug;
-        await window.reservoAuth.saveBusinessData(uid, seed);
-        await window.reservoAuth.savePublicBusinessData(uid, buildPublicData(seed));
-        location.replace('pending.html');
-      } else {
-        location.replace('area.html');
-      }
+      const slug = slugify(businessName);
+      await upsertBusinessDirectory(uid, {
+        business_name: businessName, type: businessType, slug,
+        description: '', address: '', phone: '', email,
+        status: 'pending',
+      });
+      const seed = defaultData();
+      seed.profile.business_name = businessName;
+      seed.profile.type = businessType;
+      seed.profile.slug = slug;
+      await window.reservoAuth.saveBusinessData(uid, seed);
+      await window.reservoAuth.savePublicBusinessData(uid, buildPublicData(seed));
+      location.replace('pending.html');
     } catch (err) {
       registerError.textContent = errorMessages[err.code] || 'Registrazione non riuscita. Riprova.';
       registerError.classList.add('show');
@@ -364,25 +343,12 @@
   const completeProfileForm = document.getElementById('completeProfileForm');
   const completeProfileError = document.getElementById('completeProfileError');
   const completeProfileSubmit = document.getElementById('completeProfileSubmit');
-  const cpRoleToggleLink = document.getElementById('cpRoleToggleLink');
-  const cpBusinessFields = document.getElementById('cpBusinessFields');
   const cpName = document.getElementById('cpName');
-  let cpSelectedRole = 'cliente';
-
-  function setCpRole(role) {
-    cpSelectedRole = role;
-    cpBusinessFields.classList.toggle('hidden', role !== 'gestore');
-    cpRoleToggleLink.textContent = role === 'gestore' ? 'Sei un cliente?' : "Sei un'attività?";
-  }
-  cpRoleToggleLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    setCpRole(cpSelectedRole === 'gestore' ? 'cliente' : 'gestore');
-  });
+  const cpSelectedRole = 'gestore';
 
   function showCompleteProfile(user) {
     [form, resetForm, registerForm].forEach(f => f.classList.add('hidden'));
     completeProfileForm.classList.remove('hidden');
-    setCpRole('cliente');
     cpName.value = user.displayName || '';
   }
 
@@ -420,24 +386,20 @@
       }
       await createUserProfile(uid, userProfile);
 
-      if (cpSelectedRole === 'gestore') {
-        const slug = slugify(businessName);
-        await upsertBusinessDirectory(uid, {
-          business_name: businessName, type: businessType, slug,
-          description: '', address: '', phone: '', email,
-          status: 'pending',
-        });
-        const seed = defaultData();
-        seed.profile.business_name = businessName;
-        seed.profile.type = businessType;
-        seed.profile.slug = slug;
-        seed.profile.email = email;
-        await window.reservoAuth.saveBusinessData(uid, seed);
-        await window.reservoAuth.savePublicBusinessData(uid, buildPublicData(seed));
-        location.replace('pending.html');
-      } else {
-        location.replace('area.html');
-      }
+      const slug = slugify(businessName);
+      await upsertBusinessDirectory(uid, {
+        business_name: businessName, type: businessType, slug,
+        description: '', address: '', phone: '', email,
+        status: 'pending',
+      });
+      const seed = defaultData();
+      seed.profile.business_name = businessName;
+      seed.profile.type = businessType;
+      seed.profile.slug = slug;
+      seed.profile.email = email;
+      await window.reservoAuth.saveBusinessData(uid, seed);
+      await window.reservoAuth.savePublicBusinessData(uid, buildPublicData(seed));
+      location.replace('pending.html');
     } catch (err) {
       completeProfileError.textContent = 'Si è verificato un errore. Riprova.';
       completeProfileError.classList.add('show');

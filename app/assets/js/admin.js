@@ -4,8 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const businessTable = document.getElementById('businessTable');
   const businessSearch = document.getElementById('businessSearch');
   const businessStatusFilter = document.getElementById('businessStatusFilter');
-  const customerTable = document.getElementById('customerTable');
-  const customerSearch = document.getElementById('customerSearch');
   const reviewsTable = document.getElementById('reviewsTable');
   const reviewStatusFilter = document.getElementById('reviewStatusFilter');
   const growthPeriodFilter = document.getElementById('growthPeriodFilter');
@@ -14,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let allBusinesses = [];
   let allReviews = [];
   let allGestori = [];
-  let allCustomers = [];
 
   logoutBtn.addEventListener('click', () => window.reservoAuth.logout());
 
@@ -117,47 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
-  function renderCustomers(list) {
-    const search = (customerSearch.value || '').trim().toLowerCase();
-    const filtered = list.filter(c => {
-      if (!search) return true;
-      const haystack = `${c.name || ''} ${c.email || ''}`.toLowerCase();
-      return haystack.includes(search);
-    });
-
-    if (!filtered.length) {
-      customerTable.innerHTML = '<div class="empty-state">Nessun cliente trovato.</div>';
-      return;
-    }
-    customerTable.innerHTML = `
-      <table>
-        <thead><tr><th>Nome</th><th class="truncate-cell">Email</th><th></th></tr></thead>
-        <tbody>
-          ${filtered.map(c => `
-            <tr>
-              <td>${escapeHtml(c.name || '—')}</td>
-              <td class="truncate-cell">${escapeHtml(c.email || '—')}</td>
-              <td style="white-space:nowrap"><button class="btn btn-danger btn-sm" data-delete="${c.id}">Elimina</button></td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`;
-
-    customerTable.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
-      const c = allCustomers.find(x => x.id === btn.dataset.delete);
-      if (!confirm(`Eliminare l'account cliente di "${(c && (c.name || c.email)) || 'questo cliente'}"? Le prenotazioni e recensioni già fatte resteranno visibili alle attività, ma il cliente perderà l'accesso. L'operazione non può essere annullata.`)) return;
-      btn.disabled = true;
-      try {
-        await window.reservoAuth.deleteCustomerAccount(btn.dataset.delete);
-        allCustomers = allCustomers.filter(x => x.id !== btn.dataset.delete);
-        showToast('Account cliente eliminato', 'success');
-        renderCustomers(allCustomers);
-      } catch (err) {
-        btn.disabled = false;
-        showToast('Errore durante l\'eliminazione', 'error');
-      }
-    }));
-  }
-
   function renderReviews(list) {
     const status = reviewStatusFilter.value;
     const filtered = status ? list.filter(r => r.status === status) : list.slice();
@@ -210,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   businessSearch.addEventListener('input', () => renderBusinesses(allBusinesses));
   businessStatusFilter.addEventListener('change', () => renderBusinesses(allBusinesses));
-  customerSearch.addEventListener('input', () => renderCustomers(allCustomers));
   reviewStatusFilter.addEventListener('change', () => renderReviews(allReviews));
   growthPeriodFilter.addEventListener('change', () => renderGrowthChart(allGestori));
 
@@ -274,31 +229,27 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function refresh() {
-    const [pending, businesses, gestori, bookingsCount, reviews, customers] = await Promise.all([
+    const [pending, businesses, gestori, bookingsCount, reviews] = await Promise.all([
       window.reservoAuth.listPendingAccounts(),
       window.reservoAuth.listAllBusinesses(),
       window.reservoAuth.listGestoreUsers().catch(() => []),
       window.reservoAuth.countAllBookings().catch(() => 0),
       window.reservoAuth.listAllReviews().catch(() => []),
-      window.reservoAuth.listAllCustomers().catch(() => []),
     ]);
     allBusinesses = businesses;
     allReviews = reviews;
     allGestori = gestori;
-    allCustomers = customers;
     renderPending(pending);
     renderBusinesses(allBusinesses);
     renderStats(businesses, bookingsCount);
     renderGrowthChart(allGestori);
     renderReviews(allReviews);
-    renderCustomers(allCustomers);
   }
 
   function start() { refresh().catch(() => {
     pendingTable.innerHTML = '<div class="empty-state">Impossibile caricare le richieste al momento.</div>';
     businessTable.innerHTML = '';
     reviewsTable.innerHTML = '';
-    customerTable.innerHTML = '';
   }); }
 
   if (window.reservoAuth && window.reservoAuth.currentUser) start();
