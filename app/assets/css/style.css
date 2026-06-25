@@ -458,6 +458,10 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
   .content { max-width: 1600px; }
 }
 
+@media (min-width: 901px) {
+  .topbar-brand { display: none; }
+}
+
 @media (max-width: 900px) {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
@@ -469,16 +473,6 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); bord
   .field-row { flex-direction: column; gap: 0; }
   .sidebar-overlay.open { display: block; opacity: 1; }
 }
-
-/* recensioni: stelle */
-.stars { display: inline-flex; gap: 2px; color: #d1d5db; font-size: 1.1rem; line-height: 1; }
-.stars .star.filled { color: var(--gold); }
-.stars-input .star { cursor: pointer; transition: transform .1s; }
-.stars-input .star:hover { transform: scale(1.2); }
-.review-card { border: 1px solid var(--border); border-radius: 10px; padding: .8rem; margin-bottom: .6rem; }
-.review-card .review-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .4rem; margin-bottom: .3rem; }
-.review-card .review-meta { font-size: .72rem; color: var(--text-mid); }
-.review-card .review-comment { font-size: .85rem; color: var(--text-dark); margin-top: .4rem; }
 
 @media (max-width: 640px) {
   .content { padding: 1rem; }
