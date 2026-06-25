@@ -88,34 +88,88 @@
         <td data-label="Note" class="small text-mid">${escapeHtml(b.notes || '')}</td>
         <td data-label="">
           <div class="flex gap-2">
-            ${b.status === 'pending' ? `<button class="btn btn-outline btn-sm" data-approve="${b.id}">✓ Conferma</button><button class="btn btn-danger btn-sm" data-reject="${b.id}">✕ Rifiuta</button>` : ''}
+            ${b.status === 'pending'
+              ? `<button class="btn btn-gold btn-sm" data-accept="${b.id}">✓ Accetta</button>
+                 <button class="btn btn-danger btn-sm" data-reject="${b.id}">✕ Rifiuta</button>`
+              : (b.status === 'confirmed' || b.status === 'rejected') && b.businessUid
+                ? `${!b.notify_requested && b.status_notified !== b.status
+                    ? `<button class="btn btn-outline btn-sm" data-notify="${b.id}">✉ Notifica</button>`
+                    : b.notify_requested
+                      ? `<span class="text-mid" style="white-space:nowrap;font-size:.72rem">✓ Email in coda</span>`
+                      : ''}
+                   ${b.email ? `<button class="btn btn-outline btn-sm" data-contact="${b.id}">Contatta</button>` : ''}`
+                : ''}
             <button class="btn btn-outline btn-sm" data-edit="${b.id}">Modifica</button>
           </div>
         </td>
       </tr>`).join('') + `</tbody></table>`;
 
-    container.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', () => {
-      setStatus(btn.dataset.approve, 'confirmed');
+    container.querySelectorAll('[data-accept]').forEach(btn => btn.addEventListener('click', () => {
+      setStatus(btn.dataset.accept, 'confirmed');
     }));
     container.querySelectorAll('[data-reject]').forEach(btn => btn.addEventListener('click', () => {
-      setStatus(btn.dataset.reject, 'rejected');
+      openRejectModal(btn.dataset.reject);
+    }));
+    container.querySelectorAll('[data-notify]').forEach(btn => btn.addEventListener('click', () => {
+      requestNotify(btn.dataset.notify);
+    }));
+    container.querySelectorAll('[data-contact]').forEach(btn => btn.addEventListener('click', () => {
+      const b = findBooking(btn.dataset.contact);
+      if (b && b.email) window.location.href = `mailto:${encodeURIComponent(b.email)}?subject=${encodeURIComponent('Prenotazione - ' + ((data.profile && data.profile.business_name) || 'Reservo'))}`;
     }));
     container.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => {
       openBookingModal(findBooking(btn.dataset.edit));
     }));
   }
 
-  async function setStatus(id, status) {
+  async function setStatus(id, status, rejectionReason) {
     const b = findBooking(id);
     if (!b) return;
     b.status = status;
+    if (rejectionReason) b.rejection_reason = rejectionReason;
     if (b.businessUid) {
-      await window.reservoAuth.updateBooking(id, { status });
+      const payload = { status };
+      if (rejectionReason) payload.rejection_reason = rejectionReason;
+      await window.reservoAuth.updateBooking(id, payload);
     } else {
       saveData(data);
     }
-    showToast(status === 'confirmed' ? 'Prenotazione confermata' : 'Prenotazione rifiutata', status === 'confirmed' ? 'success' : 'error');
+    showToast(status === 'confirmed' ? 'Prenotazione accettata' : 'Prenotazione rifiutata', status === 'confirmed' ? 'success' : 'error');
     renderAll();
+  }
+
+  async function requestNotify(id) {
+    const b = findBooking(id);
+    if (!b || !b.businessUid) return;
+    b.notify_requested = true;
+    await window.reservoAuth.updateBooking(id, { notify_requested: true });
+    showToast('Email in coda, verrà inviata a breve', 'success');
+    renderAll();
+  }
+
+  function openRejectModal(id) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay open';
+    overlay.innerHTML = `
+      <div class="modal" style="max-width:420px">
+        <h3>Rifiuta prenotazione</h3>
+        <div style="margin-bottom:1rem">
+          <label style="display:block;font-size:.85rem;font-weight:700;color:var(--text-mid);margin-bottom:.4rem">Motivazione (opzionale)</label>
+          <textarea id="rejectReason" rows="3" placeholder="Es. non disponibili per quella data…" style="width:100%;resize:vertical"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" id="rejectCancel">Annulla</button>
+          <button type="button" class="btn btn-danger" id="rejectConfirm">✕ Rifiuta prenotazione</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    overlay.querySelector('#rejectCancel').addEventListener('click', () => overlay.remove());
+    overlay.querySelector('#rejectConfirm').addEventListener('click', () => {
+      const reason = overlay.querySelector('#rejectReason').value.trim();
+      overlay.remove();
+      setStatus(id, 'rejected', reason);
+    });
   }
 
   function renderAll() {
