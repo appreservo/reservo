@@ -163,7 +163,7 @@
         + '<td>' + DAYS[h.day] + '</td>'
         + '<td><div style="display:flex;flex-direction:column;gap:.35rem">'
         + ivsHtml
-        + '<div><button class="btn btn-outline btn-sm" data-add-slot="' + di + '"' + dis + '>+ Pausa</button></div>'
+        + '<div><button class="btn btn-outline btn-sm" data-add-slot="' + di + '"' + dis + '>+ Intervallo</button></div>'
         + '</div></td>'
         + '<td style="vertical-align:middle;text-align:center">'
         + '<input type="checkbox" data-hour-closed="' + di + '"' + (h.closed ? ' checked' : '') + ' style="width:auto">'
