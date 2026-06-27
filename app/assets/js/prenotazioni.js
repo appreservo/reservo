@@ -346,13 +346,14 @@
   serviceSelect.addEventListener('change', renderSlotGrid);
   document.getElementById('bPartySize').addEventListener('change', renderSlotGrid);
 
-  function openBookingModal(booking, presetDate) {
+  function openBookingModal(booking, presetDate, presetCustomer) {
     document.getElementById('bookingModalTitle').textContent = booking ? 'Modifica prenotazione' : 'Nuova prenotazione';
     document.getElementById('bookingId').value = booking ? booking.id : '';
-    document.getElementById('bCustomerName').value = booking ? booking.customer_name : '';
+    document.getElementById('bookingCustomerId').value = booking ? (booking.customer_id || '') : (presetCustomer ? presetCustomer.id : '');
+    document.getElementById('bCustomerName').value = booking ? booking.customer_name : (presetCustomer ? [presetCustomer.name, presetCustomer.surname].filter(Boolean).join(' ') : '');
     document.getElementById('bPartySize').value = booking ? booking.party_size : 1;
-    document.getElementById('bEmail').value = booking ? (booking.email || '') : '';
-    document.getElementById('bPhone').value = booking ? (booking.phone || '') : '';
+    document.getElementById('bEmail').value = booking ? (booking.email || '') : (presetCustomer ? (presetCustomer.email || '') : '');
+    document.getElementById('bPhone').value = booking ? (booking.phone || '') : (presetCustomer ? (presetCustomer.phone || '') : '');
     document.getElementById('bDate').value = booking ? booking.date : (presetDate || todayStr());
     serviceSelect.value = booking ? (booking.service_id || '') : (((data.services || [])[0] || {}).id || '');
     reminderCheckbox.checked = booking ? !!booking.is_reminder : false;
@@ -374,6 +375,7 @@
     const id = document.getElementById('bookingId').value;
     const payload = {
       customer_name: document.getElementById('bCustomerName').value.trim(),
+      customer_id: document.getElementById('bookingCustomerId').value || null,
       party_size: parseInt(document.getElementById('bPartySize').value, 10) || 1,
       email: document.getElementById('bEmail').value.trim(),
       phone: document.getElementById('bPhone').value.trim(),
@@ -506,4 +508,14 @@
   });
 
   renderAll();
+
+  const _params = new URLSearchParams(window.location.search);
+  const _presetCustomerId = _params.get('customer_id');
+  if (_presetCustomerId) {
+    const _presetCustomer = (data.customers || []).find(c => c.id === _presetCustomerId);
+    if (_presetCustomer) {
+      history.replaceState(null, '', window.location.pathname);
+      openBookingModal(null, null, _presetCustomer);
+    }
+  }
 })();

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-27 (Collegamento anagrafica cliente → appuntamento)
+- `clienti.html`/`clienti.js`: aggiunto il bottone "+ Appuntamento" su ogni riga dell'anagrafica clienti e nella scheda cliente; cliccando si viene portati direttamente alla pagina Prenotazioni con il form già aperto e i campi nome, email e telefono precompilati con i dati di quel cliente.
+- `prenotazioni.html`/`prenotazioni.js`: la modale di nuova prenotazione ora accetta un cliente preimpostato (passato tramite URL param `?customer_id=`); la prenotazione salvata include il campo `customer_id` che lega in modo permanente l'appuntamento all'anagrafica, superando il collegamento fragile basato solo su email/telefono.
+- `clienti.js`: lo storico prenotazioni nella scheda cliente ora ricerca per `customer_id` oltre che per email/telefono, mantenendo la retrocompatibilità con le prenotazioni precedenti prive di questo campo.
+
 ## 2026-06-25
 - `prenotazioni.js`/`sito.js`: corretto un bug per cui il limite di capacità sulle prenotazioni sovrapposte pensato per le attività non-ristorante (basato sullo staff) veniva applicato per errore anche ai ristoranti con la funzionalità Tavoli disattivata, impedendo loro di accavallare le prenotazioni. Ora per questi ristoranti non c'è alcun limite di capacità; resta invece inalterato il limite basato sul numero di tavoli quando la funzionalità è attiva.
 

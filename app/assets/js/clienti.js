@@ -27,9 +27,11 @@
   function bookingsForCustomer(c) {
     const key = (c.email || '').toLowerCase();
     const keyPhone = (c.phone || '').toLowerCase();
-    return customers
-      .filter(bc => (key && (bc.email || '').toLowerCase() === key) || (keyPhone && (bc.phone || '').toLowerCase() === keyPhone))
-      .flatMap(bc => bc.bookings);
+    const allBks = customers.flatMap(bc => bc.bookings);
+    return allBks.filter(b =>
+      b.customer_id === c.id ||
+      (key && (b.email || '').toLowerCase() === key) ||
+      (keyPhone && (b.phone || '').toLowerCase() === keyPhone));
   }
 
   function renderAnagrafica(filter) {
@@ -63,6 +65,7 @@
           <div class="flex gap-2">
             <button class="btn btn-outline btn-sm" data-scheda="${c.id}">Scheda</button>
             <button class="btn btn-outline btn-sm" data-edit-customer="${c.id}">Modifica</button>
+            <button class="btn btn-outline btn-sm" data-new-booking="${c.id}" title="Nuovo appuntamento">+ Appuntamento</button>
           </div>
         </td>
       </tr>`).join('') + `</tbody></table>`;
@@ -72,6 +75,9 @@
     }));
     container.querySelectorAll('[data-edit-customer]').forEach(btn => btn.addEventListener('click', () => {
       openAnagraficaModal(data.customers.find(c => c.id === btn.dataset.editCustomer));
+    }));
+    container.querySelectorAll('[data-new-booking]').forEach(btn => btn.addEventListener('click', () => {
+      window.location.href = 'prenotazioni.html?customer_id=' + btn.dataset.newBooking;
     }));
   }
 
@@ -159,6 +165,9 @@
         </tr>`).join('') + `</tbody></table>`}
     `;
     document.getElementById('schedaEditBtn').onclick = () => openAnagraficaModal(customer);
+    document.getElementById('schedaNewBookingBtn').onclick = () => {
+      window.location.href = 'prenotazioni.html?customer_id=' + customer.id;
+    };
     document.getElementById('schedaModal').classList.add('open');
   }
 
