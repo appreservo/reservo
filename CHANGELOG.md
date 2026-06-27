@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-27 (2) (Placeholder form contestuali per tipo di tenant)
+- `menu.js`: il placeholder del campo "Categoria" nella modale voce menu/listino ora varia per tipo di attività: "es. Antipasti" per ristoranti, "es. Trattamenti viso" per artigiani/estetisti, "es. Consulenze" per professionisti.
+- `impostazioni.html`/`impostazioni.js`: il placeholder "foto-locale.jpg" nell'URL copertina è ora generico ("copertina.jpg"); il messaggio di benvenuto cambia tra "nel nostro locale" (ristorante), "nel nostro salone" (artigiano) e "nel nostro studio" (professionista).
+- `comunicazioni.js`: il placeholder dell'oggetto comunicazione passa da "Novità nel nostro menù" a testi specifici per artigiani ("Nuovi servizi disponibili") e professionisti ("Aggiornamento orari").
+
 ## 2026-06-27 (Collegamento anagrafica cliente → appuntamento)
 - `clienti.html`/`clienti.js`: aggiunto il bottone "+ Appuntamento" su ogni riga dell'anagrafica clienti e nella scheda cliente; cliccando si viene portati direttamente alla pagina Prenotazioni con il form già aperto e i campi nome, email e telefono precompilati con i dati di quel cliente.
 - `prenotazioni.html`/`prenotazioni.js`: la modale di nuova prenotazione ora accetta un cliente preimpostato (passato tramite URL param `?customer_id=`); la prenotazione salvata include il campo `customer_id` che lega in modo permanente l'appuntamento all'anagrafica, superando il collegamento fragile basato solo su email/telefono.

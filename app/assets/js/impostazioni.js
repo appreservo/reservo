@@ -2,6 +2,10 @@
   let data = await loadData();
   renderLayout('Impostazioni', data);
   const isRestaurant = data.profile && data.profile.type === 'restaurant';
+  const _type = data.profile && data.profile.type;
+  document.getElementById('sWelcomeMessage').placeholder =
+    _type === 'restaurant' ? 'Benvenuti nel nostro locale!' :
+    _type === 'artisan' ? 'Benvenuti nel nostro salone!' : 'Benvenuti nel nostro studio!';
 
   // ---------- tabs ----------
   const tabs = document.querySelectorAll('.tab');

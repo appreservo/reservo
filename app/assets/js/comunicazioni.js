@@ -4,6 +4,10 @@
 
   const businessUid = window.reservoAuth.getBusinessUid();
   const businessName = data.profile?.business_name || '';
+  const _type = data.profile?.type;
+  document.getElementById('bSubject').placeholder =
+    _type === 'restaurant' ? 'Es. Novità nel nostro menù' :
+    _type === 'artisan' ? 'Es. Nuovi servizi disponibili' : 'Es. Aggiornamento orari';
 
   function statusLabelBroadcast(status) {
     if (status === 'sent') return 'Inviata';

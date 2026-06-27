@@ -2,6 +2,9 @@
   const data = await loadData();
   const isRestaurant = data.profile.type === 'restaurant';
   const pageLabel = isRestaurant ? 'Menu' : 'Listino prezzi';
+  document.getElementById('iCategory').placeholder =
+    isRestaurant ? 'es. Antipasti' :
+    data.profile.type === 'artisan' ? 'es. Trattamenti viso' : 'es. Consulenze';
   renderLayout(pageLabel, data);
   document.title = pageLabel + ' · Reservo';
   document.getElementById('menuPageTitle').textContent = pageLabel;
