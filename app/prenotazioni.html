@@ -39,6 +39,7 @@
         <div class="card-header">
           <h2>Tutte le prenotazioni</h2>
           <div class="flex gap-2">
+            <input type="search" id="searchBooking" placeholder="Cerca nome, email, tel..." style="width:180px">
             <select id="filterStatus" style="width:auto">
               <option value="">Tutti gli stati</option>
               <option value="pending">In attesa</option>
@@ -66,7 +67,7 @@
       <input type="hidden" id="bookingId">
       <input type="hidden" id="bookingCustomerId">
       <div class="field-row">
-        <div class="field"><label>Nome cliente</label><input type="text" id="bCustomerName" required></div>
+        <div class="field"><label>Nome cliente</label><input type="text" id="bCustomerName" required list="customerNameList" autocomplete="off"><datalist id="customerNameList"></datalist></div>
         <div class="field"><label>Persone</label><input type="number" id="bPartySize" min="1" value="1" required></div>
       </div>
       <div class="field-row">
@@ -82,6 +83,16 @@
           <input type="checkbox" id="bIsReminder" style="width:auto">
           Inserisci come promemoria (orario libero, non vincolato agli slot di prenotazione)
         </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-label" style="display:flex; align-items:center; gap:.5rem; font-weight:600">
+          <input type="checkbox" id="bIsBlock" style="width:auto">
+          Blocca orario (occupa lo slot, nessun cliente associato)
+        </label>
+      </div>
+      <div class="field" id="bMotivoField" style="display:none">
+        <label>Motivo blocco (opzionale)</label>
+        <input type="text" id="bMotivo" placeholder="es. Pausa, Riunione, Formazione">
       </div>
       <div class="field" id="bSlotField">
         <label>Orario</label>
@@ -111,6 +122,29 @@
         </div>
       </div>
       <div class="field"><label>Note</label><textarea id="bNotes" rows="2"></textarea></div>
+      <div class="field" id="bRecurrenceField" style="border-top:1px solid var(--border); padding-top:.8rem; margin-top:.5rem">
+        <label class="checkbox-label" style="display:flex; align-items:center; gap:.5rem; font-weight:600; margin-bottom:.4rem">
+          <input type="checkbox" id="bRecurrence" style="width:auto">
+          Ripeti appuntamento
+        </label>
+        <div id="bRecurrenceOptions" style="display:none; padding-left:1.5rem">
+          <div class="field-row">
+            <div class="field">
+              <label>Ogni</label>
+              <select id="bRecurrenceEvery">
+                <option value="1">settimana</option>
+                <option value="2">2 settimane</option>
+                <option value="3">3 settimane</option>
+                <option value="4">4 settimane</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Per quante volte (inclusa questa)</label>
+              <input type="number" id="bRecurrenceCount" min="2" max="52" value="4" style="width:80px">
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-outline" data-close>Annulla</button>
         <button type="button" class="btn btn-danger" id="deleteBookingBtn" style="display:none">Elimina</button>

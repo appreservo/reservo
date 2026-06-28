@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-06-28 (2) (Nuove funzionalità: ricerca, blocchi, ricorrenti, agenda, statistiche, export)
+
+**Prenotazioni:**
+- `prenotazioni.html`/`prenotazioni.js`: ricerca testuale nella tabella prenotazioni (nome, email, telefono).
+- `prenotazioni.html`/`prenotazioni.js`: autocomplete nome cliente nel form admin — se si seleziona un cliente dall'anagrafica, email/telefono/customer_id vengono precompilati automaticamente.
+- `prenotazioni.html`/`prenotazioni.js`: blocchi orario manuali — checkbox "Blocca orario" nel form, crea una voce che occupa lo slot senza essere una prenotazione cliente; visibile nel calendario con indicatore ⊘ e badge "Blocco" in tabella.
+- `prenotazioni.html`/`prenotazioni.js`: prenotazioni ricorrenti — checkbox "Ripeti appuntamento" permette di creare N copie dello stesso appuntamento con cadenza settimanale/bisettimanale/mensile.
+- `prenotazioni.js`: auto-link — al caricamento della pagina, le prenotazioni senza `customer_id` vengono collegate automaticamente all'anagrafica se l'email corrisponde (sia prenotazioni admin che da sito pubblico via Firestore).
+
+**Clienti:**
+- `clienti.html`/`clienti.js`: export CSV completo dell'anagrafica clienti con tutti i campi (nome, cognome, email, telefono, data di nascita, CF, indirizzo, città, provincia, note).
+
+**Dashboard:**
+- `index.html`/`dashboard.js`: nuova card "Agenda di oggi" con gli appuntamenti del giorno in ordine cronologico (ora, cliente, servizio, persone, stato).
+
+**Statistiche:**
+- `statistiche.html`/`statistiche.js`: filtro per servizio — tutti i grafici e KPI si aggiornano in base al servizio selezionato.
+
+**Eventi:**
+- `eventi.js`: controllo capienza nella scheda iscritti — avviso se si supera il numero massimo di partecipanti.
+- `eventi.html`/`eventi.js`: esportazione CSV degli iscritti (confermati + lista d'attesa) per ogni evento.
+
+**Impostazioni:**
+- `impostazioni.html`/`impostazioni.js`: esportazione backup completo dei dati in formato JSON scaricabile.
+- `impostazioni.js`: rimosso residuo 'coupon' dalla lista dei tab validi.
+
 ## 2026-06-28 (Bug fix, UX e rimozione coupon)
 
 **Bug fix:**

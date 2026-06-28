@@ -244,6 +244,22 @@
 
   document.getElementById('searchInput').addEventListener('input', (e) => render(e.target.value));
 
+  document.getElementById('exportAnagraficaBtn').addEventListener('click', () => {
+    const sorted = data.customers.slice().sort((a, b) => fullName(a).localeCompare(fullName(b)));
+    exportCSV('anagrafica.csv', sorted, [
+      { label: 'Nome', value: 'name' },
+      { label: 'Cognome', value: 'surname' },
+      { label: 'Email', value: 'email' },
+      { label: 'Telefono', value: 'phone' },
+      { label: 'Data di nascita', value: 'birth_date' },
+      { label: 'Codice fiscale', value: 'fiscal_code' },
+      { label: 'Indirizzo', value: 'address' },
+      { label: 'Città', value: 'city' },
+      { label: 'Provincia', value: 'province' },
+      { label: 'Note', value: 'notes' },
+    ]);
+  });
+
   document.getElementById('exportCsvBtn').addEventListener('click', () => {
     exportCSV('clienti.csv', customers, [
       { label: 'Nome', value: 'name' },

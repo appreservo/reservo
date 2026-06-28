@@ -20,7 +20,7 @@
     history.replaceState(null, '', '#' + t.dataset.tab);
   }));
   const initialTab = location.hash ? location.hash.slice(1) : 'profilo';
-  activateTab(['profilo','sito','orari','servizi','staff','postazioni','coupon','dati'].includes(initialTab) ? initialTab : 'profilo');
+  activateTab(['profilo','sito','orari','servizi','staff','postazioni','dati'].includes(initialTab) ? initialTab : 'profilo');
 
   // ---------- profilo ----------
   const p = data.profile;
@@ -366,6 +366,16 @@
   });
 
   // ---------- dati ----------
+  document.getElementById('exportBackupBtn').addEventListener('click', () => {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'reservo-backup-' + todayStr() + '.json'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Backup esportato', 'success');
+  });
+
   document.getElementById('resetDemoBtn').addEventListener('click', async () => {
     if (!confirm('Ripristinare i dati di esempio originali? Tutte le modifiche andranno perse.')) return;
     await resetDemoData();

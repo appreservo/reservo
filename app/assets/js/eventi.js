@@ -100,6 +100,17 @@
     document.getElementById('regModalTitle').textContent = 'Iscritti — ' + ev.title;
     renderRegList(ev);
     regModal.classList.add('open');
+    document.getElementById('exportRegBtn').onclick = () => {
+      const regs = (ev.registrations || []).map(r => ({ ...r, _lista: 'Confermato' }));
+      const waitlist = (ev.waitlist || []).map(r => ({ ...r, _lista: 'Lista d\'attesa' }));
+      exportCSV(`iscritti-${ev.title.slice(0, 30).replace(/[^\w\s]/g, '')}.csv`, [...regs, ...waitlist], [
+        { label: 'Nome', value: 'name' },
+        { label: 'Email', value: 'email' },
+        { label: 'Telefono', value: 'phone' },
+        { label: 'Persone', value: r => r.people || 1 },
+        { label: 'Lista', value: '_lista' },
+      ]);
+    };
   }
 
   function renderRegList(ev) {
@@ -168,6 +179,11 @@
     e.preventDefault();
     const ev = data.events.find(x => x.id === currentEventId);
     ev.registrations = ev.registrations || [];
+    const peopleCount = ev.registrations.reduce((s, r) => s + (r.people || 1), 0);
+    const newPeople = parseInt(document.getElementById('rPeople').value, 10) || 1;
+    if (peopleCount + newPeople > ev.max_participants) {
+      if (!confirm(`L'evento è al completo (${peopleCount}/${ev.max_participants} posti). Aggiungere comunque?`)) return;
+    }
     ev.registrations.push({
       id: uid(),
       name: document.getElementById('rName').value.trim(),
