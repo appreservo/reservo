@@ -68,17 +68,6 @@ a { color: inherit; text-decoration: none; }
   transition: transform .25s ease;
 }
 
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  padding: 1.2rem 1.2rem;
-  border-bottom: 1px solid rgba(255,255,255,.1);
-}
-.sidebar-brand img { width: 36px; height: 36px; border-radius: 8px; }
-.sidebar-brand-text { display: flex; flex-direction: column; line-height: 1.25; }
-.sidebar-brand-text .sidebar-brand-name { font-weight: 800; font-size: 1.2rem; letter-spacing: .02em; color: var(--gold); }
-.sidebar-brand-text .js-user-name { font-size: .75rem; font-weight: 600; color: rgba(255,255,255,.5); }
 
 /* ---------- TOPBAR BRAND ---------- */
 .topbar-brand { display: flex; align-items: center; gap: .55rem; }

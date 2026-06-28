@@ -52,14 +52,7 @@ function renderLayout(pageTitle, data) {
   const businessType = (data && data.profile && data.profile.type) || '';
   const hiddenFeatures = (data && data.profile && data.profile.hidden_features) || [];
 
-  let sidebarHtml = `
-    <a href="index.html" class="sidebar-brand">
-      <img src="assets/img/logo.png" alt="Reservo">
-      <span class="sidebar-brand-text">
-        <span class="sidebar-brand-name">Reservo</span>
-        <span class="js-user-name"></span>
-      </span>
-    </a>`;
+  let sidebarHtml = ``;
 
   NAV.forEach(group => {
     const items = group.items.filter(item =>

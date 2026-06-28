@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-06-28
+- `layout.js`, `admin.js`: rimosso il blocco logo + scritta "Reservo" dalla sidebar; logo e nome rimangono solo nella topbar (navbar). Rimossi anche i CSS `.sidebar-brand` diventati inutilizzati.
+
 ## 2026-06-25 (2) (Rimozione account cliente, recensioni e fedeltà)
 - Rimossa la registrazione/login dei clienti finali: da ora i clienti prenotano solo come ospiti (nessun account, nessuna "area cliente"). La registrazione su `login.html` crea sempre un account attività; rimossi `area.html`/`area.js`.
 - Rimosse le **recensioni** (`recensioni.html`/`recensioni.js`, sezione "Moderazione recensioni" in `admin.html`, sezione recensioni del sito pubblico) e il **programma fedeltà** (tab "Fedeltà" in Impostazioni): entrambe le funzionalità erano ancorate a un account cliente persistente e non avevano senso senza di esso.

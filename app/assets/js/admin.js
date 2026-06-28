@@ -9,15 +9,7 @@ const ADMIN_NAV = [
 function renderAdminLayout() {
   const profile = window.reservoAuth.currentProfile;
 
-  const sidebarHtml = `
-    <a href="admin.html" class="sidebar-brand">
-      <img src="assets/img/logo.png" alt="Reservo">
-      <span class="sidebar-brand-text">
-        <span class="sidebar-brand-name">Reservo · Admin</span>
-        <span class="js-user-name"></span>
-      </span>
-    </a>
-    <div class="sidebar-group">` +
+  const sidebarHtml = `<div class="sidebar-group">` +
     ADMIN_NAV.map(item => `<a href="#${item.id}" data-admin-tab="${item.id}" class="sidebar-link">${ICONS[item.icon]}<span>${item.label}</span></a>`).join('') +
     `</div>`;
 
