@@ -5,6 +5,8 @@
   document.getElementById('iCategory').placeholder =
     isRestaurant ? 'es. Antipasti' :
     data.profile.type === 'artisan' ? 'es. Trattamenti viso' : 'es. Consulenze';
+  document.getElementById('newItemBtn').textContent =
+    isRestaurant ? '+ Nuova voce menu' : '+ Nuova prestazione';
   renderLayout(pageLabel, data);
   document.title = pageLabel + ' · Reservo';
   document.getElementById('menuPageTitle').textContent = pageLabel;

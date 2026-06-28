@@ -39,7 +39,6 @@
     featTables: { key: 'tables', types: ['restaurant'], row: 'rowTables' },
     featEvents: { key: 'events', types: ['restaurant'], row: 'rowEvents' },
     featStaff: { key: 'staff', types: [], row: 'rowStaff' },
-    featCoupons: { key: 'coupons', types: [], row: 'rowCoupons' },
     featCommunications: { key: 'communications', types: [], row: 'rowCommunications' },
     featCustomersRegistry: { key: 'customers_registry', types: [], row: 'rowCustomersRegistry' },
   };
@@ -73,10 +72,11 @@
   const TAB_FEATURES = {
     tabBtnStaff: { feature: 'staff', types: [] },
     tabBtnPostazioni: { feature: 'tables', types: ['restaurant'] },
-    tabBtnCoupon: { feature: 'coupons', types: [] },
   };
   function updateTabsVisibility() {
-    const hidden = p.hidden_features || [];
+    const hidden = Object.entries(FEATURES)
+      .filter(([id]) => !document.getElementById(id).checked)
+      .map(([, f]) => f.key);
     const type = document.getElementById('pType').value;
     let activeHidden = false;
     Object.entries(TAB_FEATURES).forEach(([btnId, cfg]) => {
@@ -365,58 +365,6 @@
     defaultItem: { name: 'Nuova postazione', capacity: 2 },
   });
 
-  // ---------- coupon ----------
-  data.coupons = data.coupons || [];
-
-  function renderCoupons() {
-    const body = document.getElementById('couponsBody');
-    if (data.coupons.length === 0) {
-      body.innerHTML = `<tr><td colspan="8" class="text-mid small">Nessun coupon creato.</td></tr>`;
-      return;
-    }
-    body.innerHTML = data.coupons.map((c, i) => `
-      <tr>
-        <td><input type="text" data-c-field="code" data-i="${i}" value="${c.code || ''}" style="min-width:120px; text-transform:uppercase"></td>
-        <td>
-          <select data-c-field="type" data-i="${i}">
-            <option value="percent" ${c.type === 'percent' ? 'selected' : ''}>Percentuale</option>
-            <option value="fixed" ${c.type === 'fixed' ? 'selected' : ''}>Importo fisso (€)</option>
-          </select>
-        </td>
-        <td><input type="number" data-c-field="value" data-i="${i}" value="${c.value ?? 0}" min="0" step="0.5" style="width:80px"></td>
-        <td><input type="date" data-c-field="valid_to" data-i="${i}" value="${c.valid_to || ''}"></td>
-        <td><input type="number" data-c-field="max_uses" data-i="${i}" value="${c.max_uses ?? 0}" min="0" style="width:80px" title="0 = illimitati"></td>
-        <td class="small text-mid">${c.used_count || 0}</td>
-        <td><input type="checkbox" data-c-field="active" data-i="${i}" ${c.active ? 'checked' : ''} style="width:auto"></td>
-        <td><button class="btn btn-danger btn-sm" data-c-remove="${i}">Rimuovi</button></td>
-      </tr>`).join('');
-
-    body.querySelectorAll('[data-c-field]').forEach(inp => inp.addEventListener('change', () => {
-      const i = parseInt(inp.dataset.i, 10);
-      const field = inp.dataset.cField;
-      const c = data.coupons[i];
-      if (field === 'active') c[field] = inp.checked;
-      else if (field === 'value' || field === 'max_uses') c[field] = parseFloat(inp.value) || 0;
-      else if (field === 'code') c[field] = inp.value.trim().toUpperCase();
-      else c[field] = inp.value;
-      saveData(data);
-      showToast('Salvato', 'success');
-    }));
-    body.querySelectorAll('[data-c-remove]').forEach(btn => btn.addEventListener('click', () => {
-      data.coupons.splice(parseInt(btn.dataset.cRemove, 10), 1);
-      saveData(data);
-      renderCoupons();
-      showToast('Coupon rimosso');
-    }));
-  }
-  renderCoupons();
-
-  document.getElementById('addCouponBtn').addEventListener('click', () => {
-    data.coupons.push({ id: uid(), code: 'SCONTO' + (data.coupons.length + 1), type: 'percent', value: 10, valid_from: '', valid_to: '', max_uses: 0, used_count: 0, active: true });
-    saveData(data);
-    renderCoupons();
-  });
-
   // ---------- dati ----------
   document.getElementById('resetDemoBtn').addEventListener('click', async () => {
     if (!confirm('Ripristinare i dati di esempio originali? Tutte le modifiche andranno perse.')) return;
@@ -425,7 +373,7 @@
     setTimeout(() => location.reload(), 1200);
   });
   document.getElementById('clearAllBtn').addEventListener('click', async () => {
-    if (!confirm('Cancellare TUTTI i dati (menu, prenotazioni, eventi, tavoli, staff, servizi, coupon)? Questa azione non può essere annullata.')) return;
+    if (!confirm('Cancellare TUTTI i dati (menu, prenotazioni, eventi, tavoli, staff, servizi)? Questa azione non può essere annullata.')) return;
     await clearAllData();
     showToast('Dati cancellati');
     setTimeout(() => location.reload(), 1200);

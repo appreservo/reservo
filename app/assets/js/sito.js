@@ -37,6 +37,8 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   const menuLabel = isRestaurant ? 'Menu' : 'Listino prezzi';
   document.getElementById('navMenuLink').textContent = menuLabel;
   document.getElementById('menuSectionTitle').textContent = menuLabel;
+  document.getElementById('prenotaSectionTitle').innerHTML =
+    (isRestaurant ? 'Prenota un tavolo' : p.type === 'artisan' ? 'Prenota un appuntamento' : 'Prenota una consulenza') + '<span class="underline"></span>';
   document.getElementById('qrDescription').textContent = `Stampa questo QR code e mettilo in vetrina o sui tavoli: i clienti potranno consultare ${isRestaurant ? 'il menu' : 'il listino prezzi'} e prenotare direttamente da smartphone.`;
   let businessUid = business ? business.id : null;
   if (!businessUid) {
@@ -147,7 +149,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   const BOOKING_ADVANCE_DAYS = 30;
 
   const bookingForm = document.getElementById('bookingForm');
-  const bookingState = { step: 1, serviceId: null, partySize: 1, date: '', time: '', coupon: null };
+  const bookingState = { step: 1, serviceId: null, partySize: 1, date: '', time: '' };
 
   function goToStep(step) {
     bookingState.step = step;
@@ -343,32 +345,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     `;
   }
 
-  // --- coupon ---
-  function couponDiscountLabel(coupon) {
-    return coupon.type === 'percent' ? `-${coupon.value}%` : `-${euro(coupon.value)}`;
-  }
-
-  document.getElementById('couponBtn').addEventListener('click', () => {
-    const code = document.getElementById('cCoupon').value.trim().toUpperCase();
-    const msg = document.getElementById('couponMessage');
-    if (!code) { msg.textContent = ''; msg.className = 'small'; bookingState.coupon = null; return; }
-    const coupon = (data.coupons || []).find(c => (c.code || '').toUpperCase() === code);
-    const today = todayStr();
-    const valid = coupon && coupon.active !== false
-      && (!coupon.valid_from || coupon.valid_from <= today)
-      && (!coupon.valid_to || coupon.valid_to >= today)
-      && (!coupon.max_uses || (coupon.used_count || 0) < coupon.max_uses);
-    if (!valid) {
-      bookingState.coupon = null;
-      msg.textContent = 'Codice non valido o scaduto.';
-      msg.className = 'small error';
-      return;
-    }
-    bookingState.coupon = coupon;
-    msg.textContent = `Codice applicato: sconto ${couponDiscountLabel(coupon)}.`;
-    msg.className = 'small ok';
-  });
-
   // --- back buttons ---
   bookingForm.querySelectorAll('[data-prev]').forEach(btn => btn.addEventListener('click', () => {
     goToStep(Number(btn.dataset.prev));
@@ -400,11 +376,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       status: p.booking_mode === 'auto' ? 'confirmed' : 'pending',
       created_at: new Date().toISOString(),
     };
-    if (bookingState.coupon) {
-      booking.coupon_code = bookingState.coupon.code;
-      booking.coupon_discount = couponDiscountLabel(bookingState.coupon);
-    }
-
     if (isPublicMode) {
       const user = await whoAmI();
       await createPublicBooking({
@@ -429,7 +400,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
         <div><strong>${escapeHtml(booking.service_name)}</strong> · ${booking.party_size} ${booking.party_size === 1 ? 'persona' : 'persone'}</div>
         <div>${fmtDateLong(booking.date)} — ore ${booking.time}</div>
         <div>${escapeHtml(booking.customer_name)}</div>
-        ${booking.coupon_code ? `<div>Coupon ${booking.coupon_code} applicato (${booking.coupon_discount})</div>` : ''}
       </div>
       <p class="text-mid small">Conserva il codice prenotazione: ti servirà per cercarla nella sezione "Le mie prenotazioni".</p>
     `;
@@ -439,12 +409,9 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   document.getElementById('newBookingBtn').addEventListener('click', () => {
     bookingForm.reset();
     document.getElementById('cParty').value = 1;
-    document.getElementById('couponMessage').textContent = '';
-    document.getElementById('couponMessage').className = 'small';
     bookingState.serviceId = null;
     bookingState.date = '';
     bookingState.time = '';
-    bookingState.coupon = null;
     document.getElementById('slotGrid').innerHTML = '';
     document.getElementById('slotMessage').textContent = '';
     document.querySelectorAll('#serviceCards .service-card').forEach(c => c.classList.remove('selected'));
@@ -546,6 +513,10 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     }));
   }
   renderEvents();
+  if (!(data.events || []).some(e => e.date >= todayStr())) {
+    const evNavLink = document.querySelector('a[href="#eventi"]');
+    if (evNavLink) evNavLink.style.display = 'none';
+  }
 
   // ---------- footer hours ----------
   document.getElementById('hoursTable').innerHTML = data.hours.map(h => {

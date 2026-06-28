@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-06-28 (Bug fix, UX e rimozione coupon)
+
+**Bug fix:**
+- `sito.html`/`sito.js`: il titolo della sezione prenotazione era hardcoded "Prenota un tavolo" per tutti i tenant; ora è "Prenota un tavolo" (ristorante), "Prenota un appuntamento" (artigiano) o "Prenota una consulenza" (professionista).
+- `prenotazioni.html`/`prenotazioni.js`: aggiunto input data accanto al filtro stato per filtrare le prenotazioni per giorno (la variabile `filterDate` esisteva già ma non aveva controllo UI).
+- `prenotazioni.js`: la durata di fallback per le prenotazioni esistenti senza servizio associato ora usa `candidateDuration` (coerente con `sito.js`) invece di 30 min fissi — risolve lo sfasamento di slot tra sito pubblico e admin.
+- `impostazioni.js`: `updateTabsVisibility()` ora legge lo stato live delle checkbox invece dei `hidden_features` caricati all'avvio, evitando tab visibili erroneamente dopo modifiche non salvate.
+- `index.html`/`dashboard.js`: la voce "Eventi in programma" nel riepilogo dashboard ora si nasconde per attività non-ristorante o con la funzionalità eventi disattivata.
+
+**UX:**
+- `prenotazioni.html`/`prenotazioni.js`: aggiunta nota informativa sotto il campo "Stato" quando si crea una nuova prenotazione in modalità "Approvazione manuale".
+- `clienti.js`: lo storico prenotazioni nella scheda anagrafica mostra ora anche il servizio e le note (prima solo data, ora, persone, stato).
+- `menu.js`: il bottone "Nuova voce" si adatta al tipo: "+ Nuova voce menu" (ristorante) o "+ Nuova prestazione" (artigiano/professionista).
+- `sito.js`: il link "Eventi" nella nav del sito pubblico si nasconde quando non ci sono eventi in programma.
+
+**Rimozione coupon:**
+- Rimossi completamente i coupon da tutto il codebase: tab Impostazioni, voce di menu laterale, form prenotazione sito pubblico, strutture dati (`db.js`), logica di validazione (`sito.js`). La funzionalità era opzionale e non più necessaria.
+
 ## 2026-06-27 (2) (Placeholder form contestuali per tipo di tenant)
 - `menu.js`: il placeholder del campo "Categoria" nella modale voce menu/listino ora varia per tipo di attività: "es. Antipasti" per ristoranti, "es. Trattamenti viso" per artigiani/estetisti, "es. Consulenze" per professionisti.
 - `impostazioni.html`/`impostazioni.js`: il placeholder "foto-locale.jpg" nell'URL copertina è ora generico ("copertina.jpg"); il messaggio di benvenuto cambia tra "nel nostro locale" (ristorante), "nel nostro salone" (artigiano) e "nel nostro studio" (professionista).

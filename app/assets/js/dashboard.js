@@ -84,6 +84,8 @@
   document.getElementById('sumMenuLabel').textContent = isRestaurant ? 'Voci menu' : 'Voci listino';
   document.getElementById('sumMenu').textContent = data.menu.length + ' voci';
   document.getElementById('sumEvents').textContent = data.events.filter(e => e.date >= today).length;
+  const hasEventsFeature = isRestaurant && !((data.profile.hidden_features || []).includes('events'));
+  document.getElementById('sumEventsRow').style.display = hasEventsFeature ? '' : 'none';
   document.getElementById('sumStaff').textContent = data.staff.length + ' persone';
 
   fillIcons();

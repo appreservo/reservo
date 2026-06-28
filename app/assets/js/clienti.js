@@ -156,13 +156,19 @@
       </table>
       <h4 style="margin:0 0 .5rem">Storico prenotazioni</h4>
       ${bookings.length === 0 ? '<p class="text-mid small">Nessuna prenotazione registrata per questo cliente.</p>' :
-        `<table><thead><tr><th>Data</th><th>Ora</th><th>Persone</th><th>Stato</th></tr></thead><tbody>` +
-        bookings.map(b => `<tr>
-          <td data-label="Data">${fmtDateShort(b.date)}</td>
-          <td data-label="Ora">${b.time}</td>
-          <td data-label="Persone">${b.party_size}</td>
-          <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
-        </tr>`).join('') + `</tbody></table>`}
+        `<table><thead><tr><th>Data</th><th>Ora</th><th>Servizio</th><th>Persone</th><th>Stato</th><th>Note</th></tr></thead><tbody>` +
+        bookings.map(b => {
+          const svc = (data.services || []).find(s => s.id === b.service_id);
+          const svcName = svc ? svc.name : (b.service_name || '—');
+          return `<tr>
+            <td data-label="Data">${fmtDateShort(b.date)}</td>
+            <td data-label="Ora">${b.time}</td>
+            <td data-label="Servizio" class="small text-mid">${escapeHtml(svcName)}</td>
+            <td data-label="Persone">${b.party_size}</td>
+            <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
+            <td data-label="Note" class="small text-mid">${escapeHtml(b.notes || '')}</td>
+          </tr>`;
+        }).join('') + `</tbody></table>`}
     `;
     document.getElementById('schedaEditBtn').onclick = () => openAnagraficaModal(customer);
     document.getElementById('schedaNewBookingBtn').onclick = () => {

@@ -81,7 +81,6 @@ function emptyData(profile) {
       hidden_features: defaultHiddenFeatures(type),
       hidden_fields: defaultHiddenFields(type),
     },
-    coupons: [],
     hours: [
       { day: 0, open: '09:00', close: '18:00', closed: false },
       { day: 1, open: '09:00', close: '18:00', closed: false },
@@ -118,9 +117,6 @@ function demoData() {
       booking_mode: 'manual',
       notification_emails: 'info@damario.it',
     },
-    coupons: [
-      { id: uid(), code: 'BENVENUTO10', type: 'percent', value: 10, valid_from: '', valid_to: '', max_uses: 0, used_count: 0, active: true },
-    ],
     hours: [
       { day: 0, open: '12:00', close: '22:30', closed: false },
       { day: 1, open: '12:00', close: '22:30', closed: false },
@@ -236,9 +232,6 @@ function buildPublicData(data) {
     bookings: (data.bookings || [])
       .filter(b => b.status === 'confirmed' || b.status === 'pending')
       .map(b => ({ date: b.date, time: b.time, status: b.status, service_id: b.service_id || null })),
-    coupons: (data.coupons || [])
-      .filter(c => c.active && (!c.valid_to || c.valid_to >= todayStr()))
-      .map(c => ({ code: c.code, type: c.type, value: c.value, valid_from: c.valid_from, valid_to: c.valid_to, max_uses: c.max_uses, used_count: c.used_count })),
   };
 }
 
@@ -289,7 +282,6 @@ async function clearAllData() {
   data.bookings = [];
   data.events = [];
   data.closures = [];
-  data.coupons = [];
   data.services = [];
   data.tables = [];
   data.staff = [];

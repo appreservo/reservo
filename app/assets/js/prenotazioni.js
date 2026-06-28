@@ -247,9 +247,10 @@
       return (data.services || []).find(s => s.id === b.service_id);
     }
     // Durata di una prenotazione esistente (dal suo servizio, se presente).
+    // Usa candidateDuration come fallback per coerenza con sito.js.
     function existingBookingDuration(b) {
       const svc = existingService(b);
-      return (svc && svc.duration) || DEFAULT_SLOT_DURATION;
+      return (svc && svc.duration) || candidateDuration;
     }
     // Confronto per sovrapposizione di intervalli: con una sola risorsa
     // disponibile (capacity 1), un appuntamento da 45 min deve bloccare
@@ -363,6 +364,8 @@
     document.getElementById('bNotes').value = booking ? (booking.notes || '') : '';
     tableSelect.value = booking ? (booking.table_id || '') : '';
     document.getElementById('deleteBookingBtn').style.display = booking ? 'inline-flex' : 'none';
+    const note = document.getElementById('bStatusNote');
+    if (note) note.textContent = (!booking && data.profile.booking_mode === 'manual') ? 'Nota: la modalità attiva è "Approvazione manuale", ma le prenotazioni create da qui vengono confermate subito.' : '';
     updateModalMode();
     bookingModal.classList.add('open');
   }
@@ -488,6 +491,10 @@
     renderCalendar();
   });
   document.getElementById('filterStatus').addEventListener('change', renderTable);
+  document.getElementById('filterDateInput').addEventListener('change', (e) => {
+    filterDate = e.target.value || null;
+    renderTable();
+  });
 
   document.getElementById('exportCsvBtn').addEventListener('click', () => {
     const status = document.getElementById('filterStatus').value;
