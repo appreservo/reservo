@@ -32,7 +32,6 @@
     <a href="#prenota">Prenota</a>
     <a href="#cerca">Le mie prenotazioni</a>
     <a href="#eventi">Eventi</a>
-    <a href="#qr">QR Code</a>
     <span class="status-badge" id="statusBadge"></span>
   </nav>
 </header>
@@ -133,15 +132,6 @@
   <div id="eventsContainer" style="max-width:640px; margin:0 auto"></div>
 </section>
 
-<section class="section" id="qr">
-  <h2>QR Code<span class="underline"></span></h2>
-  <div class="box qr-box">
-    <p class="text-mid" id="qrDescription">Stampa questo QR code e mettilo in vetrina o sui tavoli: i clienti potranno consultare il menu e prenotare direttamente da smartphone.</p>
-    <div id="qrcode"></div>
-    <button type="button" class="btn btn-outline" id="downloadQr">Scarica QR code</button>
-  </div>
-</section>
-
 <footer class="site-footer">
   <div id="footerName" class="accent" style="font-size:1.1rem"></div>
   <div id="footerAddress"></div>
@@ -150,7 +140,6 @@
   <div style="margin-top:1rem; font-size:.78rem; opacity:.7">Realizzato con Reservo — © 2026</div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="assets/js/db.js"></script>
 <script type="module" src="assets/js/sito.js"></script>
 </body>

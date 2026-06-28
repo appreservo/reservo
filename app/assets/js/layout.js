@@ -30,7 +30,7 @@ const NAV = [
   ]},
   { group: 'Catalogo', items: [
     { href: 'menu.html', label: t => t === 'restaurant' ? 'Menu' : 'Listino prezzi', icon: 'menu' },
-    { href: 'sito.html', label: 'QR Code', icon: 'qr', external: true },
+    { href: 'qr.html', label: 'QR Code', icon: 'qr' },
   ]},
   { group: 'Attività', items: [
     { href: 'eventi.html', label: 'Eventi', icon: 'events', types: ['restaurant'], feature: 'events' },

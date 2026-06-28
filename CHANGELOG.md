@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-28 (4)
+- `qr.html` / `qr.js`: nuova pagina admin dedicata al QR Code — mostra il QR che punta al sito pubblico (`sito.html?b=slug`), con pulsanti "Scarica PNG" e "Stampa".
+- `layout.js`: voce "QR Code" in sidebar ora punta a `qr.html` invece di aprire `sito.html` in un nuovo tab.
+- `sito.html` / `sito.js`: rimossa la sezione QR Code dal sito pubblico (navigazione e blocco `#qr`); rimosso il codice JS di generazione QR e la libreria `qrcodejs`.
+
 ## 2026-06-28 (3)
 - `layout.js`: rimosso il blocco logo + scritta "Reservo" dalla sidebar; logo e nome rimangono solo nella topbar (navbar). Rimossi anche i CSS `.sidebar-brand` diventati inutilizzati.
 

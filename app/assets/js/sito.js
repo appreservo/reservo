@@ -18,9 +18,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     // usare "Le mie prenotazioni" nell'area cliente per gli utenti registrati
     document.getElementById('cerca').classList.add('hidden');
     document.querySelector('a[href="#cerca"]').classList.add('hidden');
-    // QR code: serve al gestore per stampare/scaricare, non al cliente sul sito pubblico
-    document.getElementById('qr').classList.add('hidden');
-    document.querySelector('a[href="#qr"]').classList.add('hidden');
   } else {
     data = await loadData();
   }
@@ -39,7 +36,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   document.getElementById('menuSectionTitle').textContent = menuLabel;
   document.getElementById('prenotaSectionTitle').innerHTML =
     (isRestaurant ? 'Prenota un tavolo' : p.type === 'artisan' ? 'Prenota un appuntamento' : 'Prenota una consulenza') + '<span class="underline"></span>';
-  document.getElementById('qrDescription').textContent = `Stampa questo QR code e mettilo in vetrina o sui tavoli: i clienti potranno consultare ${isRestaurant ? 'il menu' : 'il listino prezzi'} e prenotare direttamente da smartphone.`;
   let businessUid = business ? business.id : null;
   if (!businessUid) {
     const user = await whoAmI();
@@ -523,25 +519,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     const timesText = h.closed ? 'Chiuso' : getIntervals(h).map(iv => iv.open + ' – ' + iv.close).join(', ');
     return `<div><span>${DAYS[h.day]}</span><span>${timesText}</span></div>`;
   }).join('');
-
-  // ---------- QR code ----------
-  const qrUrl = location.href.split('#')[0];
-  new QRCode(document.getElementById('qrcode'), {
-    text: qrUrl,
-    width: 200,
-    height: 200,
-    colorDark: '#1B2F6E',
-    colorLight: '#ffffff',
-  });
-
-  document.getElementById('downloadQr').addEventListener('click', () => {
-    const canvas = document.querySelector('#qrcode canvas');
-    if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = 'qrcode-' + (p.slug || 'reservo') + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
 
   // toast (no layout.js loaded here, define inline if missing)
   if (typeof showToast !== 'function') window.showToast = () => {};
