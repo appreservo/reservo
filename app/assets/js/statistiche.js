@@ -5,9 +5,23 @@
 
   const NAVY = '#1B2F6E', GOLD = '#C9A227', GREEN = '#16a34a', ORANGE = '#d97706', RED = '#dc2626', GRAY = '#9ca3af';
 
+  // populate service filter
+  const serviceFilterSelect = document.getElementById('serviceFilterSelect');
+  (data.services || []).forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = s.name;
+    serviceFilterSelect.appendChild(opt);
+  });
+
+  function getFilteredBookings() {
+    const sid = serviceFilterSelect.value;
+    return sid ? bookings.filter(b => b.service_id === sid) : bookings;
+  }
+
   let trendChart, statusChart, hoursChart;
 
   function render(days) {
+    const filtered = getFilteredBookings();
     const today = new Date();
     const fromDate = fmtDate(addDays(today, -days + 1));
 
@@ -17,7 +31,7 @@
     for (let i = days - 1; i >= 0; i--) {
       const d = fmtDate(addDays(today, -i));
       labels.push(fmtDateShort(d));
-      counts.push(bookings.filter(b => b.date === d && b.status !== 'rejected' && b.status !== 'cancelled').length);
+      counts.push(filtered.filter(b => b.date === d && b.status !== 'rejected' && b.status !== 'cancelled').length);
     }
 
     if (trendChart) trendChart.destroy();
@@ -37,7 +51,7 @@
     });
 
     // ----- status distribution (doughnut) -----
-    const periodBookings = bookings.filter(b => b.date >= fromDate && b.date <= fmtDate(today));
+    const periodBookings = filtered.filter(b => b.date >= fromDate && b.date <= fmtDate(today));
     const statusCounts = { confirmed: 0, pending: 0, rejected: 0, cancelled: 0 };
     periodBookings.forEach(b => { if (statusCounts[b.status] !== undefined) statusCounts[b.status]++; });
 
@@ -78,6 +92,8 @@
     document.getElementById('kpiRate').textContent = rate + '%';
   }
 
-  document.getElementById('rangeSelect').addEventListener('change', (e) => render(parseInt(e.target.value, 10)));
+  const rerender = () => render(parseInt(document.getElementById('rangeSelect').value, 10));
+  document.getElementById('rangeSelect').addEventListener('change', rerender);
+  serviceFilterSelect.addEventListener('change', rerender);
   render(30);
 })();

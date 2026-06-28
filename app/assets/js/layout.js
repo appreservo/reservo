@@ -40,7 +40,6 @@ const NAV = [
     { href: 'impostazioni.html#servizi', label: 'Servizi', icon: 'services', match: 'impostazioni.html' },
     { href: 'impostazioni.html#staff', label: 'Staff', icon: 'staff', match: 'impostazioni.html', feature: 'staff' },
     { href: 'impostazioni.html#postazioni', label: 'Postazioni', icon: 'tables', match: 'impostazioni.html', types: ['restaurant'], feature: 'tables' },
-    { href: 'impostazioni.html#coupon', label: 'Coupon', icon: 'coupon', match: 'impostazioni.html', feature: 'coupons' },
   ]},
   { group: 'Impostazioni', items: [
     { href: 'impostazioni.html', label: 'Impostazioni', icon: 'settings' },
@@ -92,8 +91,8 @@ function renderLayout(pageTitle, data) {
       <h1>${pageTitle}</h1>
     </div>
     <div class="topbar-actions">
+      <span class="topbar-biz-name">${data && data.profile ? data.profile.business_name : ''}</span>
       <a href="${siteHref}" target="_blank" class="btn btn-outline btn-sm">${ICONS.external} <span class="btn-label">Anteprima sito</span></a>
-      <div class="badge badge-navy">${data && data.profile ? data.profile.business_name : ''}</div>
       <button class="btn btn-outline btn-sm" id="logoutBtn">Esci</button>
     </div>`;
 
@@ -137,9 +136,10 @@ function renderLayout(pageTitle, data) {
       verifyBanner.id = 'verifyEmailBanner';
       verifyBanner.className = 'verify-email-banner';
       verifyBanner.innerHTML = `
-        <span>Verifica il tuo indirizzo email per proteggere il tuo account.<span class="hide-mobile"> Controlla la posta in arrivo.</span></span>
-        <button class="btn btn-sm" id="resendVerificationBtn">Invia di nuovo</button>`;
-      document.body.prepend(verifyBanner);
+        <span>✉ Verifica email</span>
+        <span style="opacity:.4">·</span>
+        <button class="btn" id="resendVerificationBtn">Invia di nuovo</button>`;
+      document.body.appendChild(verifyBanner);
       document.getElementById('resendVerificationBtn').addEventListener('click', async (e) => {
         e.target.disabled = true;
         try {
@@ -171,6 +171,44 @@ function renderLayout(pageTitle, data) {
   }
 
   fillIcons();
+
+  const profile = window.reservoAuth.currentProfile;
+  const uid = window.reservoAuth.getBusinessUid && window.reservoAuth.getBusinessUid();
+  if (uid && profile && profile.role === 'gestore' && !window.reservoAuth.isViewingAs()) {
+    initBookingNotifications(uid);
+  }
+}
+
+let _bookingsUnsub = null;
+let _prevPendingCount = -1;
+
+function initBookingNotifications(businessUid) {
+  if (_bookingsUnsub) { _bookingsUnsub(); _bookingsUnsub = null; }
+  _prevPendingCount = -1;
+  _bookingsUnsub = window.reservoAuth.subscribeToNewBookings(businessUid, (pendingBookings) => {
+    const count = pendingBookings.length;
+
+    let badge = document.getElementById('bookingsBadge');
+    if (!badge) {
+      const link = document.querySelector('#sidebar a[href="prenotazioni.html"]');
+      if (link) {
+        badge = document.createElement('span');
+        badge.id = 'bookingsBadge';
+        badge.className = 'nav-badge';
+        link.appendChild(badge);
+      }
+    }
+    if (badge) {
+      badge.textContent = count > 9 ? '9+' : String(count);
+      badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+
+    if (_prevPendingCount >= 0 && count > _prevPendingCount) {
+      const n = count - _prevPendingCount;
+      showToast(n === 1 ? 'Nuova prenotazione ricevuta' : `${n} nuove prenotazioni ricevute`, 'success');
+    }
+    _prevPendingCount = count;
+  });
 }
 
 function fillIcons(root = document) {

@@ -1,7 +1,7 @@
 /* Reservo demo - autenticazione reale via Firebase Authentication */
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, getCountFromServer, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, getCountFromServer, addDoc, query, where, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAQNqwqsDX2bwNKjj1zt-PCfHH0R2KNjHM",
@@ -226,6 +226,13 @@ function rejectAccount(uid) {
   ]);
 }
 
+function subscribeToNewBookings(businessUid, callback) {
+  return onSnapshot(
+    query(collection(db, 'bookings'), where('businessUid', '==', businessUid), where('status', '==', 'pending')),
+    snap => callback(snap.docs.map(d => ({ ...d.data(), id: d.id })))
+  );
+}
+
 /* "Visualizza come" (pannello admin): l'uid dell'attività che l'admin sta visualizzando in sola lettura */
 function getBusinessUid() {
   return window.reservoAuth.viewAsUid || (auth.currentUser && auth.currentUser.uid);
@@ -250,8 +257,6 @@ function requireAuth() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const profile = await getUserProfile(user.uid).catch(() => null);
-        /* account cliente residui da prima della rimozione dell'area cliente: niente pagina di destinazione valida, si forza il logout */
-        if (profile && profile.role === 'cliente') { logout(); return; }
         const current = location.pathname.split('/').pop() || 'index.html';
 
         /* "Visualizza come" (sola lettura): un admin apre una pagina del gestionale con ?viewAs=<uid> */
@@ -309,7 +314,6 @@ function requireAdmin() {
     onAuthStateChanged(auth, async (user) => {
       if (!user) { location.replace('login.html'); return; }
       const profile = await getUserProfile(user.uid).catch(() => null);
-      if (profile && profile.role === 'cliente') { logout(); return; }
       if (!profile || profile.role !== 'admin') { location.replace(homeForProfile(profile)); return; }
 
       document.documentElement.classList.remove('auth-pending');
@@ -331,7 +335,7 @@ window.reservoAuth = {
   updateBookingStatus, updateBooking, deleteBooking, deleteAllBusinessBookings, deleteBusinessAccount, whoAmI,
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
-  getBusinessUid, isViewingAs, resendVerificationEmail,
+  getBusinessUid, isViewingAs, resendVerificationEmail, subscribeToNewBookings,
   serverTimestamp,
 };
 export {
@@ -342,6 +346,6 @@ export {
   updateBookingStatus, updateBooking, deleteBooking, deleteAllBusinessBookings, deleteBusinessAccount, whoAmI,
   homeForProfile, listPendingAccounts, approveAccount, rejectAccount,
   createBroadcast, getBusinessBroadcasts, listGestoreUsers, countAllBookings,
-  getBusinessUid, isViewingAs, resendVerificationEmail,
+  getBusinessUid, isViewingAs, resendVerificationEmail, subscribeToNewBookings,
   serverTimestamp,
 };

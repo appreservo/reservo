@@ -51,7 +51,11 @@
         .sort((a, b) => a.time.localeCompare(b.time));
       let pillsHtml = '';
       dayBookings.slice(0, 3).forEach(b => {
-        pillsHtml += `<div class="cal-pill ${b.status}">${b.time} ${escapeHtml(b.customer_name)}</div>`;
+        if (b.is_block) {
+          pillsHtml += `<div class="cal-pill" style="background:rgba(27,47,110,.13);color:var(--navy)">${b.time} ⊘ ${escapeHtml(b.customer_name || 'Blocco')}</div>`;
+        } else {
+          pillsHtml += `<div class="cal-pill ${b.status}">${b.time} ${escapeHtml(b.customer_name)}</div>`;
+        }
       });
       if (dayBookings.length > 3) {
         pillsHtml += `<div class="cal-pill">+${dayBookings.length - 3} altre</div>`;
@@ -64,9 +68,14 @@
 
   function renderTable() {
     const status = document.getElementById('filterStatus').value;
+    const search = (document.getElementById('searchBooking').value || '').toLowerCase().trim();
     let list = allBookings();
     if (status) list = list.filter(b => b.status === status);
     if (filterDate) list = list.filter(b => b.date === filterDate);
+    if (search) list = list.filter(b =>
+      (b.customer_name || '').toLowerCase().includes(search) ||
+      (b.email || '').toLowerCase().includes(search) ||
+      (b.phone || '').toLowerCase().includes(search));
     list.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
     const container = document.getElementById('bookingsTable');
@@ -84,38 +93,92 @@
         <td data-label="Cliente">${escapeHtml(b.customer_name)}</td>
         <td data-label="Contatti" class="small text-mid">${[b.email, b.phone].filter(Boolean).map(escapeHtml).join('<br>')}</td>
         <td data-label="Persone">${b.party_size}</td>
-        <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span>${b.businessUid ? ' <span class="badge badge-navy">Sito</span>' : ''}${b.is_reminder ? ' <span class="badge badge-navy">Promemoria</span>' : ''}</td>
+        <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span>${b.businessUid ? ' <span class="badge badge-navy">Sito</span>' : ''}${b.is_reminder ? ' <span class="badge badge-navy">Promemoria</span>' : ''}${b.is_block ? ' <span class="badge badge-navy">Blocco</span>' : ''}</td>
         <td data-label="Note" class="small text-mid">${escapeHtml(b.notes || '')}</td>
         <td data-label="">
           <div class="flex gap-2">
-            ${b.status === 'pending' ? `<button class="btn btn-outline btn-sm" data-approve="${b.id}">✓ Conferma</button><button class="btn btn-danger btn-sm" data-reject="${b.id}">✕ Rifiuta</button>` : ''}
+            ${b.status === 'pending'
+              ? `<button class="btn btn-gold btn-sm" data-accept="${b.id}">✓ Accetta</button>
+                 <button class="btn btn-danger btn-sm" data-reject="${b.id}">✕ Rifiuta</button>`
+              : (b.status === 'confirmed' || b.status === 'rejected') && b.businessUid
+                ? `${!b.notify_requested && b.status_notified !== b.status
+                    ? `<button class="btn btn-outline btn-sm" data-notify="${b.id}">✉ Notifica</button>`
+                    : b.notify_requested
+                      ? `<span class="text-mid" style="white-space:nowrap;font-size:.72rem">✓ Email in coda</span>`
+                      : ''}
+                   ${b.email ? `<button class="btn btn-outline btn-sm" data-contact="${b.id}">Contatta</button>` : ''}`
+                : ''}
             <button class="btn btn-outline btn-sm" data-edit="${b.id}">Modifica</button>
           </div>
         </td>
       </tr>`).join('') + `</tbody></table>`;
 
-    container.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', () => {
-      setStatus(btn.dataset.approve, 'confirmed');
+    container.querySelectorAll('[data-accept]').forEach(btn => btn.addEventListener('click', () => {
+      setStatus(btn.dataset.accept, 'confirmed');
     }));
     container.querySelectorAll('[data-reject]').forEach(btn => btn.addEventListener('click', () => {
-      setStatus(btn.dataset.reject, 'rejected');
+      openRejectModal(btn.dataset.reject);
+    }));
+    container.querySelectorAll('[data-notify]').forEach(btn => btn.addEventListener('click', () => {
+      requestNotify(btn.dataset.notify);
+    }));
+    container.querySelectorAll('[data-contact]').forEach(btn => btn.addEventListener('click', () => {
+      const b = findBooking(btn.dataset.contact);
+      if (b && b.email) window.location.href = `mailto:${encodeURIComponent(b.email)}?subject=${encodeURIComponent('Prenotazione - ' + ((data.profile && data.profile.business_name) || 'Reservo'))}`;
     }));
     container.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => {
       openBookingModal(findBooking(btn.dataset.edit));
     }));
   }
 
-  async function setStatus(id, status) {
+  async function setStatus(id, status, rejectionReason) {
     const b = findBooking(id);
     if (!b) return;
     b.status = status;
+    if (rejectionReason) b.rejection_reason = rejectionReason;
     if (b.businessUid) {
-      await window.reservoAuth.updateBooking(id, { status });
+      const payload = { status };
+      if (rejectionReason) payload.rejection_reason = rejectionReason;
+      await window.reservoAuth.updateBooking(id, payload);
     } else {
       saveData(data);
     }
-    showToast(status === 'confirmed' ? 'Prenotazione confermata' : 'Prenotazione rifiutata', status === 'confirmed' ? 'success' : 'error');
+    showToast(status === 'confirmed' ? 'Prenotazione accettata' : 'Prenotazione rifiutata', status === 'confirmed' ? 'success' : 'error');
     renderAll();
+  }
+
+  async function requestNotify(id) {
+    const b = findBooking(id);
+    if (!b || !b.businessUid) return;
+    b.notify_requested = true;
+    await window.reservoAuth.updateBooking(id, { notify_requested: true });
+    showToast('Email in coda, verrà inviata a breve', 'success');
+    renderAll();
+  }
+
+  function openRejectModal(id) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay open';
+    overlay.innerHTML = `
+      <div class="modal" style="max-width:420px">
+        <h3>Rifiuta prenotazione</h3>
+        <div style="margin-bottom:1rem">
+          <label style="display:block;font-size:.85rem;font-weight:700;color:var(--text-mid);margin-bottom:.4rem">Motivazione (opzionale)</label>
+          <textarea id="rejectReason" rows="3" placeholder="Es. non disponibili per quella data…" style="width:100%;resize:vertical"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" id="rejectCancel">Annulla</button>
+          <button type="button" class="btn btn-danger" id="rejectConfirm">✕ Rifiuta prenotazione</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    overlay.querySelector('#rejectCancel').addEventListener('click', () => overlay.remove());
+    overlay.querySelector('#rejectConfirm').addEventListener('click', () => {
+      const reason = overlay.querySelector('#rejectReason').value.trim();
+      overlay.remove();
+      setStatus(id, 'rejected', reason);
+    });
   }
 
   function renderAll() {
@@ -140,6 +203,10 @@
   const DEFAULT_SLOT_DURATION = 30; // minuti, usato quando l'attività non ha servizi configurati
   const serviceSelect = document.getElementById('bService');
   const reminderCheckbox = document.getElementById('bIsReminder');
+  const blockCheckbox = document.getElementById('bIsBlock');
+  const motivoField = document.getElementById('bMotivoField');
+  const recurrenceCheckbox = document.getElementById('bRecurrence');
+  const recurrenceOptions = document.getElementById('bRecurrenceOptions');
   const slotField = document.getElementById('bSlotField');
   const slotGrid = document.getElementById('bSlotGrid');
   const slotMessage = document.getElementById('bSlotMessage');
@@ -147,6 +214,20 @@
   const timeInput = document.getElementById('bTime');
   const dateInput = document.getElementById('bDate');
   let selectedSlotTime = '';
+
+  // Autocomplete nome cliente da anagrafica
+  const customerNameList = document.getElementById('customerNameList');
+  customerNameList.innerHTML = (data.customers || [])
+    .map(c => `<option value="${escapeHtml([c.name, c.surname].filter(Boolean).join(' '))}"></option>`).join('');
+  document.getElementById('bCustomerName').addEventListener('change', (e) => {
+    const val = e.target.value.trim();
+    const customer = (data.customers || []).find(c => [c.name, c.surname].filter(Boolean).join(' ') === val);
+    if (customer) {
+      document.getElementById('bEmail').value = customer.email || '';
+      document.getElementById('bPhone').value = customer.phone || '';
+      document.getElementById('bookingCustomerId').value = customer.id;
+    }
+  });
 
   document.getElementById('bServiceField').style.display = (data.services || []).length > 0 ? '' : 'none';
   serviceSelect.innerHTML = (data.services || [])
@@ -171,14 +252,18 @@
     const jsDay = date.getDay();
     const ourDay = jsDay === 0 ? 6 : jsDay - 1;
     const hours = data.hours.find(h => h.day === ourDay);
-    if (!hours || hours.closed || !hours.open || !hours.close) return [];
+    if (!hours || hours.closed) return [];
     if ((data.closures || []).some(c => c.date === dateStr)) return [];
 
-    const [oh, om] = hours.open.split(':').map(Number);
-    const [ch, cm] = hours.close.split(':').map(Number);
-    let openMin = oh * 60 + om;
-    let closeMin = ch * 60 + cm;
-    if (closeMin <= openMin) closeMin += 24 * 60; // turno notturno
+    const dayIntervals = getIntervals(hours).map(iv => {
+      const [oh, om] = iv.open.split(':').map(Number);
+      const [ch, cm] = iv.close.split(':').map(Number);
+      let openMin = oh * 60 + om;
+      let closeMin = ch * 60 + cm;
+      if (closeMin <= openMin) closeMin += 24 * 60;
+      return { openMin, closeMin };
+    });
+    if (!dayIntervals.length) return [];
 
     const editingId = document.getElementById('bookingId').value;
     const existing = allBookings().filter(b => b.date === dateStr && b.id !== editingId
@@ -189,9 +274,10 @@
       return (data.services || []).find(s => s.id === b.service_id);
     }
     // Durata di una prenotazione esistente (dal suo servizio, se presente).
+    // Usa candidateDuration come fallback per coerenza con sito.js.
     function existingBookingDuration(b) {
       const svc = existingService(b);
-      return (svc && svc.duration) || DEFAULT_SLOT_DURATION;
+      return (svc && svc.duration) || candidateDuration;
     }
     // Confronto per sovrapposizione di intervalli: con una sola risorsa
     // disponibile (capacity 1), un appuntamento da 45 min deve bloccare
@@ -233,16 +319,19 @@
     const step = minServiceDuration();
 
     const slots = [];
-    for (let t = openMin; t + candidateDuration <= closeMin; t += step) {
-      const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
-      const mm = String(t % 60).padStart(2, '0');
-      const timeStr = `${hh}:${mm}`;
-      const overlapCount = existing.filter(b => {
-        const [bh, bm] = b.time.split(':').map(Number);
-        if (!overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b))) return false;
-        return hasTablesFeature || (!isRestaurant && competesForSameResource(b, candidateSetKey));
-      }).length;
-      slots.push({ time: timeStr, busy: overlapCount >= capacity });
+    for (const { openMin, closeMin } of dayIntervals) {
+      for (let t = openMin; t + candidateDuration <= closeMin; t += step) {
+        const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
+        const mm = String(t % 60).padStart(2, '0');
+        const timeStr = `${hh}:${mm}`;
+        if (slots.some(s => s.time === timeStr)) continue;
+        const overlapCount = existing.filter(b => {
+          const [bh, bm] = b.time.split(':').map(Number);
+          if (!overlaps(t, candidateDuration, bh * 60 + bm, existingBookingDuration(b))) return false;
+          return hasTablesFeature || (!isRestaurant && competesForSameResource(b, candidateSetKey));
+        }).length;
+        slots.push({ time: timeStr, busy: overlapCount >= capacity });
+      }
     }
     return slots;
   }
@@ -274,33 +363,64 @@
 
   function updateModalMode() {
     const isReminder = reminderCheckbox.checked;
+    const isBlock = blockCheckbox.checked;
+    const isEditing = !!document.getElementById('bookingId').value;
+
+    const nameRow = document.getElementById('bCustomerName').closest('.field-row');
+    const contactRow = document.getElementById('bEmail').closest('.field-row');
+    nameRow.style.display = isBlock ? 'none' : '';
+    contactRow.style.display = isBlock ? 'none' : '';
+    motivoField.style.display = isBlock ? '' : 'none';
+    document.getElementById('bCustomerName').required = !isBlock;
+
     slotField.style.display = isReminder ? 'none' : '';
     document.getElementById('bServiceField').style.display = (!isReminder && (data.services || []).length > 0) ? '' : 'none';
     timeField.style.display = isReminder ? '' : 'none';
+    document.getElementById('bTableField').style.display = (hasTablesFeature && !isBlock) ? '' : 'none';
+
+    document.getElementById('bRecurrenceField').style.display = (isBlock || isEditing) ? 'none' : '';
+
     if (!isReminder) renderSlotGrid();
   }
 
-  reminderCheckbox.addEventListener('change', updateModalMode);
+  reminderCheckbox.addEventListener('change', () => {
+    if (reminderCheckbox.checked) blockCheckbox.checked = false;
+    updateModalMode();
+  });
+  blockCheckbox.addEventListener('change', () => {
+    if (blockCheckbox.checked) reminderCheckbox.checked = false;
+    updateModalMode();
+  });
+  recurrenceCheckbox.addEventListener('change', () => {
+    recurrenceOptions.style.display = recurrenceCheckbox.checked ? '' : 'none';
+  });
   dateInput.addEventListener('change', renderSlotGrid);
   serviceSelect.addEventListener('change', renderSlotGrid);
   document.getElementById('bPartySize').addEventListener('change', renderSlotGrid);
 
-  function openBookingModal(booking, presetDate) {
+  function openBookingModal(booking, presetDate, presetCustomer) {
     document.getElementById('bookingModalTitle').textContent = booking ? 'Modifica prenotazione' : 'Nuova prenotazione';
     document.getElementById('bookingId').value = booking ? booking.id : '';
-    document.getElementById('bCustomerName').value = booking ? booking.customer_name : '';
+    document.getElementById('bookingCustomerId').value = booking ? (booking.customer_id || '') : (presetCustomer ? presetCustomer.id : '');
+    document.getElementById('bCustomerName').value = booking ? booking.customer_name : (presetCustomer ? [presetCustomer.name, presetCustomer.surname].filter(Boolean).join(' ') : '');
     document.getElementById('bPartySize').value = booking ? booking.party_size : 1;
-    document.getElementById('bEmail').value = booking ? (booking.email || '') : '';
-    document.getElementById('bPhone').value = booking ? (booking.phone || '') : '';
+    document.getElementById('bEmail').value = booking ? (booking.email || '') : (presetCustomer ? (presetCustomer.email || '') : '');
+    document.getElementById('bPhone').value = booking ? (booking.phone || '') : (presetCustomer ? (presetCustomer.phone || '') : '');
     document.getElementById('bDate').value = booking ? booking.date : (presetDate || todayStr());
     serviceSelect.value = booking ? (booking.service_id || '') : (((data.services || [])[0] || {}).id || '');
     reminderCheckbox.checked = booking ? !!booking.is_reminder : false;
+    blockCheckbox.checked = booking ? !!booking.is_block : false;
+    document.getElementById('bMotivo').value = '';
+    recurrenceCheckbox.checked = false;
+    recurrenceOptions.style.display = 'none';
     selectedSlotTime = booking ? booking.time : '';
     timeInput.value = booking ? booking.time : '20:00';
     document.getElementById('bStatus').value = booking ? booking.status : 'confirmed';
     document.getElementById('bNotes').value = booking ? (booking.notes || '') : '';
     tableSelect.value = booking ? (booking.table_id || '') : '';
     document.getElementById('deleteBookingBtn').style.display = booking ? 'inline-flex' : 'none';
+    const note = document.getElementById('bStatusNote');
+    if (note) note.textContent = (!booking && data.profile.booking_mode === 'manual') ? 'Nota: la modalità attiva è "Approvazione manuale", ma le prenotazioni create da qui vengono confermate subito.' : '';
     updateModalMode();
     bookingModal.classList.add('open');
   }
@@ -308,21 +428,25 @@
   bookingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const isReminder = reminderCheckbox.checked;
+    const isBlock = blockCheckbox.checked;
     const time = isReminder ? timeInput.value : selectedSlotTime;
     if (!time) { showToast('Seleziona un orario', 'error'); return; }
     const id = document.getElementById('bookingId').value;
+    const motivo = document.getElementById('bMotivo').value.trim();
     const payload = {
-      customer_name: document.getElementById('bCustomerName').value.trim(),
-      party_size: parseInt(document.getElementById('bPartySize').value, 10) || 1,
-      email: document.getElementById('bEmail').value.trim(),
-      phone: document.getElementById('bPhone').value.trim(),
+      customer_name: isBlock ? (motivo || 'Blocco orario') : document.getElementById('bCustomerName').value.trim(),
+      customer_id: isBlock ? null : (document.getElementById('bookingCustomerId').value || null),
+      party_size: isBlock ? 1 : (parseInt(document.getElementById('bPartySize').value, 10) || 1),
+      email: isBlock ? '' : document.getElementById('bEmail').value.trim(),
+      phone: isBlock ? '' : document.getElementById('bPhone').value.trim(),
       date: document.getElementById('bDate').value,
       time,
-      status: document.getElementById('bStatus').value,
-      notes: document.getElementById('bNotes').value.trim(),
-      table_id: tableSelect.value || null,
-      service_id: isReminder ? null : (serviceSelect.value || null),
+      status: isBlock ? 'confirmed' : document.getElementById('bStatus').value,
+      notes: isBlock ? '' : document.getElementById('bNotes').value.trim(),
+      table_id: isBlock ? null : (tableSelect.value || null),
+      service_id: (isReminder || isBlock) ? null : (serviceSelect.value || null),
       is_reminder: isReminder,
+      is_block: isBlock || undefined,
     };
     if (id) {
       const b = findBooking(id);
@@ -333,12 +457,22 @@
         saveData(data);
       }
       showToast('Prenotazione aggiornata', 'success');
+    } else if (!isBlock && recurrenceCheckbox.checked) {
+      const weeks = parseInt(document.getElementById('bRecurrenceEvery').value, 10) || 1;
+      const count = Math.max(2, Math.min(52, parseInt(document.getElementById('bRecurrenceCount').value, 10) || 4));
+      const [py, pm, pd] = payload.date.split('-').map(Number);
+      for (let i = 0; i < count; i++) {
+        const dateObj = new Date(py, pm - 1, pd + i * weeks * 7);
+        data.bookings.push({ ...payload, id: uid(), date: fmtDate(dateObj), created_at: new Date().toISOString() });
+      }
+      saveData(data);
+      showToast(`${count} appuntamenti creati`, 'success');
     } else {
       payload.id = uid();
       payload.created_at = new Date().toISOString();
       data.bookings.push(payload);
       saveData(data);
-      showToast('Prenotazione creata', 'success');
+      showToast(isBlock ? 'Orario bloccato' : 'Prenotazione creata', 'success');
     }
     bookingModal.classList.remove('open');
     renderAll();
@@ -425,6 +559,11 @@
     renderCalendar();
   });
   document.getElementById('filterStatus').addEventListener('change', renderTable);
+  document.getElementById('searchBooking').addEventListener('input', renderTable);
+  document.getElementById('filterDateInput').addEventListener('change', (e) => {
+    filterDate = e.target.value || null;
+    renderTable();
+  });
 
   document.getElementById('exportCsvBtn').addEventListener('click', () => {
     const status = document.getElementById('filterStatus').value;
@@ -444,5 +583,39 @@
     ]);
   });
 
+  // Auto-link: associa le prenotazioni senza customer_id all'anagrafica se l'email corrisponde
+  if ((data.customers || []).length > 0) {
+    const emailToCustomerId = new Map(
+      data.customers.filter(c => c.email).map(c => [c.email.toLowerCase(), c.id])
+    );
+    let dataModified = false;
+    data.bookings.forEach(b => {
+      if (!b.customer_id && b.email) {
+        const cid = emailToCustomerId.get(b.email.toLowerCase());
+        if (cid) { b.customer_id = cid; dataModified = true; }
+      }
+    });
+    if (dataModified) saveData(data);
+    for (const b of liveBookings) {
+      if (!b.customer_id && b.email) {
+        const cid = emailToCustomerId.get(b.email.toLowerCase());
+        if (cid) {
+          b.customer_id = cid;
+          window.reservoAuth.updateBooking(b.id, { customer_id: cid }).catch(() => {});
+        }
+      }
+    }
+  }
+
   renderAll();
+
+  const _params = new URLSearchParams(window.location.search);
+  const _presetCustomerId = _params.get('customer_id');
+  if (_presetCustomerId) {
+    const _presetCustomer = (data.customers || []).find(c => c.id === _presetCustomerId);
+    if (_presetCustomer) {
+      history.replaceState(null, '', window.location.pathname);
+      openBookingModal(null, null, _presetCustomer);
+    }
+  }
 })();

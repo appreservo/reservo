@@ -25,6 +25,7 @@
           <h2>Anagrafica clienti</h2>
           <div class="flex gap-2">
             <input type="search" id="anagraficaSearch" placeholder="Cerca per nome, cognome, email, telefono o codice fiscale..." style="width:100%; max-width:320px">
+            <button class="btn btn-outline btn-sm" id="exportAnagraficaBtn">Esporta CSV</button>
             <button class="btn btn-primary btn-sm" id="addCustomerBtn">+ Aggiungi cliente</button>
           </div>
         </div>
@@ -97,6 +98,7 @@
     <div id="schedaModalBody"></div>
     <div class="modal-actions">
       <button type="button" class="btn btn-outline" data-close>Chiudi</button>
+      <button type="button" class="btn btn-outline" id="schedaNewBookingBtn">+ Appuntamento</button>
       <button type="button" class="btn btn-primary" id="schedaEditBtn">Modifica anagrafica</button>
     </div>
   </div>

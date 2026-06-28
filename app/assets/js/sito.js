@@ -37,6 +37,8 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   const menuLabel = isRestaurant ? 'Menu' : 'Listino prezzi';
   document.getElementById('navMenuLink').textContent = menuLabel;
   document.getElementById('menuSectionTitle').textContent = menuLabel;
+  document.getElementById('prenotaSectionTitle').innerHTML =
+    (isRestaurant ? 'Prenota un tavolo' : p.type === 'artisan' ? 'Prenota un appuntamento' : 'Prenota una consulenza') + '<span class="underline"></span>';
   document.getElementById('qrDescription').textContent = `Stampa questo QR code e mettilo in vetrina o sui tavoli: i clienti potranno consultare ${isRestaurant ? 'il menu' : 'il listino prezzi'} e prenotare direttamente da smartphone.`;
   let businessUid = business ? business.id : null;
   if (!businessUid) {
@@ -44,10 +46,21 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     businessUid = user ? user.uid : null;
   }
 
+  // ---------- personalizzazione colore / copertina ----------
+  if (p.primary_color) {
+    document.documentElement.style.setProperty('--primary', p.primary_color);
+  }
+  if (p.cover_url) {
+    const hero = document.querySelector('.hero');
+    hero.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.55)), url(' + JSON.stringify(p.cover_url) + ')';
+    hero.style.backgroundSize = 'cover';
+    hero.style.backgroundPosition = 'center';
+  }
+
   // ---------- header / hero / footer ----------
   document.getElementById('brandName').textContent = p.business_name;
   document.getElementById('heroName').textContent = p.business_name;
-  document.getElementById('heroDesc').textContent = p.description || '';
+  document.getElementById('heroDesc').textContent = p.welcome_message || p.description || '';
   document.getElementById('heroAddress').textContent = p.address ? '📍 ' + p.address : '';
   document.getElementById('heroPhone').textContent = p.phone ? '📞 ' + p.phone : '';
   document.getElementById('footerName').textContent = p.business_name;
@@ -64,11 +77,13 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     const todayClosed = data.closures.some(c => c.date === todayStr());
     if (!h || h.closed || todayClosed) return false;
     const cur = now.getHours() * 60 + now.getMinutes();
-    const [oh, om] = h.open.split(':').map(Number);
-    const [ch, cm] = h.close.split(':').map(Number);
-    const open = oh * 60 + om, close = ch * 60 + cm;
-    if (close <= open) return cur >= open || cur < close; // overnight
-    return cur >= open && cur < close;
+    return getIntervals(h).some(iv => {
+      const [oh, om] = iv.open.split(':').map(Number);
+      const [ch, cm] = iv.close.split(':').map(Number);
+      const open = oh * 60 + om, close = ch * 60 + cm;
+      if (close <= open) return cur >= open || cur < close;
+      return cur >= open && cur < close;
+    });
   }
   const isOpen = computeStatus();
   const badge = document.getElementById('statusBadge');
@@ -134,7 +149,7 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   const BOOKING_ADVANCE_DAYS = 30;
 
   const bookingForm = document.getElementById('bookingForm');
-  const bookingState = { step: 1, serviceId: null, partySize: 1, date: '', time: '', coupon: null };
+  const bookingState = { step: 1, serviceId: null, partySize: 1, date: '', time: '' };
 
   function goToStep(step) {
     bookingState.step = step;
@@ -199,17 +214,21 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     const jsDay = date.getDay();
     const ourDay = jsDay === 0 ? 6 : jsDay - 1;
     const hours = data.hours.find(h => h.day === ourDay);
-    if (!hours || hours.closed || !hours.open || !hours.close) return [];
+    if (!hours || hours.closed) return [];
     if (data.closures.some(c => c.date === dateStr)) return [];
 
     const minNotice = new Date(Date.now() + BOOKING_MIN_NOTICE_HOURS * 3600 * 1000);
     const duration = service.duration || 90;
 
-    const [oh, om] = hours.open.split(':').map(Number);
-    const [ch, cm] = hours.close.split(':').map(Number);
-    let openMin = oh * 60 + om;
-    let closeMin = ch * 60 + cm;
-    if (closeMin <= openMin) closeMin += 24 * 60; // overnight
+    const dayIntervals = getIntervals(hours).map(iv => {
+      const [oh, om] = iv.open.split(':').map(Number);
+      const [ch, cm] = iv.close.split(':').map(Number);
+      let openMin = oh * 60 + om;
+      let closeMin = ch * 60 + cm;
+      if (closeMin <= openMin) closeMin += 24 * 60;
+      return { openMin, closeMin };
+    });
+    if (!dayIntervals.length) return [];
 
     function assignedStaffIds(svc) {
       if (!svc) return [];
@@ -264,19 +283,22 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     }
 
     const slots = [];
-    for (let t = openMin; t + duration <= closeMin; t += duration) {
-      const slotStart = new Date(date);
-      slotStart.setMinutes(slotStart.getMinutes() + t);
-      if (slotStart <= minNotice) continue;
-      const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
-      const mm = String(t % 60).padStart(2, '0');
-      const timeStr = `${hh}:${mm}`;
-      const overlapCount = existing.filter(b => {
-        const [bh, bm] = b.time.split(':').map(Number);
-        if (!overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b))) return false;
-        return hasTablesFeature || (!isRestaurant && competesForSameResource(b));
-      }).length;
-      slots.push({ time: timeStr, available: overlapCount < capacity });
+    for (const { openMin, closeMin } of dayIntervals) {
+      for (let t = openMin; t + duration <= closeMin; t += duration) {
+        const slotStart = new Date(date);
+        slotStart.setMinutes(slotStart.getMinutes() + t);
+        if (slotStart <= minNotice) continue;
+        const hh = String(Math.floor(t / 60) % 24).padStart(2, '0');
+        const mm = String(t % 60).padStart(2, '0');
+        const timeStr = `${hh}:${mm}`;
+        if (slots.some(s => s.time === timeStr)) continue;
+        const overlapCount = existing.filter(b => {
+          const [bh, bm] = b.time.split(':').map(Number);
+          if (!overlaps(t, duration, bh * 60 + bm, existingBookingDuration(b))) return false;
+          return hasTablesFeature || (!isRestaurant && competesForSameResource(b));
+        }).length;
+        slots.push({ time: timeStr, available: overlapCount < capacity });
+      }
     }
     return slots;
   }
@@ -323,32 +345,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     `;
   }
 
-  // --- coupon ---
-  function couponDiscountLabel(coupon) {
-    return coupon.type === 'percent' ? `-${coupon.value}%` : `-${euro(coupon.value)}`;
-  }
-
-  document.getElementById('couponBtn').addEventListener('click', () => {
-    const code = document.getElementById('cCoupon').value.trim().toUpperCase();
-    const msg = document.getElementById('couponMessage');
-    if (!code) { msg.textContent = ''; msg.className = 'small'; bookingState.coupon = null; return; }
-    const coupon = (data.coupons || []).find(c => (c.code || '').toUpperCase() === code);
-    const today = todayStr();
-    const valid = coupon && coupon.active !== false
-      && (!coupon.valid_from || coupon.valid_from <= today)
-      && (!coupon.valid_to || coupon.valid_to >= today)
-      && (!coupon.max_uses || (coupon.used_count || 0) < coupon.max_uses);
-    if (!valid) {
-      bookingState.coupon = null;
-      msg.textContent = 'Codice non valido o scaduto.';
-      msg.className = 'small error';
-      return;
-    }
-    bookingState.coupon = coupon;
-    msg.textContent = `Codice applicato: sconto ${couponDiscountLabel(coupon)}.`;
-    msg.className = 'small ok';
-  });
-
   // --- back buttons ---
   bookingForm.querySelectorAll('[data-prev]').forEach(btn => btn.addEventListener('click', () => {
     goToStep(Number(btn.dataset.prev));
@@ -380,17 +376,14 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
       status: p.booking_mode === 'auto' ? 'confirmed' : 'pending',
       created_at: new Date().toISOString(),
     };
-    if (bookingState.coupon) {
-      booking.coupon_code = bookingState.coupon.code;
-      booking.coupon_discount = couponDiscountLabel(bookingState.coupon);
-    }
-
     if (isPublicMode) {
+      const user = await whoAmI();
       await createPublicBooking({
         ...booking,
         businessUid: business.id,
         businessName: p.business_name,
         businessSlug: p.slug,
+        customerUid: user ? user.uid : null,
       });
     } else {
       data.bookings.push(booking);
@@ -407,7 +400,6 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
         <div><strong>${escapeHtml(booking.service_name)}</strong> · ${booking.party_size} ${booking.party_size === 1 ? 'persona' : 'persone'}</div>
         <div>${fmtDateLong(booking.date)} — ore ${booking.time}</div>
         <div>${escapeHtml(booking.customer_name)}</div>
-        ${booking.coupon_code ? `<div>Coupon ${booking.coupon_code} applicato (${booking.coupon_discount})</div>` : ''}
       </div>
       <p class="text-mid small">Conserva il codice prenotazione: ti servirà per cercarla nella sezione "Le mie prenotazioni".</p>
     `;
@@ -417,12 +409,9 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
   document.getElementById('newBookingBtn').addEventListener('click', () => {
     bookingForm.reset();
     document.getElementById('cParty').value = 1;
-    document.getElementById('couponMessage').textContent = '';
-    document.getElementById('couponMessage').className = 'small';
     bookingState.serviceId = null;
     bookingState.date = '';
     bookingState.time = '';
-    bookingState.coupon = null;
     document.getElementById('slotGrid').innerHTML = '';
     document.getElementById('slotMessage').textContent = '';
     document.querySelectorAll('#serviceCards .service-card').forEach(c => c.classList.remove('selected'));
@@ -524,10 +513,16 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     }));
   }
   renderEvents();
+  if (!(data.events || []).some(e => e.date >= todayStr())) {
+    const evNavLink = document.querySelector('a[href="#eventi"]');
+    if (evNavLink) evNavLink.style.display = 'none';
+  }
 
   // ---------- footer hours ----------
-  document.getElementById('hoursTable').innerHTML = data.hours.map(h =>
-    `<div><span>${DAYS[h.day]}</span><span>${h.closed ? 'Chiuso' : h.open + ' - ' + h.close}</span></div>`).join('');
+  document.getElementById('hoursTable').innerHTML = data.hours.map(h => {
+    const timesText = h.closed ? 'Chiuso' : getIntervals(h).map(iv => iv.open + ' – ' + iv.close).join(', ');
+    return `<div><span>${DAYS[h.day]}</span><span>${timesText}</span></div>`;
+  }).join('');
 
   // ---------- QR code ----------
   const qrUrl = location.href.split('#')[0];

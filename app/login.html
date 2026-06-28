@@ -78,17 +78,19 @@
         </div>
       </div>
 
-      <div class="field">
-        <label>Nome attività</label>
-        <input type="text" id="regBusinessName" autocomplete="organization" required>
-      </div>
-      <div class="field">
-        <label>Tipo attività</label>
-        <select id="regBusinessType">
-          <option value="restaurant">Ristorante / Bar</option>
-          <option value="artisan">Artigiano / Estetista</option>
-          <option value="professional">Professionista / Studio</option>
-        </select>
+      <div id="businessFields">
+        <div class="field">
+          <label>Nome attività</label>
+          <input type="text" id="regBusinessName" autocomplete="organization">
+        </div>
+        <div class="field">
+          <label>Tipo attività</label>
+          <select id="regBusinessType">
+            <option value="restaurant">Ristorante / Bar</option>
+            <option value="artisan">Artigiano / Estetista</option>
+            <option value="professional">Professionista / Studio</option>
+          </select>
+        </div>
       </div>
 
       <div id="registerError" class="login-error"></div>
@@ -106,17 +108,19 @@
         <input type="text" id="cpName" autocomplete="name" required>
       </div>
 
-      <div class="field">
-        <label>Nome attività</label>
-        <input type="text" id="cpBusinessName" autocomplete="organization" required>
-      </div>
-      <div class="field">
-        <label>Tipo attività</label>
-        <select id="cpBusinessType">
-          <option value="restaurant">Ristorante / Bar</option>
-          <option value="artisan">Artigiano / Estetista</option>
-          <option value="professional">Professionista / Studio</option>
-        </select>
+      <div id="cpBusinessFields">
+        <div class="field">
+          <label>Nome attività</label>
+          <input type="text" id="cpBusinessName" autocomplete="organization">
+        </div>
+        <div class="field">
+          <label>Tipo attività</label>
+          <select id="cpBusinessType">
+            <option value="restaurant">Ristorante / Bar</option>
+            <option value="artisan">Artigiano / Estetista</option>
+            <option value="professional">Professionista / Studio</option>
+          </select>
+        </div>
       </div>
 
       <div id="completeProfileError" class="login-error"></div>
@@ -248,6 +252,7 @@
   const registerSubmit = document.getElementById('registerSubmit');
   const registerLink = document.getElementById('registerLink');
   const backToLoginFromRegisterLink = document.getElementById('backToLoginFromRegisterLink');
+  const selectedRole = 'gestore';
 
   registerLink.addEventListener('click', (e) => {
     e.preventDefault();
@@ -293,7 +298,7 @@
       registerError.classList.add('show');
       return;
     }
-    if (!businessName) {
+    if (selectedRole === 'gestore' && !businessName) {
       registerError.textContent = 'Inserisci il nome della tua attività.';
       registerError.classList.add('show');
       return;
@@ -305,10 +310,12 @@
     try {
       const cred = await register(email, password);
       const uid = cred.user.uid;
-      const userProfile = {
-        role: 'gestore', name, email, createdAt: serverTimestamp(),
-        businessName, businessType, status: 'pending',
-      };
+      const userProfile = { role: selectedRole, name, email, createdAt: serverTimestamp() };
+      if (selectedRole === 'gestore') {
+        userProfile.businessName = businessName;
+        userProfile.businessType = businessType;
+        userProfile.status = 'pending';
+      }
       await createUserProfile(uid, userProfile);
 
       const slug = slugify(businessName);
@@ -317,7 +324,7 @@
         description: '', address: '', phone: '', email,
         status: 'pending',
       });
-      const seed = emptyData();
+      const seed = defaultData();
       seed.profile.business_name = businessName;
       seed.profile.type = businessType;
       seed.profile.slug = slug;
@@ -337,6 +344,7 @@
   const completeProfileError = document.getElementById('completeProfileError');
   const completeProfileSubmit = document.getElementById('completeProfileSubmit');
   const cpName = document.getElementById('cpName');
+  const cpSelectedRole = 'gestore';
 
   function showCompleteProfile(user) {
     [form, resetForm, registerForm].forEach(f => f.classList.add('hidden'));
@@ -358,7 +366,7 @@
       completeProfileError.classList.add('show');
       return;
     }
-    if (!businessName) {
+    if (cpSelectedRole === 'gestore' && !businessName) {
       completeProfileError.textContent = 'Inserisci il nome della tua attività.';
       completeProfileError.classList.add('show');
       return;
@@ -370,10 +378,12 @@
     try {
       const uid = user.uid;
       const email = user.email || '';
-      const userProfile = {
-        role: 'gestore', name, email, createdAt: serverTimestamp(),
-        businessName, businessType, status: 'pending',
-      };
+      const userProfile = { role: cpSelectedRole, name, email, createdAt: serverTimestamp() };
+      if (cpSelectedRole === 'gestore') {
+        userProfile.businessName = businessName;
+        userProfile.businessType = businessType;
+        userProfile.status = 'pending';
+      }
       await createUserProfile(uid, userProfile);
 
       const slug = slugify(businessName);
@@ -382,7 +392,7 @@
         description: '', address: '', phone: '', email,
         status: 'pending',
       });
-      const seed = emptyData();
+      const seed = defaultData();
       seed.profile.business_name = businessName;
       seed.profile.type = businessType;
       seed.profile.slug = slug;

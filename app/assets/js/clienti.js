@@ -27,9 +27,11 @@
   function bookingsForCustomer(c) {
     const key = (c.email || '').toLowerCase();
     const keyPhone = (c.phone || '').toLowerCase();
-    return customers
-      .filter(bc => (key && (bc.email || '').toLowerCase() === key) || (keyPhone && (bc.phone || '').toLowerCase() === keyPhone))
-      .flatMap(bc => bc.bookings);
+    const allBks = customers.flatMap(bc => bc.bookings);
+    return allBks.filter(b =>
+      b.customer_id === c.id ||
+      (key && (b.email || '').toLowerCase() === key) ||
+      (keyPhone && (b.phone || '').toLowerCase() === keyPhone));
   }
 
   function renderAnagrafica(filter) {
@@ -63,6 +65,7 @@
           <div class="flex gap-2">
             <button class="btn btn-outline btn-sm" data-scheda="${c.id}">Scheda</button>
             <button class="btn btn-outline btn-sm" data-edit-customer="${c.id}">Modifica</button>
+            <button class="btn btn-outline btn-sm" data-new-booking="${c.id}" title="Nuovo appuntamento">+ Appuntamento</button>
           </div>
         </td>
       </tr>`).join('') + `</tbody></table>`;
@@ -72,6 +75,9 @@
     }));
     container.querySelectorAll('[data-edit-customer]').forEach(btn => btn.addEventListener('click', () => {
       openAnagraficaModal(data.customers.find(c => c.id === btn.dataset.editCustomer));
+    }));
+    container.querySelectorAll('[data-new-booking]').forEach(btn => btn.addEventListener('click', () => {
+      window.location.href = 'prenotazioni.html?customer_id=' + btn.dataset.newBooking;
     }));
   }
 
@@ -150,15 +156,24 @@
       </table>
       <h4 style="margin:0 0 .5rem">Storico prenotazioni</h4>
       ${bookings.length === 0 ? '<p class="text-mid small">Nessuna prenotazione registrata per questo cliente.</p>' :
-        `<table><thead><tr><th>Data</th><th>Ora</th><th>Persone</th><th>Stato</th></tr></thead><tbody>` +
-        bookings.map(b => `<tr>
-          <td data-label="Data">${fmtDateShort(b.date)}</td>
-          <td data-label="Ora">${b.time}</td>
-          <td data-label="Persone">${b.party_size}</td>
-          <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
-        </tr>`).join('') + `</tbody></table>`}
+        `<table><thead><tr><th>Data</th><th>Ora</th><th>Servizio</th><th>Persone</th><th>Stato</th><th>Note</th></tr></thead><tbody>` +
+        bookings.map(b => {
+          const svc = (data.services || []).find(s => s.id === b.service_id);
+          const svcName = svc ? svc.name : (b.service_name || '—');
+          return `<tr>
+            <td data-label="Data">${fmtDateShort(b.date)}</td>
+            <td data-label="Ora">${b.time}</td>
+            <td data-label="Servizio" class="small text-mid">${escapeHtml(svcName)}</td>
+            <td data-label="Persone">${b.party_size}</td>
+            <td data-label="Stato"><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></td>
+            <td data-label="Note" class="small text-mid">${escapeHtml(b.notes || '')}</td>
+          </tr>`;
+        }).join('') + `</tbody></table>`}
     `;
     document.getElementById('schedaEditBtn').onclick = () => openAnagraficaModal(customer);
+    document.getElementById('schedaNewBookingBtn').onclick = () => {
+      window.location.href = 'prenotazioni.html?customer_id=' + customer.id;
+    };
     document.getElementById('schedaModal').classList.add('open');
   }
 
@@ -228,6 +243,22 @@
   }));
 
   document.getElementById('searchInput').addEventListener('input', (e) => render(e.target.value));
+
+  document.getElementById('exportAnagraficaBtn').addEventListener('click', () => {
+    const sorted = data.customers.slice().sort((a, b) => fullName(a).localeCompare(fullName(b)));
+    exportCSV('anagrafica.csv', sorted, [
+      { label: 'Nome', value: 'name' },
+      { label: 'Cognome', value: 'surname' },
+      { label: 'Email', value: 'email' },
+      { label: 'Telefono', value: 'phone' },
+      { label: 'Data di nascita', value: 'birth_date' },
+      { label: 'Codice fiscale', value: 'fiscal_code' },
+      { label: 'Indirizzo', value: 'address' },
+      { label: 'Città', value: 'city' },
+      { label: 'Provincia', value: 'province' },
+      { label: 'Note', value: 'notes' },
+    ]);
+  });
 
   document.getElementById('exportCsvBtn').addEventListener('click', () => {
     exportCSV('clienti.csv', customers, [

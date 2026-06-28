@@ -14,76 +14,78 @@
 </script>
 </head>
 <body>
-<div class="app-shell">
-  <aside class="sidebar" id="sidebar"></aside>
-  <div class="main">
-    <header class="topbar" id="topbar"></header>
-    <main class="content">
-
-      <div class="tab-content active" id="tab-dashboard">
-        <div class="grid grid-4 mb-3">
-          <div class="card stat-card">
-            <div class="stat-label">Attività attive</div>
-            <div class="stat-value" id="statActive">0</div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-label">In attesa di approvazione</div>
-            <div class="stat-value" id="statPendingCount">0</div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-label">Rifiutate</div>
-            <div class="stat-value" id="statRejected">0</div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-label">Prenotazioni totali (sito)</div>
-            <div class="stat-value" id="statBookings">0</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h2>Crescita registrazioni attività</h2>
-            <select id="growthPeriodFilter">
-              <option value="week">Settimana</option>
-              <option value="month" selected>Mese</option>
-              <option value="year">Anno</option>
-            </select>
-          </div>
-          <canvas id="growthChart" height="70"></canvas>
-        </div>
-      </div>
-
-      <div class="tab-content" id="tab-attivita">
-        <div class="card mb-3">
-          <div class="card-header">
-            <h2>Richieste di registrazione in attesa</h2>
-          </div>
-          <div id="pendingTable" class="responsive-table"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h2>Attività registrate</h2>
-            <div class="flex gap-2">
-              <input type="search" id="businessSearch" placeholder="Cerca per nome o email…">
-              <select id="businessStatusFilter">
-                <option value="">Tutti gli stati</option>
-                <option value="active">Attive</option>
-                <option value="pending">In attesa</option>
-                <option value="rejected">Rifiutate</option>
-              </select>
-            </div>
-          </div>
-          <div id="businessTable"></div>
-        </div>
-      </div>
-
-    </main>
+<header class="topbar">
+  <div class="topbar-brand">
+    <img src="assets/img/logo.png" alt="Reservo">
+    <span class="topbar-brand-text">
+      <span class="topbar-brand-name">Reservo · Admin</span>
+      <span class="js-user-name"></span>
+    </span>
   </div>
-</div>
+  <div class="topbar-actions">
+    <button class="btn btn-outline btn-sm" id="logoutBtn">Esci</button>
+  </div>
+</header>
+<main class="content">
+
+  <div class="grid grid-4 mb-3">
+    <div class="card stat-card">
+      <div class="stat-label">Attività attive</div>
+      <div class="stat-value" id="statActive">0</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-label">In attesa di approvazione</div>
+      <div class="stat-value" id="statPendingCount">0</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-label">Rifiutate</div>
+      <div class="stat-value" id="statRejected">0</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-label">Prenotazioni totali (sito)</div>
+      <div class="stat-value" id="statBookings">0</div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <h2>Crescita registrazioni attività</h2>
+      <select id="growthPeriodFilter">
+        <option value="week">Settimana</option>
+        <option value="month" selected>Mese</option>
+        <option value="year">Anno</option>
+      </select>
+    </div>
+    <canvas id="growthChart" height="70"></canvas>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <h2>Richieste di registrazione in attesa</h2>
+    </div>
+    <div id="pendingTable" class="responsive-table"></div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <h2>Attività registrate</h2>
+      <div class="flex gap-2">
+        <input type="search" id="businessSearch" placeholder="Cerca per nome o email…">
+        <select id="businessStatusFilter">
+          <option value="">Tutti gli stati</option>
+          <option value="active">Attive</option>
+          <option value="pending">In attesa</option>
+          <option value="rejected">Rifiutate</option>
+        </select>
+      </div>
+    </div>
+    <div id="businessTable"></div>
+  </div>
+
+
+</main>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="assets/js/db.js"></script>
-<script src="assets/js/layout.js"></script>
 <script src="assets/js/admin.js"></script>
 <script type="module" src="assets/js/feedback-widget.js"></script>
 </body>

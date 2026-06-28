@@ -23,12 +23,15 @@
       <div class="card mb-3">
         <div class="card-header">
           <h2>Andamento prenotazioni</h2>
+          <div class="flex gap-2">
+          <select id="serviceFilterSelect" style="width:auto"><option value="">Tutti i servizi</option></select>
           <select id="rangeSelect" style="width:auto">
             <option value="7">Ultimi 7 giorni</option>
             <option value="30" selected>Ultimi 30 giorni</option>
             <option value="90">Ultimi 90 giorni</option>
             <option value="365">Ultimo anno</option>
           </select>
+          </div>
         </div>
         <canvas id="trendChart" height="90"></canvas>
       </div>

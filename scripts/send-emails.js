@@ -1,5 +1,5 @@
-/* Processa la "coda" di notifiche email: prenotazioni nuove/aggiornate,
- * approvazione/rifiuto gestori, comunicazioni broadcast.
+/* Processa la "coda" di notifiche email: esiti prenotazioni (solo su richiesta
+ * esplicita del gestore) e comunicazioni broadcast.
  * Pensato per essere eseguito periodicamente via GitHub Actions. */
 const { initDb } = require('./lib/firebase');
 const { sendEmail, fmtDate, escapeHtml } = require('./lib/email');
@@ -17,99 +17,41 @@ async function getBusinessName(db, businessUid, cache) {
   return name;
 }
 
-async function processNewBookings(db, businessNameCache) {
-  const snap = await db.collection('bookings').where('notified', '==', false).get();
-  for (const doc of snap.docs) {
-    const booking = doc.data();
-    if (booking.email) {
-      const businessName = escapeHtml(await getBusinessName(db, booking.businessUid, businessNameCache));
-      const statusLabel = booking.status === 'confirmed' ? 'confermata' : 'in attesa di conferma';
-      await sendEmail({
-        to: booking.email,
-        subject: `Prenotazione ricevuta - ${businessName}`,
-        html: `
-          <p>Ciao ${escapeHtml(booking.customer_name)},</p>
-          <p>Abbiamo ricevuto la tua richiesta di prenotazione presso <strong>${businessName}</strong>.</p>
-          <ul>
-            <li>Data: ${fmtDate(booking.date)}</li>
-            <li>Ora: ${escapeHtml(booking.time)}</li>
-            <li>Persone: ${escapeHtml(booking.party_size)}</li>
-          </ul>
-          <p>Stato attuale: <strong>${statusLabel}</strong>. Ti aggiorneremo non appena verrà confermata.</p>
-          <p>Grazie, il team di ${businessName}</p>
-        `,
-      });
-    }
-    await doc.ref.update({ notified: true });
-  }
-  console.log(`Prenotazioni nuove notificate: ${snap.size}`);
-}
-
-async function processBookingStatusChanges(db, businessNameCache) {
-  const snap = await db.collection('bookings')
-    .where('status', 'in', ['confirmed', 'rejected'])
-    .get();
+/* Invia l'email di esito (conferma o rifiuto) solo alle prenotazioni
+ * per cui il gestore ha esplicitamente cliccato "Notifica via email". */
+async function processNotifyRequested(db, businessNameCache) {
+  const snap = await db.collection('bookings').where('notify_requested', '==', true).get();
   let count = 0;
   for (const doc of snap.docs) {
     const booking = doc.data();
-    if (booking.status_notified === booking.status) continue;
-    if (booking.email) {
-      const businessName = escapeHtml(await getBusinessName(db, booking.businessUid, businessNameCache));
-      const isConfirmed = booking.status === 'confirmed';
-      const time = escapeHtml(booking.time);
-      await sendEmail({
-        to: booking.email,
-        subject: `Prenotazione ${isConfirmed ? 'confermata' : 'non disponibile'} - ${businessName}`,
-        html: `
-          <p>Ciao ${escapeHtml(booking.customer_name)},</p>
-          <p>${isConfirmed
-            ? `La tua prenotazione presso <strong>${businessName}</strong> per il ${fmtDate(booking.date)} alle ${time} è stata <strong>confermata</strong>.`
-            : `Siamo spiacenti, la tua richiesta di prenotazione presso <strong>${businessName}</strong> per il ${fmtDate(booking.date)} alle ${time} non può essere accettata.`}</p>
-          <p>Grazie, il team di ${businessName}</p>
-        `,
-      });
+    if (!booking.email) {
+      await doc.ref.update({ notify_requested: false });
+      continue;
     }
-    await doc.ref.update({ status_notified: booking.status });
+    const businessName = escapeHtml(await getBusinessName(db, booking.businessUid, businessNameCache));
+    const isConfirmed = booking.status === 'confirmed';
+    const reason = booking.rejection_reason;
+    await sendEmail({
+      to: booking.email,
+      subject: `Prenotazione ${isConfirmed ? 'confermata' : 'non disponibile'} - ${businessName}`,
+      html: `
+        <p>Ciao ${escapeHtml(booking.customer_name)},</p>
+        <p>${isConfirmed
+          ? `La tua prenotazione presso <strong>${businessName}</strong> è stata <strong>confermata</strong>.`
+          : `Siamo spiacenti, la tua richiesta di prenotazione presso <strong>${businessName}</strong> non può essere accettata.`}</p>
+        <ul>
+          <li>Data: ${fmtDate(booking.date)}</li>
+          <li>Ora: ${escapeHtml(booking.time)}</li>
+          <li>Persone: ${escapeHtml(String(booking.party_size))}</li>
+        </ul>
+        ${!isConfirmed && reason ? `<p>Motivazione: ${escapeHtml(reason)}</p>` : ''}
+        <p>Grazie, il team di ${businessName}</p>
+      `,
+    });
+    await doc.ref.update({ notify_requested: false, status_notified: booking.status });
     count++;
   }
-  console.log(`Cambi di stato prenotazione notificati: ${count}`);
-}
-
-async function processGestoreStatusChanges(db) {
-  const snap = await db.collection('users')
-    .where('role', '==', 'gestore')
-    .where('status', 'in', ['active', 'rejected'])
-    .get();
-  let count = 0;
-  for (const doc of snap.docs) {
-    const user = doc.data();
-    if (user.approval_notified === user.status) continue;
-    if (user.email) {
-      const isApproved = user.status === 'active';
-      const name = escapeHtml(user.name);
-      const businessName = escapeHtml(user.businessName || 'la tua attività');
-      await sendEmail({
-        to: user.email,
-        subject: isApproved ? 'La tua attività è stata approvata - Reservo' : 'Aggiornamento sulla tua richiesta - Reservo',
-        html: isApproved
-          ? `
-            <p>Ciao ${name},</p>
-            <p>Buone notizie! La registrazione di <strong>${businessName}</strong> su Reservo è stata <strong>approvata</strong>.</p>
-            <p>Puoi accedere al gestionale per iniziare a configurare il tuo profilo.</p>
-            <p>Grazie, il team di Reservo</p>
-          `
-          : `
-            <p>Ciao ${name},</p>
-            <p>Siamo spiacenti, la richiesta di registrazione di <strong>${businessName}</strong> su Reservo non è stata accettata.</p>
-            <p>Per maggiori informazioni puoi contattare il nostro supporto.</p>
-            <p>Grazie, il team di Reservo</p>
-          `,
-      });
-    }
-    await doc.ref.update({ approval_notified: user.status });
-    count++;
-  }
-  console.log(`Approvazioni/rifiuti gestore notificati: ${count}`);
+  console.log(`Notifiche esito prenotazione inviate: ${count}`);
 }
 
 async function processBroadcasts(db, businessNameCache) {
@@ -150,9 +92,7 @@ async function processBroadcasts(db, businessNameCache) {
 (async () => {
   const db = initDb();
   const businessNameCache = new Map();
-  await processNewBookings(db, businessNameCache);
-  await processBookingStatusChanges(db, businessNameCache);
-  await processGestoreStatusChanges(db);
+  await processNotifyRequested(db, businessNameCache);
   await processBroadcasts(db, businessNameCache);
 })().catch(err => {
   console.error(err);

@@ -76,6 +76,25 @@
       </tr>`).join('') + `</tbody></table>`;
   }
 
+  // agenda giornaliera
+  const agendaToday = validBookings.filter(b => b.date === today && !b.is_block).sort((a, b) => a.time.localeCompare(b.time));
+  const agendaList = document.getElementById('agendaList');
+  if (agendaToday.length === 0) {
+    agendaList.innerHTML = `<div class="empty-state"><p>Nessun appuntamento per oggi.</p></div>`;
+  } else {
+    agendaList.innerHTML = agendaToday.map(b => {
+      const svc = (data.services || []).find(s => s.id === b.service_id);
+      return `<div style="display:flex; align-items:flex-start; gap:1rem; padding:.6rem 0; border-bottom:1px solid var(--border)">
+        <div style="min-width:48px; font-weight:800; color:var(--navy); font-size:1rem">${b.time}</div>
+        <div style="flex:1">
+          <div style="font-weight:700">${escapeHtml(b.customer_name)}</div>
+          <div class="small text-mid">${svc ? escapeHtml(svc.name) + ' · ' : ''}${b.party_size} pers.${b.notes ? ' · ' + escapeHtml(b.notes) : ''}</div>
+        </div>
+        <div><span class="badge badge-${b.status}">${statusLabel(b.status)}</span></div>
+      </div>`;
+    }).join('');
+  }
+
   // summary
   document.getElementById('sumName').textContent = data.profile.business_name;
   document.getElementById('sumType').textContent = typeLabel(data.profile.type);
@@ -84,6 +103,8 @@
   document.getElementById('sumMenuLabel').textContent = isRestaurant ? 'Voci menu' : 'Voci listino';
   document.getElementById('sumMenu').textContent = data.menu.length + ' voci';
   document.getElementById('sumEvents').textContent = data.events.filter(e => e.date >= today).length;
+  const hasEventsFeature = isRestaurant && !((data.profile.hidden_features || []).includes('events'));
+  document.getElementById('sumEventsRow').style.display = hasEventsFeature ? '' : 'none';
   document.getElementById('sumStaff').textContent = data.staff.length + ' persone';
 
   fillIcons();

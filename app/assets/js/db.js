@@ -44,6 +44,13 @@ function statusLabel(s) {
 function typeLabel(t) {
   return { restaurant: 'Ristorante / Bar', artisan: 'Artigiano / Estetista', professional: 'Professionista / Studio' }[t] || t;
 }
+/* Restituisce gli intervalli orari di un giorno, gestendo sia il nuovo formato
+ * {slots:[{open,close},...]} sia il vecchio {open,close} per retrocompatibilità. */
+function getIntervals(h) {
+  if (h.slots && h.slots.length) return h.slots;
+  if (h.open || h.close) return [{ open: h.open || '09:00', close: h.close || '18:00' }];
+  return [{ open: '09:00', close: '18:00' }];
+}
 
 /* funzionalità opzionali nascoste di default in base al tipo di attività, per i nuovi account */
 function defaultHiddenFeatures(type) {
@@ -74,7 +81,6 @@ function emptyData(profile) {
       hidden_features: defaultHiddenFeatures(type),
       hidden_fields: defaultHiddenFields(type),
     },
-    coupons: [],
     hours: [
       { day: 0, open: '09:00', close: '18:00', closed: false },
       { day: 1, open: '09:00', close: '18:00', closed: false },
@@ -111,9 +117,6 @@ function demoData() {
       booking_mode: 'manual',
       notification_emails: 'info@damario.it',
     },
-    coupons: [
-      { id: uid(), code: 'BENVENUTO10', type: 'percent', value: 10, valid_from: '', valid_to: '', max_uses: 0, used_count: 0, active: true },
-    ],
     hours: [
       { day: 0, open: '12:00', close: '22:30', closed: false },
       { day: 1, open: '12:00', close: '22:30', closed: false },
@@ -229,9 +232,6 @@ function buildPublicData(data) {
     bookings: (data.bookings || [])
       .filter(b => b.status === 'confirmed' || b.status === 'pending')
       .map(b => ({ date: b.date, time: b.time, status: b.status, service_id: b.service_id || null })),
-    coupons: (data.coupons || [])
-      .filter(c => c.active && (!c.valid_to || c.valid_to >= todayStr()))
-      .map(c => ({ code: c.code, type: c.type, value: c.value, valid_from: c.valid_from, valid_to: c.valid_to, max_uses: c.max_uses, used_count: c.used_count })),
   };
 }
 
@@ -282,7 +282,6 @@ async function clearAllData() {
   data.bookings = [];
   data.events = [];
   data.closures = [];
-  data.coupons = [];
   data.services = [];
   data.tables = [];
   data.staff = [];
@@ -336,16 +335,6 @@ function exportCSV(filename, rows, columns) {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
-}
-
-/* render di stelle (rating 1-5), readOnly=true per visualizzazione */
-function starsHtml(rating, readOnly = true, name = 'rating') {
-  const r = Math.round(rating || 0);
-  if (readOnly) {
-    return `<span class="stars">${[1,2,3,4,5].map(i => `<span class="star ${i <= r ? 'filled' : ''}">★</span>`).join('')}</span>`;
-  }
-  return `<span class="stars stars-input" data-name="${name}">${[1,2,3,4,5].map(i =>
-    `<span class="star ${i <= r ? 'filled' : ''}" data-value="${i}">★</span>`).join('')}</span>`;
 }
 
 /* toast helper */

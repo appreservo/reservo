@@ -1,14 +1,61 @@
 # Changelog
 
-## 2026-06-28
-- `layout.js`, `admin.js`: rimosso il blocco logo + scritta "Reservo" dalla sidebar; logo e nome rimangono solo nella topbar (navbar). Rimossi anche i CSS `.sidebar-brand` diventati inutilizzati.
+## 2026-06-28 (3)
+- `layout.js`: rimosso il blocco logo + scritta "Reservo" dalla sidebar; logo e nome rimangono solo nella topbar (navbar). Rimossi anche i CSS `.sidebar-brand` diventati inutilizzati.
 
-## 2026-06-25 (2) (Rimozione account cliente, recensioni e fedeltà)
-- Rimossa la registrazione/login dei clienti finali: da ora i clienti prenotano solo come ospiti (nessun account, nessuna "area cliente"). La registrazione su `login.html` crea sempre un account attività; rimossi `area.html`/`area.js`.
-- Rimosse le **recensioni** (`recensioni.html`/`recensioni.js`, sezione "Moderazione recensioni" in `admin.html`, sezione recensioni del sito pubblico) e il **programma fedeltà** (tab "Fedeltà" in Impostazioni): entrambe le funzionalità erano ancorate a un account cliente persistente e non avevano senso senza di esso.
-- `firestore.rules`: rimosse le regole della collezione `reviews`; semplificate le regole di `bookings` (lettura/aggiornamento solo per l'attività proprietaria o l'admin, non più per un `customerUid` che non esiste più).
-- `admin.html`: aggiunta una sidebar in stile gestionale con due sezioni (Dashboard, Attività), al posto dell'unica pagina lunga; rimossa anche la sezione "Clienti registrati" (account cliente non esistono più).
-- Corretto un bug preesistente in `login.html`: la registrazione chiamava una funzione `defaultData()` inesistente (doveva essere `emptyData()`), che avrebbe sempre fatto fallire la creazione di un nuovo account attività.
+## 2026-06-28 (2) (Nuove funzionalità: ricerca, blocchi, ricorrenti, agenda, statistiche, export)
+
+**Prenotazioni:**
+- `prenotazioni.html`/`prenotazioni.js`: ricerca testuale nella tabella prenotazioni (nome, email, telefono).
+- `prenotazioni.html`/`prenotazioni.js`: autocomplete nome cliente nel form admin — se si seleziona un cliente dall'anagrafica, email/telefono/customer_id vengono precompilati automaticamente.
+- `prenotazioni.html`/`prenotazioni.js`: blocchi orario manuali — checkbox "Blocca orario" nel form, crea una voce che occupa lo slot senza essere una prenotazione cliente; visibile nel calendario con indicatore ⊘ e badge "Blocco" in tabella.
+- `prenotazioni.html`/`prenotazioni.js`: prenotazioni ricorrenti — checkbox "Ripeti appuntamento" permette di creare N copie dello stesso appuntamento con cadenza settimanale/bisettimanale/mensile.
+- `prenotazioni.js`: auto-link — al caricamento della pagina, le prenotazioni senza `customer_id` vengono collegate automaticamente all'anagrafica se l'email corrisponde (sia prenotazioni admin che da sito pubblico via Firestore).
+
+**Clienti:**
+- `clienti.html`/`clienti.js`: export CSV completo dell'anagrafica clienti con tutti i campi (nome, cognome, email, telefono, data di nascita, CF, indirizzo, città, provincia, note).
+
+**Dashboard:**
+- `index.html`/`dashboard.js`: nuova card "Agenda di oggi" con gli appuntamenti del giorno in ordine cronologico (ora, cliente, servizio, persone, stato).
+
+**Statistiche:**
+- `statistiche.html`/`statistiche.js`: filtro per servizio — tutti i grafici e KPI si aggiornano in base al servizio selezionato.
+
+**Eventi:**
+- `eventi.js`: controllo capienza nella scheda iscritti — avviso se si supera il numero massimo di partecipanti.
+- `eventi.html`/`eventi.js`: esportazione CSV degli iscritti (confermati + lista d'attesa) per ogni evento.
+
+**Impostazioni:**
+- `impostazioni.html`/`impostazioni.js`: esportazione backup completo dei dati in formato JSON scaricabile.
+- `impostazioni.js`: rimosso residuo 'coupon' dalla lista dei tab validi.
+
+## 2026-06-28 (Bug fix, UX e rimozione coupon)
+
+**Bug fix:**
+- `sito.html`/`sito.js`: il titolo della sezione prenotazione era hardcoded "Prenota un tavolo" per tutti i tenant; ora è "Prenota un tavolo" (ristorante), "Prenota un appuntamento" (artigiano) o "Prenota una consulenza" (professionista).
+- `prenotazioni.html`/`prenotazioni.js`: aggiunto input data accanto al filtro stato per filtrare le prenotazioni per giorno (la variabile `filterDate` esisteva già ma non aveva controllo UI).
+- `prenotazioni.js`: la durata di fallback per le prenotazioni esistenti senza servizio associato ora usa `candidateDuration` (coerente con `sito.js`) invece di 30 min fissi — risolve lo sfasamento di slot tra sito pubblico e admin.
+- `impostazioni.js`: `updateTabsVisibility()` ora legge lo stato live delle checkbox invece dei `hidden_features` caricati all'avvio, evitando tab visibili erroneamente dopo modifiche non salvate.
+- `index.html`/`dashboard.js`: la voce "Eventi in programma" nel riepilogo dashboard ora si nasconde per attività non-ristorante o con la funzionalità eventi disattivata.
+
+**UX:**
+- `prenotazioni.html`/`prenotazioni.js`: aggiunta nota informativa sotto il campo "Stato" quando si crea una nuova prenotazione in modalità "Approvazione manuale".
+- `clienti.js`: lo storico prenotazioni nella scheda anagrafica mostra ora anche il servizio e le note (prima solo data, ora, persone, stato).
+- `menu.js`: il bottone "Nuova voce" si adatta al tipo: "+ Nuova voce menu" (ristorante) o "+ Nuova prestazione" (artigiano/professionista).
+- `sito.js`: il link "Eventi" nella nav del sito pubblico si nasconde quando non ci sono eventi in programma.
+
+**Rimozione coupon:**
+- Rimossi completamente i coupon da tutto il codebase: tab Impostazioni, voce di menu laterale, form prenotazione sito pubblico, strutture dati (`db.js`), logica di validazione (`sito.js`). La funzionalità era opzionale e non più necessaria.
+
+## 2026-06-27 (2) (Placeholder form contestuali per tipo di tenant)
+- `menu.js`: il placeholder del campo "Categoria" nella modale voce menu/listino ora varia per tipo di attività: "es. Antipasti" per ristoranti, "es. Trattamenti viso" per artigiani/estetisti, "es. Consulenze" per professionisti.
+- `impostazioni.html`/`impostazioni.js`: il placeholder "foto-locale.jpg" nell'URL copertina è ora generico ("copertina.jpg"); il messaggio di benvenuto cambia tra "nel nostro locale" (ristorante), "nel nostro salone" (artigiano) e "nel nostro studio" (professionista).
+- `comunicazioni.js`: il placeholder dell'oggetto comunicazione passa da "Novità nel nostro menù" a testi specifici per artigiani ("Nuovi servizi disponibili") e professionisti ("Aggiornamento orari").
+
+## 2026-06-27 (Collegamento anagrafica cliente → appuntamento)
+- `clienti.html`/`clienti.js`: aggiunto il bottone "+ Appuntamento" su ogni riga dell'anagrafica clienti e nella scheda cliente; cliccando si viene portati direttamente alla pagina Prenotazioni con il form già aperto e i campi nome, email e telefono precompilati con i dati di quel cliente.
+- `prenotazioni.html`/`prenotazioni.js`: la modale di nuova prenotazione ora accetta un cliente preimpostato (passato tramite URL param `?customer_id=`); la prenotazione salvata include il campo `customer_id` che lega in modo permanente l'appuntamento all'anagrafica, superando il collegamento fragile basato solo su email/telefono.
+- `clienti.js`: lo storico prenotazioni nella scheda cliente ora ricerca per `customer_id` oltre che per email/telefono, mantenendo la retrocompatibilità con le prenotazioni precedenti prive di questo campo.
 
 ## 2026-06-25
 - `prenotazioni.js`/`sito.js`: corretto un bug per cui il limite di capacità sulle prenotazioni sovrapposte pensato per le attività non-ristorante (basato sullo staff) veniva applicato per errore anche ai ristoranti con la funzionalità Tavoli disattivata, impedendo loro di accavallare le prenotazioni. Ora per questi ristoranti non c'è alcun limite di capacità; resta invece inalterato il limite basato sul numero di tavoli quando la funzionalità è attiva.
