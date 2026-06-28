@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy policy · Reservo</title>
+<link rel="icon" href="assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/public.css">
+<style>
+.privacy-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+.privacy-page h1 {
+  font-size: 1.7rem;
+  margin-bottom: .25rem;
+}
+.privacy-page .subtitle {
+  color: var(--text-mid);
+  font-size: .9rem;
+  margin-bottom: 2rem;
+}
+.privacy-page h2 {
+  font-size: 1.05rem;
+  margin: 2rem 0 .4rem;
+  color: var(--primary);
+}
+.privacy-page p, .privacy-page ul {
+  font-size: .93rem;
+  line-height: 1.7;
+  color: var(--text-dark);
+  margin: 0 0 .5rem;
+}
+.privacy-page ul {
+  padding-left: 1.4rem;
+}
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-size: .88rem;
+  color: var(--text-mid);
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+
+<div class="privacy-page">
+  <a class="back-link" id="backLink" href="sito.html">← Torna al sito</a>
+  <h1>Privacy policy</h1>
+  <p class="subtitle">Informativa ai sensi degli artt. 13-14 del Regolamento UE 2016/679 (GDPR)</p>
+
+  <h2>Titolare del trattamento</h2>
+  <p id="titolare">—</p>
+
+  <h2>Dati raccolti</h2>
+  <p>Quando effettui una prenotazione raccogliamo:</p>
+  <ul>
+    <li>nome e cognome</li>
+    <li>indirizzo email</li>
+    <li>numero di telefono</li>
+    <li>eventuali note inserite liberamente</li>
+  </ul>
+
+  <h2>Finalità e base giuridica</h2>
+  <p>I dati sono trattati esclusivamente per gestire la tua prenotazione e comunicarti eventuali variazioni (conferma, modifica, cancellazione). La base giuridica è l'esecuzione di un contratto di cui sei parte (art. 6.1.b GDPR).</p>
+
+  <h2>Conservazione</h2>
+  <p>I dati vengono conservati per il tempo strettamente necessario alla gestione delle prenotazioni, e comunque non oltre 12 mesi dalla data dell'appuntamento.</p>
+
+  <h2>Terzi e trasferimenti</h2>
+  <p>I dati sono memorizzati su Firebase (Google LLC), che agisce come responsabile del trattamento con garanzie adeguate ai sensi del GDPR (Standard Contractual Clauses). Non vengono ceduti ad altri soggetti né utilizzati per scopi di marketing.</p>
+
+  <h2>I tuoi diritti</h2>
+  <p>Puoi esercitare in qualsiasi momento i diritti di accesso, rettifica, cancellazione e portabilità dei tuoi dati scrivendo a: <a id="contactEmail" href="#">—</a></p>
+  <p>Hai inoltre il diritto di proporre reclamo all'Autorità Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">garanteprivacy.it</a>).</p>
+</div>
+
+<footer class="site-footer" style="margin-top:0">
+  <div id="footerName" class="accent" style="font-size:1.1rem"></div>
+</footer>
+
+<script src="assets/js/db.js"></script>
+<script type="module">
+import { getBusinessBySlug, getPublicBusinessData } from './assets/js/auth.js';
+
+(async function () {
+  const slug = new URLSearchParams(location.search).get('b');
+  let name = '', email = '';
+
+  if (slug) {
+    try {
+      const biz = await getBusinessBySlug(slug);
+      const data = biz && await getPublicBusinessData(biz.id);
+      if (data && data.profile) {
+        name = data.profile.business_name || '';
+        email = data.profile.email || '';
+      }
+    } catch (_) {}
+    document.getElementById('backLink').href = 'sito.html?b=' + encodeURIComponent(slug);
+  }
+
+  document.getElementById('titolare').textContent = name || 'Il gestore dell\'attività';
+  document.getElementById('footerName').textContent = name;
+
+  const emailEl = document.getElementById('contactEmail');
+  if (email) {
+    emailEl.textContent = email;
+    emailEl.href = 'mailto:' + email;
+  } else {
+    emailEl.textContent = 'il gestore dell\'attività';
+    emailEl.removeAttribute('href');
+  }
+})();
+</script>
+</body>
+</html>

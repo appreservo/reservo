@@ -42,6 +42,11 @@ import { getBusinessBySlug, getPublicBusinessData, createPublicBooking, getBusin
     businessUid = user ? user.uid : null;
   }
 
+  // ---------- link privacy policy ----------
+  const privacyHref = 'privacy.html' + location.search;
+  document.getElementById('privacyLinkForm').href = privacyHref;
+  document.getElementById('privacyLinkFooter').href = privacyHref;
+
   // ---------- personalizzazione colore / copertina ----------
   if (p.primary_color) {
     document.documentElement.style.setProperty('--primary', p.primary_color);

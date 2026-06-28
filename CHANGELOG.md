@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-28 (5)
+- `privacy.html`: nuova pagina privacy policy pubblica — carica dinamicamente nome e email dell'attività dal profilo (`?b=slug`).
+- `sito.html`: aggiunta nota privacy sotto il pulsante "Conferma prenotazione" e link "Privacy policy" nel footer.
+- `sito.js`: i link alla privacy vengono aggiornati con il parametro slug corrente.
+- `public.css`: aggiunto stile `.privacy-note`.
+
 ## 2026-06-28 (4)
 - `qr.html` / `qr.js`: nuova pagina admin dedicata al QR Code — mostra il QR che punta al sito pubblico (`sito.html?b=slug`), con pulsanti "Scarica PNG" e "Stampa".
 - `layout.js`: voce "QR Code" in sidebar ora punta a `qr.html` invece di aprire `sito.html` in un nuovo tab.
